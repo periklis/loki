@@ -16,6 +16,7 @@ type Options struct {
 	GatewayImage      string
 	GatewayBaseDomain string
 	ConfigSHA1        string
+	RulesSHA1         string
 
 	Flags FeatureFlags
 

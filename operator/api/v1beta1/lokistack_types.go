@@ -305,6 +305,13 @@ type LokiTemplateSpec struct {
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Index Gateway pods"
 	IndexGateway *LokiComponentSpec `json:"indexGateway,omitempty"`
+
+	// Ruler defines the ruler component spec.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Ruler pods"
+	Ruler *LokiComponentSpec `json:"ruler,omitempty"`
 }
 
 // ObjectStorageSecretType defines the type of storage which can be used with the Loki cluster.
@@ -516,6 +523,13 @@ type LokiStackSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:number",displayName="Replication Factor"
 	ReplicationFactor int32 `json:"replicationFactor"`
 
+	// EnableRuler defines a flag to enable/disable the ruler component
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:booleanSwitch",displayName="Enable Ruler"
+	EnableRuler bool `json:"enableRuler"`
+
 	// Limits defines the limits to be applied to log stream processing.
 	//
 	// +optional
@@ -639,6 +653,13 @@ type LokiStackComponentStatus struct {
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses",displayName="Gateway",order=5
 	Gateway PodStatusMap `json:"gateway,omitempty"`
+
+	// Ruler is a map to the per pod status of the lokistack ruler statefulset.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:com.tectonic.ui:podStatuses",displayName="Ruler",order=6
+	Ruler PodStatusMap `json:"ruler,omitempty"`
 }
 
 // LokiStackStatus defines the observed state of LokiStack

@@ -58,6 +58,15 @@ func BuildAll(opts Options) ([]client.Object, error) {
 	res = append(res, indexGatewayObjs...)
 	res = append(res, BuildLokiGossipRingService(opts.Name))
 
+	if opts.Stack.EnableRuler && opts.RulesSHA1 != "" {
+		rulerObjs, err := BuildRuler(opts)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, rulerObjs...)
+	}
+
 	if opts.Flags.EnableGateway {
 		gatewayObjects, err := BuildGateway(opts)
 		if err != nil {

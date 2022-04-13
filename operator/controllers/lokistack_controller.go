@@ -24,8 +24,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	lokiv1beta1 "github.com/grafana/loki/operator/api/v1beta1"
 )
@@ -145,6 +147,11 @@ func (r *LokiStackReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 // SetupWithManager sets up the controller with the Manager.
 func (r *LokiStackReconciler) SetupWithManager(mgr manager.Manager) error {
 	b := ctrl.NewControllerManagedBy(mgr)
+	b.Watches(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestForOwner{
+		OwnerType:    &lokiv1beta1.LokiRule{},
+		IsController: true,
+	})
+
 	return r.buildController(k8s.NewCtrlBuilder(b))
 }
 
@@ -173,3 +180,8 @@ func (r *LokiStackReconciler) buildController(bld k8s.Builder) error {
 
 	return bld.Complete(r)
 }
+
+// func managedByLokiRulerController(o client.Object) bool {
+//	l, ok := o.GetLabels()["app.kubernetes.io/managed-by"]
+//	return ok && l == "lokirule-controller"
+// }

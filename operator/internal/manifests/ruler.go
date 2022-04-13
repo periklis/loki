@@ -7,6 +7,7 @@ import (
 	"github.com/grafana/loki/operator/internal/manifests/internal/config"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -14,35 +15,24 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const (
-	walVolumeName     = "wal"
-	configVolumeName  = "config"
-	rulesVolumeName   = "rules"
-	storageVolumeName = "storage"
-	walDirectory      = "/tmp/wal"
-	dataDirectory     = "/tmp/loki"
-	rulesDirectory    = "/tmp/rules"
-	secretDirectory   = "/etc/proxy/secrets"
-)
-
-// BuildDistributor returns a list of k8s objects for Loki Distributor
-func BuildDistributor(opts Options) ([]client.Object, error) {
-	deployment := NewDistributorDeployment(opts)
+// BuildRuler returns a list of k8s objects for Loki Stack Ruler
+func BuildRuler(opts Options) ([]client.Object, error) {
+	statefulSet := NewRulerStatefulSet(opts)
 	if opts.Flags.EnableTLSServiceMonitorConfig {
-		if err := configureDistributorServiceMonitorPKI(deployment, opts.Name); err != nil {
+		if err := configureRulerServiceMonitorPKI(statefulSet, opts.Name); err != nil {
 			return nil, err
 		}
 	}
 
 	return []client.Object{
-		deployment,
-		NewDistributorGRPCService(opts),
-		NewDistributorHTTPService(opts),
+		statefulSet,
+		NewRulerGRPCService(opts),
+		NewRulerHTTPService(opts),
 	}, nil
 }
 
-// NewDistributorDeployment creates a deployment object for a distributor
-func NewDistributorDeployment(opts Options) *appsv1.Deployment {
+// NewRulerStatefulSet creates a statefulset object for an ruler
+func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 	podSpec := corev1.PodSpec{
 		Volumes: []corev1.Volume{
 			{
@@ -57,22 +47,27 @@ func NewDistributorDeployment(opts Options) *appsv1.Deployment {
 				},
 			},
 			{
-				Name: storageVolumeName,
+				Name: rulesVolumeName,
 				VolumeSource: corev1.VolumeSource{
-					EmptyDir: &corev1.EmptyDirVolumeSource{},
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						DefaultMode: &defaultConfigMapMode,
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: RulesConfigMapName(opts.Name),
+						},
+					},
 				},
 			},
 		},
 		Containers: []corev1.Container{
 			{
 				Image: opts.Image,
-				Name:  "loki-distributor",
+				Name:  "loki-ruler",
 				Resources: corev1.ResourceRequirements{
-					Limits:   opts.ResourceRequirements.Distributor.Limits,
-					Requests: opts.ResourceRequirements.Distributor.Requests,
+					Limits:   opts.ResourceRequirements.Ruler.Limits,
+					Requests: opts.ResourceRequirements.Ruler.Requests,
 				},
 				Args: []string{
-					"-target=distributor",
+					"-target=ruler",
 					fmt.Sprintf("-config.file=%s", path.Join(config.LokiConfigMountDir, config.LokiConfigFileName)),
 					fmt.Sprintf("-runtime-config.file=%s", path.Join(config.LokiConfigMountDir, config.LokiRuntimeConfigFileName)),
 				},
@@ -102,9 +97,14 @@ func NewDistributorDeployment(opts Options) *appsv1.Deployment {
 						MountPath: config.LokiConfigMountDir,
 					},
 					{
-						Name:      storageVolumeName,
+						Name:      rulesVolumeName,
 						ReadOnly:  false,
-						MountPath: dataDirectory,
+						MountPath: rulesDirectory,
+					},
+					{
+						Name:      walVolumeName,
+						ReadOnly:  false,
+						MountPath: walDirectory,
 					},
 				},
 				TerminationMessagePath:   "/dev/termination-log",
@@ -114,46 +114,70 @@ func NewDistributorDeployment(opts Options) *appsv1.Deployment {
 		},
 	}
 
-	if opts.Stack.Template != nil && opts.Stack.Template.Distributor != nil {
-		podSpec.Tolerations = opts.Stack.Template.Distributor.Tolerations
-		podSpec.NodeSelector = opts.Stack.Template.Distributor.NodeSelector
+	if opts.Stack.Template != nil && opts.Stack.Template.Ruler != nil {
+		podSpec.Tolerations = opts.Stack.Template.Ruler.Tolerations
+		podSpec.NodeSelector = opts.Stack.Template.Ruler.NodeSelector
 	}
 
-	l := ComponentLabels(LabelDistributorComponent, opts.Name)
+	l := ComponentLabels(LabelRulerComponent, opts.Name)
 	a := commonAnnotations(opts.ConfigSHA1)
+	a = rulerAnnotations(a, opts.RulesSHA1)
 
-	return &appsv1.Deployment{
+	return &appsv1.StatefulSet{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "Deployment",
+			Kind:       "StatefulSet",
 			APIVersion: appsv1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   DistributorName(opts.Name),
+			Name:   RulerName(opts.Name),
 			Labels: l,
 		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32Ptr(opts.Stack.Template.Distributor.Replicas),
+		Spec: appsv1.StatefulSetSpec{
+			PodManagementPolicy: appsv1.ParallelPodManagement,
+			UpdateStrategy: appsv1.StatefulSetUpdateStrategy{
+				Type: appsv1.RollingUpdateStatefulSetStrategyType,
+			},
+			RevisionHistoryLimit: pointer.Int32Ptr(10),
+			Replicas:             pointer.Int32Ptr(opts.Stack.Template.Ruler.Replicas),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: labels.Merge(l, GossipLabels()),
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:        fmt.Sprintf("loki-distributor-%s", opts.Name),
+					Name:        fmt.Sprintf("loki-ruler-%s", opts.Name),
 					Labels:      labels.Merge(l, GossipLabels()),
 					Annotations: a,
 				},
 				Spec: podSpec,
 			},
-			Strategy: appsv1.DeploymentStrategy{
-				Type: appsv1.RollingUpdateDeploymentStrategyType,
+			VolumeClaimTemplates: []corev1.PersistentVolumeClaim{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: l,
+						Name:   walVolumeName,
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{
+							// TODO: should we verify that this is possible with the given storage class first?
+							corev1.ReadWriteOnce,
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: map[corev1.ResourceName]resource.Quantity{
+								corev1.ResourceStorage: opts.ResourceRequirements.Ruler.PVCSize,
+							},
+						},
+						StorageClassName: pointer.StringPtr(opts.Stack.StorageClassName),
+						VolumeMode:       &volumeFileSystemMode,
+					},
+				},
 			},
 		},
 	}
 }
 
-// NewDistributorGRPCService creates a k8s service for the distributor GRPC endpoint
-func NewDistributorGRPCService(opts Options) *corev1.Service {
-	l := ComponentLabels(LabelDistributorComponent, opts.Name)
+// NewRulerGRPCService creates a k8s service for the ruler GRPC endpoint
+func NewRulerGRPCService(opts Options) *corev1.Service {
+	l := ComponentLabels(LabelRulerComponent, opts.Name)
 
 	return &corev1.Service{
 		TypeMeta: metav1.TypeMeta{
@@ -161,7 +185,7 @@ func NewDistributorGRPCService(opts Options) *corev1.Service {
 			APIVersion: corev1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   serviceNameDistributorGRPC(opts.Name),
+			Name:   serviceNameRulerGRPC(opts.Name),
 			Labels: l,
 		},
 		Spec: corev1.ServiceSpec{
@@ -179,10 +203,10 @@ func NewDistributorGRPCService(opts Options) *corev1.Service {
 	}
 }
 
-// NewDistributorHTTPService creates a k8s service for the distributor HTTP endpoint
-func NewDistributorHTTPService(opts Options) *corev1.Service {
-	serviceName := serviceNameDistributorHTTP(opts.Name)
-	l := ComponentLabels(LabelDistributorComponent, opts.Name)
+// NewRulerHTTPService creates a k8s service for the ruler HTTP endpoint
+func NewRulerHTTPService(opts Options) *corev1.Service {
+	serviceName := serviceNameRulerHTTP(opts.Name)
+	l := ComponentLabels(LabelRulerComponent, opts.Name)
 	a := serviceAnnotations(serviceName, opts.Flags.EnableCertificateSigningService)
 
 	return &corev1.Service{
@@ -209,7 +233,12 @@ func NewDistributorHTTPService(opts Options) *corev1.Service {
 	}
 }
 
-func configureDistributorServiceMonitorPKI(deployment *appsv1.Deployment, stackName string) error {
-	serviceName := serviceNameDistributorHTTP(stackName)
-	return configureServiceMonitorPKI(&deployment.Spec.Template.Spec, serviceName)
+func configureRulerServiceMonitorPKI(statefulSet *appsv1.StatefulSet, stackName string) error {
+	serviceName := serviceNameRulerHTTP(stackName)
+	return configureServiceMonitorPKI(&statefulSet.Spec.Template.Spec, serviceName)
+}
+
+func rulerAnnotations(a map[string]string, h string) map[string]string {
+	a["loki.grafana.com/rules-config-hash"] = h
+	return a
 }

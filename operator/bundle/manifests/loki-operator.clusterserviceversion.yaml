@@ -84,6 +84,11 @@ spec:
         name: ""
         version: v1
       specDescriptors:
+      - description: EnableRuler defines a flag to enable/disable the ruler component
+        displayName: Enable Ruler
+        path: enableRuler
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
       - description: Limits defines the limits to be applied to log stream processing.
         displayName: Rate Limiting
         path: limits
@@ -320,6 +325,14 @@ spec:
         path: template.queryFrontend.replicas
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Ruler defines the ruler component spec.
+        displayName: Ruler pods
+        path: template.ruler
+      - description: Replicas defines the number of replica pods of the component.
+        displayName: Replicas
+        path: template.ruler.replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:hidden
       - description: Tenants defines the per-tenant authentication and authorization
           spec for the lokistack-gateway component.
         displayName: Tenants Configuration
@@ -416,6 +429,11 @@ spec:
           statefulset
         displayName: IndexGateway
         path: components.indexGateway
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podStatuses
+      - description: Ruler is a map to the per pod status of the lokistack ruler statefulset.
+        displayName: Ruler
+        path: components.ruler
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:podStatuses
       - description: Conditions of the Loki deployment health.

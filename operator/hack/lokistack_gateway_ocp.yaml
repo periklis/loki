@@ -4,6 +4,7 @@ metadata:
   name: lokistack-dev
 spec:
   size: 1x.extra-small
+  enableRuler: true
   storage:
     secret:
       name: test

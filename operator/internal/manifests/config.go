@@ -72,6 +72,10 @@ func ConfigOptions(opt Options) config.Options {
 		},
 		ObjectStorage:         opt.ObjectStorage,
 		EnableRemoteReporting: opt.Flags.EnableGrafanaLabsStats,
+		Ruler: config.Ruler{
+			Enabled:        opt.Stack.EnableRuler,
+			RulesDirectory: rulesDirectory,
+		},
 	}
 }
 

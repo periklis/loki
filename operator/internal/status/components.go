@@ -60,6 +60,14 @@ func SetComponentsStatus(ctx context.Context, k k8s.Client, req ctrl.Request) er
 	if err != nil {
 		return kverrors.Wrap(err, "failed lookup LokiStack component pods status", "name", manifests.LabelGatewayComponent)
 	}
+
+	if s.Spec.EnableRuler {
+		s.Status.Components.Ruler, err = appendPodStatus(ctx, k, manifests.LabelRulerComponent, s.Name, s.Namespace)
+		if err != nil {
+			return kverrors.Wrap(err, "failed lookup LokiStack component pods status", "name", manifests.LabelRulerComponent)
+		}
+	}
+
 	return k.Status().Update(ctx, &s, &client.UpdateOptions{})
 }
 
