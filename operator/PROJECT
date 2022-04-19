@@ -5,10 +5,10 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: loki-operator
-repo: github.com/grafana/loki
+repo: github.com/grafana/loki/operator
 resources:
 - api:
-    crdVersion: v1beta1
+    crdVersion: v1
     namespaced: true
   controller: true
   domain: grafana.com
