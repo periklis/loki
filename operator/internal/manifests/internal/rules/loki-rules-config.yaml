@@ -1,0 +1,36 @@
+groups:
+  {{- range $group := .Groups }}
+  - name: {{ $group.Name -}}
+    {{ with $group.Interval }}
+    interval: {{ $group.Interval -}}
+    {{ end -}}
+    {{ with $group.Limit }}
+    limit: {{ $group.Limit -}}
+    {{ end }}
+    rules:
+      {{- range $rule := $group.Rules }}
+      - expr: |
+          {{- $rule.Expr -}}
+        {{ with $rule.Alert }}
+        alert: {{ $rule.Alert -}}
+        {{ end -}}
+        {{ with $rule.Record }}
+        record: {{ $rule.Record -}}
+        {{ end -}}
+        {{ with $rule.For }}
+        for: {{ $rule.For -}}
+        {{ end -}}
+        {{ with $rule.Annotations }}
+        annotations:
+          {{- range $key, $value := $rule.Annotations }}
+          - {{ $key }}: {{ $value -}}
+          {{ end -}}
+        {{ end -}}
+        {{ with $rule.Labels }}
+        labels:
+          {{- range $key, $value := $rule.Labels }}
+          - {{ $key }}: {{ $value -}}
+          {{ end -}}
+        {{ end }}
+      {{- end -}}
+  {{- end -}}

@@ -39,7 +39,7 @@ func Refresh(ctx context.Context, k k8s.Client, req ctrl.Request) error {
 		len(cs.Gateway[corev1.PodFailed]) +
 		len(cs.IndexGateway[corev1.PodFailed])
 
-	if s.Spec.EnableRuler {
+	if s.Spec.Rules != nil && s.Spec.Rules.Enabled {
 		failed += len(cs.Ruler[corev1.PodFailed])
 	}
 
@@ -51,7 +51,7 @@ func Refresh(ctx context.Context, k k8s.Client, req ctrl.Request) error {
 		len(cs.Gateway[corev1.PodUnknown]) +
 		len(cs.IndexGateway[corev1.PodUnknown])
 
-	if s.Spec.EnableRuler {
+	if s.Spec.Rules != nil && s.Spec.Rules.Enabled {
 		unknown += len(cs.Ruler[corev1.PodUnknown])
 	}
 
@@ -68,7 +68,7 @@ func Refresh(ctx context.Context, k k8s.Client, req ctrl.Request) error {
 		len(cs.Gateway[corev1.PodPending]) +
 		len(cs.IndexGateway[corev1.PodPending])
 
-	if s.Spec.EnableRuler {
+	if s.Spec.Rules != nil && s.Spec.Rules.Enabled {
 		pending += len(cs.Ruler[corev1.PodPending])
 	}
 

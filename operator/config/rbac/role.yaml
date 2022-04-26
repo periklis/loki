@@ -62,6 +62,32 @@ rules:
 - apiGroups:
   - loki.grafana.com
   resources:
+  - lokirules
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - loki.grafana.com
+  resources:
+  - lokirules/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - loki.grafana.com
+  resources:
+  - lokirules/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - loki.grafana.com
+  resources:
   - lokistacks
   verbs:
   - create

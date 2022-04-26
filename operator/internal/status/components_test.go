@@ -173,7 +173,9 @@ func TestSetComponentsStatus_WhenRulerEnabled_SetPodStatusMap(t *testing.T) {
 			Namespace: "some-ns",
 		},
 		Spec: lokiv1beta1.LokiStackSpec{
-			EnableRuler: true,
+			Rules: &lokiv1beta1.RulesSpec{
+				Enabled: true,
+			},
 		},
 	}
 
@@ -247,7 +249,9 @@ func TestSetComponentsStatus_WhenRulerNotEnabled_DoNothing(t *testing.T) {
 			Namespace: "some-ns",
 		},
 		Spec: lokiv1beta1.LokiStackSpec{
-			EnableRuler: false,
+			Rules: &lokiv1beta1.RulesSpec{
+				Enabled: false,
+			},
 		},
 	}
 

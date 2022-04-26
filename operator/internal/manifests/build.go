@@ -58,7 +58,15 @@ func BuildAll(opts Options) ([]client.Object, error) {
 	res = append(res, indexGatewayObjs...)
 	res = append(res, BuildLokiGossipRingService(opts.Name))
 
-	if opts.Stack.EnableRuler && opts.RulesSHA1 != "" {
+	if opts.Stack.Rules != nil && opts.Stack.Rules.Enabled {
+		rulesCm, sha1, err := LokiRulesConfigMap(opts)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, rulesCm)
+		opts.RulesSHA1 = sha1
+
 		rulerObjs, err := BuildRuler(opts)
 		if err != nil {
 			return nil, err

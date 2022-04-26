@@ -21,6 +21,7 @@ type Options struct {
 	Flags FeatureFlags
 
 	Stack                lokiv1beta1.LokiStackSpec
+	Rules                []lokiv1beta1.LokiRule
 	ResourceRequirements internal.ComponentResources
 
 	ObjectStorage storage.Options

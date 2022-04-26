@@ -8,7 +8,7 @@ import (
 	lokiv1beta1 "github.com/grafana/loki/operator/api/v1beta1"
 	"github.com/grafana/loki/operator/internal/external/k8s"
 	"github.com/grafana/loki/operator/internal/handlers/internal/gateway"
-	"github.com/grafana/loki/operator/internal/handlers/internal/ruler"
+	"github.com/grafana/loki/operator/internal/handlers/internal/rules"
 	"github.com/grafana/loki/operator/internal/handlers/internal/secrets"
 	"github.com/grafana/loki/operator/internal/manifests"
 	"github.com/grafana/loki/operator/internal/manifests/openshift"
@@ -119,9 +119,12 @@ func CreateOrUpdateLokiStack(
 		}
 	}
 
-	var rulesConfigSHA1 string
-	if stack.Spec.EnableRuler {
-		rulesConfigSHA1 = ruler.GetRulesConfigMapSHA1(ctx, log, k, req)
+	var lokiRules lokiv1beta1.LokiRuleList
+	if stack.Spec.Rules != nil && stack.Spec.Rules.Enabled {
+		lokiRules, err = rules.List(ctx, k, req.Namespace, stack.Spec.Rules)
+		if err != nil {
+			log.Error(err, "failed to lookup loki rules", "spec", stack.Spec.Rules)
+		}
 	}
 
 	// Here we will translate the lokiv1beta1.LokiStack options into manifest options
@@ -134,7 +137,7 @@ func CreateOrUpdateLokiStack(
 		Stack:             stack.Spec,
 		Flags:             flags,
 		ObjectStorage:     *storage,
-		RulesSHA1:         rulesConfigSHA1,
+		Rules:             lokiRules.Items,
 		TenantSecrets:     tenantSecrets,
 		TenantConfigMap:   tenantConfigMap,
 	}

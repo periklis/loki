@@ -1,0 +1,6 @@
+apiVersion: loki.grafana.com/v1beta1
+kind: LokiRule
+metadata:
+  name: lokirule-sample
+spec:
+  # TODO(user): Add fields here

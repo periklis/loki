@@ -482,6 +482,32 @@ type LimitsSpec struct {
 	Tenants map[string]LimitsTemplateSpec `json:"tenants,omitempty"`
 }
 
+// RulesSpec deifnes the spec for the ruler component.
+type RulesSpec struct {
+	// Enabled defines a flag to enable/disable the ruler component
+	//
+	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:booleanSwitch",displayName="Enable"
+	Enabled bool `json:"enabled"`
+
+	// A selector to select which LokiRules to mount for loading alerting/recording
+	// rules from.
+	//
+	// +optional
+	// +kubebuilder:validation:optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Selector"
+	Selector *metav1.LabelSelector `json:"selector,omitempty"`
+
+	// Namespaces to be selected for PrometheusRules discovery. If unspecified, only
+	// the same namespace as the LokiStack object is in is used.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Namespace Selector"
+	NamespaceSelector *metav1.LabelSelector `json:"namespaceSelector,omitempty"`
+}
+
 // LokiStackSpec defines the desired state of LokiStack
 type LokiStackSpec struct {
 
@@ -520,15 +546,16 @@ type LokiStackSpec struct {
 	// +optional
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:Minimum:=1
+	// +kubebuilder:default:=1
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:number",displayName="Replication Factor"
 	ReplicationFactor int32 `json:"replicationFactor"`
 
-	// EnableRuler defines a flag to enable/disable the ruler component
+	// Rules defines the spec for the ruler component
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:booleanSwitch",displayName="Enable Ruler"
-	EnableRuler bool `json:"enableRuler"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:advanced",displayName="Rules"
+	Rules *RulesSpec `json:"rules,omitempty"`
 
 	// Limits defines the limits to be applied to log stream processing.
 	//

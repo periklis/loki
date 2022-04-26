@@ -3,8 +3,7 @@ kind: LokiStack
 metadata:
   name: lokistack-dev
 spec:
-  size: 1x.extra-small
-  enableRuler: true
+  size: 1x.small
   storage:
     secret:
       name: test
@@ -12,3 +11,11 @@ spec:
   storageClassName: gp2
   tenants:
     mode: openshift-logging
+  rules:
+    enabled: true
+    selector:
+      matchLabels:
+        loki.grafana.com/cluster-monitoring: "true"
+    namespaceSelector:
+      matchLabels:
+        loki.grafana.com/cluster-monitoring: "true"

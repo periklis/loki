@@ -1,9 +1,14 @@
-apiVersion: v1
-kind: ConfigMap
-binaryData:
-  "rules.yaml": |
-    groups:
+apiVersion: loki.grafana.com/v1beta1
+kind: LokiRule
+metadata:
+  name: lokistack-dev
+  namespace: openshift-logging
+  labels:
+    loki.grafana.com/cluster-monitoring: "true"
+spec:
+  groups:
     - name: should_fire
+      interval: "10m"
       rules:
         - alert: HighPercentageError
           expr: |
@@ -17,6 +22,7 @@ binaryData:
           annotations:
               summary: High request latency
     - name: credentials_leak
+      interval: "1m"
       rules:
         - alert: http-credentials-leaked
           annotations:
@@ -25,5 +31,49 @@ binaryData:
           for: 10m
           labels:
             severity: critical
+    - name: should_record
+      interval: 10m
+      rules:
+        - record: "nginx:requests:rate10m"
+          expr: |
+            sum(rate({container="nginx"}[10m]))
+---
+apiVersion: loki.grafana.com/v1beta1
+kind: LokiRule
 metadata:
-  name: lokistack-dev-rules
+  name: loki-operator-dev
+  namespace: openshift-operators-redhat
+  labels:
+    loki.grafana.com/cluster-monitoring: "true"
+spec:
+  groups:
+    - name: should_operator_fire_on_errors
+      interval: "10m"
+      rules:
+        - alert: HighPercentageError
+          expr: |
+            sum(rate({app="foo", env="production"} |= "error" [5m])) by (job)
+              /
+            sum(rate({app="foo", env="production"}[5m])) by (job)
+              > 0.05
+          for: 10m
+          labels:
+              severity: page
+          annotations:
+              summary: High request latency
+    - name: credentials_operator_leak
+      interval: "1m"
+      rules:
+        - alert: http-credentials-leaked
+          annotations:
+            message: "{{ $labels.job }} is leaking http basic auth credentials."
+          expr: 'sum by (cluster, job, pod) (count_over_time({namespace="prod"} |~ "http(s?)://(\\w+):(\\w+)@" [5m]) > 0)'
+          for: 10m
+          labels:
+            severity: critical
+    - name: should_operator_record
+      interval: 10m
+      rules:
+        - record: "nginx:requests:rate10m"
+          expr: |
+            sum(rate({container="nginx"}[10m]))
