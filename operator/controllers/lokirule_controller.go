@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"k8s.io/apimachinery/pkg/labels"
@@ -12,8 +11,6 @@ import (
 
 	"github.com/go-logr/logr"
 	lokiv1beta1 "github.com/grafana/loki/operator/api/v1beta1"
-	"github.com/grafana/loki/operator/internal/handlers"
-	"github.com/grafana/loki/operator/internal/status"
 )
 
 // LokiRuleReconciler reconciles a LokiRule object
@@ -37,41 +34,8 @@ type LokiRuleReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *LokiRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	err := handlers.ValidateLokiRule(ctx, r.Log, req, r.Client)
-
-	var invalid *status.ValidationError
-	if errors.As(err, &invalid) {
-		err = status.SetInvalidCondition(ctx, r.Client, req, invalid.Reason)
-		if err != nil {
-			return ctrl.Result{
-				Requeue:      true,
-				RequeueAfter: time.Second,
-			}, err
-		}
-
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: time.Second,
-		}, nil
-	}
-
-	if err != nil {
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: time.Second,
-		}, err
-	}
-
-	err = status.SetValidCondition(ctx, r.Client, req)
-	if err != nil {
-		return ctrl.Result{
-			Requeue:      true,
-			RequeueAfter: time.Second,
-		}, err
-	}
-
 	var stacks lokiv1beta1.LokiStackList
-	err = r.Client.List(ctx, &stacks, client.MatchingLabelsSelector{Selector: labels.Everything()})
+	err := r.Client.List(ctx, &stacks, client.MatchingLabelsSelector{Selector: labels.Everything()})
 	if err != nil {
 		return ctrl.Result{
 			Requeue:      true,

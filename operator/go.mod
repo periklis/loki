@@ -23,7 +23,6 @@ require (
 require github.com/ViaQ/logerr/v2 v2.0.0
 
 require (
-	github.com/ViaQ/logerr v1.2.0
 	github.com/google/go-cmp v0.5.7
 	github.com/grafana/loki v1.6.2-0.20220420044148-f62b4ae1905c
 )

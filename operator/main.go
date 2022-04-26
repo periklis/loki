@@ -132,6 +132,10 @@ func main() {
 		logger.Error(err, "unable to create controller", "controller", "LokiRule")
 		os.Exit(1)
 	}
+	if err = (&lokiv1beta1.LokiRule{}).SetupWebhookWithManager(mgr); err != nil {
+		logger.Error(err, "unable to create webhook", "webhook", "LokiRule")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	if err = mgr.AddHealthzCheck("health", healthz.Ping); err != nil {

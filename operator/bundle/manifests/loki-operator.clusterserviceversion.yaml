@@ -718,6 +718,9 @@ spec:
                   periodSeconds: 20
                 name: manager
                 ports:
+                - containerPort: 9443
+                  name: webhook-server
+                  protocol: TCP
                 - containerPort: 8080
                   name: metrics
                 readinessProbe:
@@ -729,6 +732,10 @@ spec:
                 resources: {}
                 securityContext:
                   allowPrivilegeEscalation: false
+                volumeMounts:
+                - mountPath: /tmp/k8s-webhook-server/serving-certs
+                  name: webhook-cert
+                  readOnly: true
               - args:
                 - --secure-listen-address=0.0.0.0:8443
                 - --upstream=http://127.0.0.1:8080/
@@ -749,6 +756,10 @@ spec:
                 kubernetes.io/os: linux
               terminationGracePeriodSeconds: 10
               volumes:
+              - name: webhook-cert
+                secret:
+                  defaultMode: 420
+                  secretName: loki-operator-webhook-service
               - name: loki-operator-metrics-cert
                 secret:
                   defaultMode: 420
@@ -809,3 +820,24 @@ spec:
   - image: quay.io/observatorium/opa-openshift:latest
     name: opa
   version: 0.0.1
+  webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: loki-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vlokirule.kb.io
+    rules:
+    - apiGroups:
+      - loki.grafana.com
+      apiVersions:
+      - v1beta1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - lokirules
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-loki-grafana-com-v1beta1-lokirule

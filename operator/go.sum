@@ -119,8 +119,6 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdko
 github.com/Shopify/logrus-bugsnag v0.0.0-20171204204709-577dee27f20d/go.mod h1:HI8ITrYtUY+O+ZhtlqUnD8+KwNPOyugEhfP9fdUIaEQ=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
-github.com/ViaQ/logerr v1.2.0 h1:thSyb8Zv7xAyWFwcxW2ppj+NK6qZ1GoNOXjDSx8zWe8=
-github.com/ViaQ/logerr v1.2.0/go.mod h1:DFmaWoeJeLLixbN6yK5inb0X6meEhj7XoBp1Quoj+Wk=
 github.com/ViaQ/logerr/v2 v2.0.0 h1:5NOOexPjkhaga6E13JJfPa0vRtyW+nIvTYUDrheZETM=
 github.com/ViaQ/logerr/v2 v2.0.0/go.mod h1:/qoWLm3YG40Sv5u75s4fvzjZ5p36xINzaxU2L+DJ9uw=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
