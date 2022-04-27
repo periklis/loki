@@ -32,16 +32,57 @@ spec:
   customresourcedefinitions:
     owned:
     - description: LokiRule is the Schema for the lokirules API
-      displayName: Loki Rule
+      displayName: LokiRule
       kind: LokiRule
       name: lokirules.loki.grafana.com
+      resources:
+      - kind: LokiStack
+        name: ""
+        version: v1beta1
       specDescriptors:
+      - description: List of groups for alerting and/or recording rules.
+        displayName: Groups
+        path: groups
+      - description: Interval defines the time interval between evaluation of the
+          given recoding rule.
+        displayName: Evaluation Interval
+        path: groups[0].interval
       - description: Limit defines the number of alerts an alerting rule and series
           a recording rule can produce. 0 is no limit.
-        displayName: 'Limit of firing alerts '
+        displayName: Limit of firing alerts
         path: groups[0].limit
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:number
+      - description: Name defines a name of the present recoding/alerting rule. Must
+          be unique within all loki rules.
+        displayName: Name
+        path: groups[0].name
+      - description: Rules defines a list of alerting and/or recording rules
+        displayName: Rules
+        path: groups[0].rules
+      - description: The name of the alert. Must be a valid label value.
+        displayName: Alert name
+        path: groups[0].rules[0].alert
+      - description: Annotations to add to each alert.
+        displayName: Alert Annotations
+        path: groups[0].rules[0].annotations
+      - description: The LogQL expression to evaluate. Every evaluation cycle this
+          is evaluated at the current time, and all resultant time series become pending/firing
+          alerts.
+        displayName: LogQL Expression
+        path: groups[0].rules[0].expr
+      - description: Alerts are considered firing once they have been returned for
+          this long. Alerts which have not yet fired for long enough are considered
+          pending.
+        displayName: Alert Firing Threshold
+        path: groups[0].rules[0].for
+      - description: Labels to add to each alert.
+        displayName: Alert Labels
+        path: groups[0].rules[0].labels
+      - description: The name of the time series to output to. Must be a valid metric
+          name.
+        displayName: Recording Metric Name
+        path: groups[0].rules[0].record
       statusDescriptors:
       - description: Conditions of the LokiRule generation health.
         displayName: Conditions

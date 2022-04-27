@@ -15,6 +15,7 @@ type LokiRuleSpec struct {
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Groups"
 	Groups []*LokiRuleGroup `json:"groups"`
 }
 
@@ -25,6 +26,7 @@ type LokiRuleGroup struct {
 	//
 	// +required
 	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Name"
 	Name string `json:"name"`
 
 	// Interval defines the time interval between evaluation of the given
@@ -32,6 +34,7 @@ type LokiRuleGroup struct {
 	//
 	// +required
 	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Evaluation Interval"
 	Interval EvaluationDuration `json:"interval"`
 
 	// Limit defines the number of alerts an alerting rule and series a recording
@@ -39,13 +42,14 @@ type LokiRuleGroup struct {
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:number",displayName="Limit of firing alerts "
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:number",displayName="Limit of firing alerts"
 	Limit int32 `json:"limit,omitempty"`
 
 	// Rules defines a list of alerting and/or recording rules
 	//
 	// +required
 	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Rules"
 	Rules []*LokiRuleGroupSpec `json:"rules"`
 }
 
@@ -55,12 +59,14 @@ type LokiRuleGroupSpec struct {
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert name"
 	Alert string `json:"alert,omitempty"`
 
 	// The name of the time series to output to. Must be a valid metric name.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Recording Metric Name"
 	Record string `json:"record,omitempty"`
 
 	// The LogQL expression to evaluate. Every evaluation cycle this is
@@ -69,6 +75,7 @@ type LokiRuleGroupSpec struct {
 	//
 	// +required
 	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="LogQL Expression"
 	Expr string `json:"expr"`
 
 	// Alerts are considered firing once they have been returned for this long.
@@ -76,48 +83,23 @@ type LokiRuleGroupSpec struct {
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert Firing Threshold"
 	For EvaluationDuration `json:"for,omitempty"`
 
 	// Annotations to add to each alert.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert Annotations"
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// Labels to add to each alert.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert Labels"
 	Labels map[string]string `json:"labels,omitempty"`
 }
-
-// LokiRuleConditionType defines the type for LokiRule conditions.
-type LokiRuleConditionType string
-
-const (
-	// ConditionValid defines the condition when all given LokiRule groups expressions are valid.
-	ConditionValid LokiRuleConditionType = "Valid"
-	// ConditionInvalid defines the condition when at least one LokiRule group definition is invalid.
-	ConditionInvalid LokiRuleConditionType = "Invalid"
-)
-
-// LokiRuleConditionReason defines the type for valid reasons of a LokiRule condition.
-type LokiRuleConditionReason string
-
-const (
-	// ReasonAllRulesValid when no rule validation occurred.
-	ReasonAllRulesValid LokiRuleConditionReason = "AllRulesValid"
-	// ReasonAmbiguousRuleConfig when a loki rule includes alerting and recording rule fields.
-	ReasonAmbiguousRuleConfig LokiRuleConditionReason = "AmbiguousRuleConfig"
-	// ReasonInvalidAlertingRuleConfig when a loki alerting rule has an invalid period for firing alerts.
-	ReasonInvalidAlertingRuleConfig LokiRuleConditionReason = "InvalidAlertingRuleConfig"
-	// ReasonInvalidRecordingRuleConfig when a loki recording rules has an invalid record label name.
-	ReasonInvalidRecordingRuleConfig LokiRuleConditionReason = "InvalidRecordingRuleConfig"
-	// ReasonInvalidRuleExpression when a loki rule expression cannot be parsed by the LogQL parser.
-	ReasonInvalidRuleExpression LokiRuleConditionReason = "InvalidRuleExpression"
-	// ReasonNotUniqueRuleGroupName when a loki rule group name is not unique.
-	ReasonNotUniqueRuleGroupName LokiRuleConditionReason = "NotUniqueRuleGroupName"
-)
 
 // LokiRuleStatus defines the observed state of LokiRule
 type LokiRuleStatus struct {
@@ -133,6 +115,7 @@ type LokiRuleStatus struct {
 //+kubebuilder:subresource:status
 
 // LokiRule is the Schema for the lokirules API
+// +operator-sdk:csv:customresourcedefinitions:displayName="LokiRule",resources={{LokiStack,v1beta1}}
 type LokiRule struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
