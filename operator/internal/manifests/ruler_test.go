@@ -101,5 +101,4 @@ func TestNewRulerStatefulSet_MountsRulesInIndependentConfigMapVolumes(t *testing
 	require.True(t, strings.HasSuffix(volumeMountPaths["alertingrules"], "/alerting-rules"))
 	require.True(t, strings.HasPrefix(volumeMountPaths["recordingrules"], "/tmp/rules"))
 	require.True(t, strings.HasSuffix(volumeMountPaths["recordingrules"], "/recording-rules"))
-
 }

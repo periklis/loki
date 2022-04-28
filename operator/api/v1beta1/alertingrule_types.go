@@ -24,6 +24,15 @@ type AlertingRuleGroup struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Name"
 	Name string `json:"name"`
 
+	// Interval defines the time interval between evaluation of the given
+	// alerting rule.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="1m"
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Evaluation Interval"
+	Interval PrometheusDuration `json:"interval"`
+
 	// Limit defines the number of alerts an alerting rule can produce. 0 is no limit.
 	//
 	// +optional

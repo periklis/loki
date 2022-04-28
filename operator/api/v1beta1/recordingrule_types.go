@@ -27,10 +27,18 @@ type RecordingRuleGroup struct {
 	// Interval defines the time interval between evaluation of the given
 	// recoding rule.
 	//
-	// +required
-	// +kubebuilder:validation:Required
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:="1m"
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Evaluation Interval"
 	Interval PrometheusDuration `json:"interval"`
+
+	// Limit defines the number of series a recording rule can produce. 0 is no limit.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:number",displayName="Limit of produced series"
+	Limit int32 `json:"limit,omitempty"`
 
 	// Rules defines a list of recording rules
 	//

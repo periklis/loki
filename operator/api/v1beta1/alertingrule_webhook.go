@@ -85,6 +85,16 @@ func (r *AlertingRule) validate() field.ErrorList {
 
 		found = append(found, g.Name)
 
+		// Check if rule evaluation period is a valid PromQL duration
+		_, err := model.ParseDuration(string(g.Interval))
+		if err != nil {
+			allErrs = append(allErrs, field.Invalid(
+				field.NewPath("Spec").Child("Groups").Index(i).Child("Interval"),
+				g.Interval,
+				ErrParseEvaluationInterval.Error(),
+			))
+		}
+
 		for j, r := range g.Rules {
 			// Check if alert for period is a valid PromQL duration
 			if r.Alert != "" {

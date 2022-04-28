@@ -23,8 +23,9 @@ var att = []struct {
 		spec: v1beta1.AlertingRuleSpec{
 			Groups: []*v1beta1.AlertingRuleGroup{
 				{
-					Name:  "first",
-					Limit: 10,
+					Name:     "first",
+					Interval: v1beta1.PrometheusDuration("1m"),
+					Limit:    10,
 					Rules: []*v1beta1.AlertingRuleGroupSpec{
 						{
 							Alert: "first-alert",
@@ -51,8 +52,9 @@ var att = []struct {
 					},
 				},
 				{
-					Name:  "second",
-					Limit: 10,
+					Name:     "second",
+					Interval: v1beta1.PrometheusDuration("1m"),
+					Limit:    10,
 					Rules: []*v1beta1.AlertingRuleGroupSpec{
 						{
 							Alert: "third-alert",
@@ -86,10 +88,12 @@ var att = []struct {
 		spec: v1beta1.AlertingRuleSpec{
 			Groups: []*v1beta1.AlertingRuleGroup{
 				{
-					Name: "first",
+					Name:     "first",
+					Interval: v1beta1.PrometheusDuration("1m"),
 				},
 				{
-					Name: "first",
+					Name:     "first",
+					Interval: v1beta1.PrometheusDuration("1m"),
 				},
 			},
 		},
@@ -107,11 +111,35 @@ var att = []struct {
 		wantErr: true,
 	},
 	{
+		desc: "parse eval interval err",
+		spec: v1beta1.AlertingRuleSpec{
+			Groups: []*v1beta1.AlertingRuleGroup{
+				{
+					Name:     "first",
+					Interval: v1beta1.PrometheusDuration("1mo"),
+				},
+			},
+		},
+		err: apierrors.NewInvalid(
+			schema.GroupKind{Group: "loki.grafana.com", Kind: "AlertingRule"},
+			"testing-rule",
+			field.ErrorList{
+				field.Invalid(
+					field.NewPath("Spec").Child("Groups").Index(0).Child("Interval"),
+					"1mo",
+					v1beta1.ErrParseEvaluationInterval.Error(),
+				),
+			},
+		),
+		wantErr: true,
+	},
+	{
 		desc: "parse for interval err",
 		spec: v1beta1.AlertingRuleSpec{
 			Groups: []*v1beta1.AlertingRuleGroup{
 				{
-					Name: "first",
+					Name:     "first",
+					Interval: v1beta1.PrometheusDuration("1m"),
 					Rules: []*v1beta1.AlertingRuleGroupSpec{
 						{
 							Alert: "an-alert",
@@ -140,7 +168,8 @@ var att = []struct {
 		spec: v1beta1.AlertingRuleSpec{
 			Groups: []*v1beta1.AlertingRuleGroup{
 				{
-					Name: "first",
+					Name:     "first",
+					Interval: v1beta1.PrometheusDuration("1m"),
 					Rules: []*v1beta1.AlertingRuleGroupSpec{
 						{
 							Expr: "this is not a valid expression",
