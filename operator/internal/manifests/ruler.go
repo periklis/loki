@@ -47,12 +47,23 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 				},
 			},
 			{
-				Name: rulesVolumeName,
+				Name: alertingRulesVolumeName,
 				VolumeSource: corev1.VolumeSource{
 					ConfigMap: &corev1.ConfigMapVolumeSource{
 						DefaultMode: &defaultConfigMapMode,
 						LocalObjectReference: corev1.LocalObjectReference{
-							Name: RulesConfigMapName(opts.Name),
+							Name: AlertringRulesConfigMapName(opts.Name),
+						},
+					},
+				},
+			},
+			{
+				Name: recordingRulesVolumeName,
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						DefaultMode: &defaultConfigMapMode,
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: RecordingRulesConfigMapName(opts.Name),
 						},
 					},
 				},
@@ -97,9 +108,14 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 						MountPath: config.LokiConfigMountDir,
 					},
 					{
-						Name:      rulesVolumeName,
+						Name:      alertingRulesVolumeName,
 						ReadOnly:  false,
-						MountPath: rulesDirectory,
+						MountPath: path.Join(rulesDirectory, alertingRulesDirectory),
+					},
+					{
+						Name:      recordingRulesVolumeName,
+						ReadOnly:  false,
+						MountPath: path.Join(rulesDirectory, recordingRulesDirectory),
 					},
 					{
 						Name:      walVolumeName,
@@ -121,7 +137,7 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 
 	l := ComponentLabels(LabelRulerComponent, opts.Name)
 	a := commonAnnotations(opts.ConfigSHA1)
-	a = rulerAnnotations(a, opts.RulesSHA1)
+	a = rulerAnnotations(a, opts.AlertringRulesSHA1, opts.RecordingRulesSHA1)
 
 	return &appsv1.StatefulSet{
 		TypeMeta: metav1.TypeMeta{
@@ -238,7 +254,8 @@ func configureRulerServiceMonitorPKI(statefulSet *appsv1.StatefulSet, stackName 
 	return configureServiceMonitorPKI(&statefulSet.Spec.Template.Spec, serviceName)
 }
 
-func rulerAnnotations(a map[string]string, h string) map[string]string {
-	a["loki.grafana.com/rules-config-hash"] = h
+func rulerAnnotations(a map[string]string, alertsSHA1, recordingsSHA1 string) map[string]string {
+	a["loki.grafana.com/alerting-rules-hash"] = alertsSHA1
+	a["loki.grafana.com/recording-rules-hash"] = recordingsSHA1
 	return a
 }

@@ -9,19 +9,32 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestLokiRulesConfigMap_ReturnsSHA1OfAllDataContents(t *testing.T) {
-	_, sha1C, err := manifests.LokiRulesConfigMap(testOptions())
+func TestAlertringRulesConfigMap_ReturnsSHA1OfAllDataContents(t *testing.T) {
+	_, sha1C, err := manifests.AlertingRulesConfigMap(testOptions())
 	require.NoError(t, err)
 	require.NotEmpty(t, sha1C)
 }
 
-func TestLokiRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
-	cm, _, err := manifests.LokiRulesConfigMap(testOptions())
+func TestAlertingRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
+	cm, _, err := manifests.AlertingRulesConfigMap(testOptions())
 	require.NoError(t, err)
 	require.NotNil(t, cm)
-	require.Len(t, cm.Data, 4)
+	require.Len(t, cm.Data, 2)
 	require.Contains(t, cm.Data, "dev-alerting-rules.yaml")
 	require.Contains(t, cm.Data, "prod-alerting-rules.yaml")
+}
+
+func TestRecordingRulesConfigMap_ReturnsSHA1OfAllDataContents(t *testing.T) {
+	_, sha1C, err := manifests.RecordingRulesConfigMap(testOptions())
+	require.NoError(t, err)
+	require.NotEmpty(t, sha1C)
+}
+
+func TestRecordingRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
+	cm, _, err := manifests.RecordingRulesConfigMap(testOptions())
+	require.NoError(t, err)
+	require.NotNil(t, cm)
+	require.Len(t, cm.Data, 2)
 	require.Contains(t, cm.Data, "dev-recording-rules.yaml")
 	require.Contains(t, cm.Data, "prod-recording-rules.yaml")
 }
