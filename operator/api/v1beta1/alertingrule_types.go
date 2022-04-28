@@ -4,23 +4,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EvaluationDuration defines the type for Prometheus durations.
-//
-// +kubebuilder:validation:Pattern:="((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)"
-type EvaluationDuration string
-
-// LokiRuleSpec defines the desired state of LokiRule
-type LokiRuleSpec struct {
-	// List of groups for alerting and/or recording rules.
+// AlertingRuleSpec defines the desired state of AlertingRule
+type AlertingRuleSpec struct {
+	// List of groups for alerting rules.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Groups"
-	Groups []*LokiRuleGroup `json:"groups"`
+	Groups []*AlertingRuleGroup `json:"groups"`
 }
 
-// LokiRuleGroup defines a group of Loki alerting and/or recording rules.
-type LokiRuleGroup struct {
+// AlertingRuleGroup defines a group of Loki alerting rules.
+type AlertingRuleGroup struct {
 	// Name defines a name of the present recoding/alerting rule. Must be unique
 	// within all loki rules.
 	//
@@ -29,45 +24,29 @@ type LokiRuleGroup struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Name"
 	Name string `json:"name"`
 
-	// Interval defines the time interval between evaluation of the given
-	// recoding rule.
-	//
-	// +required
-	// +kubebuilder:validation:Required
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Evaluation Interval"
-	Interval EvaluationDuration `json:"interval"`
-
-	// Limit defines the number of alerts an alerting rule and series a recording
-	// rule can produce. 0 is no limit.
+	// Limit defines the number of alerts an alerting rule can produce. 0 is no limit.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:number",displayName="Limit of firing alerts"
 	Limit int32 `json:"limit,omitempty"`
 
-	// Rules defines a list of alerting and/or recording rules
+	// Rules defines a list of alerting rules
 	//
 	// +required
 	// +kubebuilder:validation:Required
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Rules"
-	Rules []*LokiRuleGroupSpec `json:"rules"`
+	Rules []*AlertingRuleGroupSpec `json:"rules"`
 }
 
-// LokiRuleGroupSpec defines the spec for a Loki alerting or recording rule.
-type LokiRuleGroupSpec struct {
+// AlertingRuleGroupSpec defines the spec for a Loki alerting rule.
+type AlertingRuleGroupSpec struct {
 	// The name of the alert. Must be a valid label value.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert name"
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Name"
 	Alert string `json:"alert,omitempty"`
-
-	// The name of the time series to output to. Must be a valid metric name.
-	//
-	// +optional
-	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Recording Metric Name"
-	Record string `json:"record,omitempty"`
 
 	// The LogQL expression to evaluate. Every evaluation cycle this is
 	// evaluated at the current time, and all resultant time series become
@@ -83,27 +62,27 @@ type LokiRuleGroupSpec struct {
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert Firing Threshold"
-	For EvaluationDuration `json:"for,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Firing Threshold"
+	For PrometheusDuration `json:"for,omitempty"`
 
 	// Annotations to add to each alert.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert Annotations"
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Annotations"
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// Labels to add to each alert.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Alert Labels"
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Labels"
 	Labels map[string]string `json:"labels,omitempty"`
 }
 
-// LokiRuleStatus defines the observed state of LokiRule
-type LokiRuleStatus struct {
-	// Conditions of the LokiRule generation health.
+// AlertingRuleStatus defines the observed state of AlertingRule
+type AlertingRuleStatus struct {
+	// Conditions of the AlertingRule generation health.
 	//
 	// +optional
 	// +kubebuilder:validation:Optional
@@ -114,25 +93,26 @@ type LokiRuleStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// LokiRule is the Schema for the lokirules API
-// +operator-sdk:csv:customresourcedefinitions:displayName="LokiRule",resources={{LokiStack,v1beta1}}
-type LokiRule struct {
+// AlertingRule is the Schema for the alertingrules API
+//
+// +operator-sdk:csv:customresourcedefinitions:displayName="AlertingRule",resources={{LokiStack,v1beta1}}
+type AlertingRule struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   LokiRuleSpec   `json:"spec,omitempty"`
-	Status LokiRuleStatus `json:"status,omitempty"`
+	Spec   AlertingRuleSpec   `json:"spec,omitempty"`
+	Status AlertingRuleStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// LokiRuleList contains a list of LokiRule
-type LokiRuleList struct {
+// AlertingRuleList contains a list of AlertingRule
+type AlertingRuleList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []LokiRule `json:"items"`
+	Items           []AlertingRule `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&LokiRule{}, &LokiRuleList{})
+	SchemeBuilder.Register(&AlertingRule{}, &AlertingRuleList{})
 }

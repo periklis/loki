@@ -1,5 +1,5 @@
 apiVersion: loki.grafana.com/v1beta1
-kind: LokiRule
+kind: AlertingRule
 metadata:
   name: lokistack-dev
   namespace: openshift-logging
@@ -8,32 +8,29 @@ metadata:
 spec:
   groups:
     - name: same-group-name
-      interval: "10broken"
       rules:
         - alert: HighPercentageError
           expr: |
-            sum(rate({app="foo", env="production"} |= "error" [5m])) by (job)
-              /
-            sum(rate({app="foo", env="production"}[5m])) by (job)
-              > 0.05
-          for: 10m
-          labels:
-              severity: page
-          annotations:
-              summary: High request latency
+            broken expr
+          for: "brokenFor"
     - name: same-group-name
-      interval: "1m"
       rules:
         - alert: http-credentials-leaked
-          annotations:
-            message: "{{ $labels.job }} is leaking http basic auth credentials."
-          expr: 'sum by (cluster, job, pod) (count_over_time({namespace="prod"} |~ "http(s?)://(\\w+):(\\w+)@" [5m]) > 0)'
-          for: 10m
-          labels:
-            severity: critical
+          expr: 'broken expr'
+          for: "brokenFor"
+---
+apiVersion: loki.grafana.com/v1beta1
+kind: RecordingRule
+metadata:
+  name: lokistack-dev
+  namespace: openshift-logging
+  labels:
+    loki.grafana.com/cluster-monitoring: "true"
+spec:
+  groups:
     - name: should_record
-      interval: 10m
+      interval: "broken"
       rules:
-        - record: "nginx:requests:rate10m"
+        - record: "broken%metric^name"
           expr: |
-            sum(rate({container="nginx"}[10m]))
+            broken expr

@@ -6,26 +6,12 @@ metadata:
       [
         {
           "apiVersion": "loki.grafana.com/v1beta1",
-          "kind": "LokiRule",
+          "kind": "AlertingRule",
           "metadata": {
-            "name": "lokirule-sample"
+            "name": "alertingrule-sample"
           },
           "spec": {
             "groups": [
-              {
-                "interval": "10m",
-                "name": "recoding-rules-group",
-                "rules": [
-                  {
-                    "expr": "sum(rate({container=\"myservice\"}[10m]))\n",
-                    "record": "myservice:requests:rate10m"
-                  },
-                  {
-                    "expr": "sum(rate({container=\"otherservice\"}[1m]))\n",
-                    "record": "otherservice:requests:rate1m"
-                  }
-                ]
-              },
               {
                 "interval": "10m",
                 "name": "alerting-rules-group",
@@ -72,6 +58,31 @@ metadata:
             },
             "storageClassName": "standard"
           }
+        },
+        {
+          "apiVersion": "loki.grafana.com/v1beta1",
+          "kind": "RecordingRule",
+          "metadata": {
+            "name": "recordingrule-sample"
+          },
+          "spec": {
+            "groups": [
+              {
+                "interval": "10m",
+                "name": "recoding-rules-group",
+                "rules": [
+                  {
+                    "expr": "sum(rate({container=\"myservice\"}[10m]))\n",
+                    "record": "myservice:requests:rate10m"
+                  },
+                  {
+                    "expr": "sum(rate({container=\"otherservice\"}[1m]))\n",
+                    "record": "otherservice:requests:rate1m"
+                  }
+                ]
+              }
+            ]
+          }
         }
       ]
     capabilities: Full Lifecycle
@@ -104,24 +115,20 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: LokiRule is the Schema for the lokirules API
-      displayName: LokiRule
-      kind: LokiRule
-      name: lokirules.loki.grafana.com
+    - description: AlertingRule is the Schema for the alertingrules API
+      displayName: AlertingRule
+      kind: AlertingRule
+      name: alertingrules.loki.grafana.com
       resources:
       - kind: LokiStack
         name: ""
         version: v1beta1
       specDescriptors:
-      - description: List of groups for alerting and/or recording rules.
+      - description: List of groups for alerting rules.
         displayName: Groups
         path: groups
-      - description: Interval defines the time interval between evaluation of the
-          given recoding rule.
-        displayName: Evaluation Interval
-        path: groups[0].interval
-      - description: Limit defines the number of alerts an alerting rule and series
-          a recording rule can produce. 0 is no limit.
+      - description: Limit defines the number of alerts an alerting rule can produce.
+          0 is no limit.
         displayName: Limit of firing alerts
         path: groups[0].limit
         x-descriptors:
@@ -130,14 +137,14 @@ spec:
           be unique within all loki rules.
         displayName: Name
         path: groups[0].name
-      - description: Rules defines a list of alerting and/or recording rules
+      - description: Rules defines a list of alerting rules
         displayName: Rules
         path: groups[0].rules
       - description: The name of the alert. Must be a valid label value.
-        displayName: Alert name
+        displayName: Name
         path: groups[0].rules[0].alert
       - description: Annotations to add to each alert.
-        displayName: Alert Annotations
+        displayName: Annotations
         path: groups[0].rules[0].annotations
       - description: The LogQL expression to evaluate. Every evaluation cycle this
           is evaluated at the current time, and all resultant time series become pending/firing
@@ -147,17 +154,13 @@ spec:
       - description: Alerts are considered firing once they have been returned for
           this long. Alerts which have not yet fired for long enough are considered
           pending.
-        displayName: Alert Firing Threshold
+        displayName: Firing Threshold
         path: groups[0].rules[0].for
       - description: Labels to add to each alert.
-        displayName: Alert Labels
+        displayName: Labels
         path: groups[0].rules[0].labels
-      - description: The name of the time series to output to. Must be a valid metric
-          name.
-        displayName: Recording Metric Name
-        path: groups[0].rules[0].record
       statusDescriptors:
-      - description: Conditions of the LokiRule generation health.
+      - description: Conditions of the AlertingRule generation health.
         displayName: Conditions
         path: conditions
         x-descriptors:
@@ -567,6 +570,45 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:io.kubernetes.conditions
       version: v1beta1
+    - description: RecordingRule is the Schema for the recordingrules API
+      displayName: RecordingRule
+      kind: RecordingRule
+      name: recordingrules.loki.grafana.com
+      resources:
+      - kind: LokiStack
+        name: ""
+        version: v1beta1
+      specDescriptors:
+      - description: List of groups for recording rules.
+        displayName: Groups
+        path: groups
+      - description: Interval defines the time interval between evaluation of the
+          given recoding rule.
+        displayName: Evaluation Interval
+        path: groups[0].interval
+      - description: Name defines a name of the present recoding rule. Must be unique
+          within all loki rules.
+        displayName: Name
+        path: groups[0].name
+      - description: Rules defines a list of recording rules
+        displayName: Rules
+        path: groups[0].rules
+      - description: The LogQL expression to evaluate. Every evaluation cycle this
+          is evaluated at the current time, and all resultant time series become pending/firing
+          alerts.
+        displayName: LogQL Expression
+        path: groups[0].rules[0].expr
+      - description: The name of the time series to output to. Must be a valid metric
+          name.
+        displayName: Metric Name
+        path: groups[0].rules[0].record
+      statusDescriptors:
+      - description: Conditions of the RecordingRule generation health.
+        displayName: Conditions
+        path: conditions
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes.conditions
+      version: v1beta1
   description: |
     The Loki Operator for OCP provides a means for configuring and managing a Loki stack for cluster logging.
     ## Prerequisites and Requirements
@@ -641,7 +683,7 @@ spec:
         - apiGroups:
           - loki.grafana.com
           resources:
-          - lokirules
+          - alertingrules
           verbs:
           - create
           - delete
@@ -653,13 +695,13 @@ spec:
         - apiGroups:
           - loki.grafana.com
           resources:
-          - lokirules/finalizers
+          - alertingrules/finalizers
           verbs:
           - update
         - apiGroups:
           - loki.grafana.com
           resources:
-          - lokirules/status
+          - alertingrules/status
           verbs:
           - get
           - patch
@@ -686,6 +728,32 @@ spec:
           - loki.grafana.com
           resources:
           - lokistacks/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - loki.grafana.com
+          resources:
+          - recordingrules
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - loki.grafana.com
+          resources:
+          - recordingrules/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - loki.grafana.com
+          resources:
+          - recordingrules/status
           verbs:
           - get
           - patch
@@ -912,7 +980,7 @@ spec:
     containerPort: 443
     deploymentName: loki-operator-controller-manager
     failurePolicy: Fail
-    generateName: vlokirule.kb.io
+    generateName: valertingrule.kb.io
     rules:
     - apiGroups:
       - loki.grafana.com
@@ -922,8 +990,28 @@ spec:
       - CREATE
       - UPDATE
       resources:
-      - lokirules
+      - alertingrules
     sideEffects: None
     targetPort: 9443
     type: ValidatingAdmissionWebhook
-    webhookPath: /validate-loki-grafana-com-v1beta1-lokirule
+    webhookPath: /validate-loki-grafana-com-v1beta1-alertingrule
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    deploymentName: loki-operator-controller-manager
+    failurePolicy: Fail
+    generateName: vrecordingrule.kb.io
+    rules:
+    - apiGroups:
+      - loki.grafana.com
+      apiVersions:
+      - v1beta1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - recordingrules
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-loki-grafana-com-v1beta1-recordingrule

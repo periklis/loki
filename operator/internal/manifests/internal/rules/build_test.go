@@ -12,7 +12,6 @@ func TestBuild_RulesConfig_RenderAlertingRules(t *testing.T) {
 	expCfg := `
 groups:
   - name: an-alert
-    interval: 2d
     limit: 2
     rules:
       - expr: |
@@ -44,12 +43,11 @@ groups:
 `
 
 	opts := rules.Options{
-		Groups: []*lokiv1beta1.LokiRuleGroup{
+		AlertingGroups: []*lokiv1beta1.AlertingRuleGroup{
 			{
-				Name:     "an-alert",
-				Limit:    2,
-				Interval: lokiv1beta1.EvaluationDuration("2d"),
-				Rules: []*lokiv1beta1.LokiRuleGroupSpec{
+				Name:  "an-alert",
+				Limit: 2,
+				Rules: []*lokiv1beta1.AlertingRuleGroupSpec{
 					{
 						Alert: "HighPercentageErrors",
 						Expr: `
@@ -57,7 +55,7 @@ groups:
             /
           sum(rate({app="foo", env="production"}[5m])) by (job)
             > 0.05`,
-						For: lokiv1beta1.EvaluationDuration("10m"),
+						For: lokiv1beta1.PrometheusDuration("10m"),
 						Labels: map[string]string{
 							"severity":    "page",
 							"environment": "production",
@@ -74,7 +72,7 @@ groups:
             /
           sum(rate({app="foo", env="production"}[5m])) by (job)
             > 0.05`,
-						For: lokiv1beta1.EvaluationDuration("10m"),
+						For: lokiv1beta1.PrometheusDuration("10m"),
 						Labels: map[string]string{
 							"severity":    "low",
 							"environment": "production",
@@ -113,11 +111,11 @@ groups:
 `
 
 	opts := rules.Options{
-		Groups: []*lokiv1beta1.LokiRuleGroup{
+		RecordingGroups: []*lokiv1beta1.RecordingRuleGroup{
 			{
 				Name:     "a-recording",
-				Interval: lokiv1beta1.EvaluationDuration("2d"),
-				Rules: []*lokiv1beta1.LokiRuleGroupSpec{
+				Interval: lokiv1beta1.PrometheusDuration("2d"),
+				Rules: []*lokiv1beta1.RecordingRuleGroupSpec{
 					{
 						Expr: `
           sum(
@@ -146,7 +144,6 @@ func TestBuild_RulesConfig_MultipleGroups(t *testing.T) {
 	expCfg := `
 groups:
   - name: an-alert
-    interval: 2d
     limit: 2
     rules:
       - expr: |
@@ -191,12 +188,11 @@ groups:
 `
 
 	opts := rules.Options{
-		Groups: []*lokiv1beta1.LokiRuleGroup{
+		AlertingGroups: []*lokiv1beta1.AlertingRuleGroup{
 			{
-				Name:     "an-alert",
-				Limit:    2,
-				Interval: lokiv1beta1.EvaluationDuration("2d"),
-				Rules: []*lokiv1beta1.LokiRuleGroupSpec{
+				Name:  "an-alert",
+				Limit: 2,
+				Rules: []*lokiv1beta1.AlertingRuleGroupSpec{
 					{
 						Alert: "HighPercentageErrors",
 						Expr: `
@@ -204,7 +200,7 @@ groups:
             /
           sum(rate({app="foo", env="production"}[5m])) by (job)
             > 0.05`,
-						For: lokiv1beta1.EvaluationDuration("10m"),
+						For: lokiv1beta1.PrometheusDuration("10m"),
 						Labels: map[string]string{
 							"severity":    "page",
 							"environment": "production",
@@ -221,7 +217,7 @@ groups:
             /
           sum(rate({app="foo", env="production"}[5m])) by (job)
             > 0.05`,
-						For: lokiv1beta1.EvaluationDuration("10m"),
+						For: lokiv1beta1.PrometheusDuration("10m"),
 						Labels: map[string]string{
 							"severity":    "low",
 							"environment": "production",
@@ -233,10 +229,12 @@ groups:
 					},
 				},
 			},
+		},
+		RecordingGroups: []*lokiv1beta1.RecordingRuleGroup{
 			{
 				Name:     "a-recording",
-				Interval: lokiv1beta1.EvaluationDuration("2d"),
-				Rules: []*lokiv1beta1.LokiRuleGroupSpec{
+				Interval: lokiv1beta1.PrometheusDuration("2d"),
+				Rules: []*lokiv1beta1.RecordingRuleGroupSpec{
 					{
 						Expr: `
           sum(

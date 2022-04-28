@@ -28,4 +28,28 @@ resources:
   webhooks:
     validation: true
     webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: grafana.com
+  group: loki
+  kind: AlertingRule
+  path: github.com/grafana/loki/operator/api/v1beta1
+  version: v1beta1
+  webhooks:
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: grafana.com
+  group: loki
+  kind: RecordingRule
+  path: github.com/grafana/loki/operator/api/v1beta1
+  version: v1beta1
+  webhooks:
+    validation: true
+    webhookVersion: v1
 version: "3"

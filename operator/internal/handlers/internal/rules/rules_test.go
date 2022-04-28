@@ -17,7 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func TestList_LokiRulesMatchSelector_WithDefaultStackNamespaceRules(t *testing.T) {
+func TestList_AlertingRulesMatchSelector_WithDefaultStackNamespaceRules(t *testing.T) {
 	const stackNs = "some-ns"
 
 	k := &k8sfakes.FakeClient{}
@@ -46,8 +46,8 @@ func TestList_LokiRulesMatchSelector_WithDefaultStackNamespaceRules(t *testing.T
 		m := labels.Set(rs.Selector.MatchLabels)
 
 		if l.Matches(m) {
-			k.SetClientObjectList(ol, &lokiv1beta1.LokiRuleList{
-				Items: []lokiv1beta1.LokiRule{
+			k.SetClientObjectList(ol, &lokiv1beta1.AlertingRuleList{
+				Items: []lokiv1beta1.AlertingRule{
 					{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      "rule-a",
@@ -77,14 +77,14 @@ func TestList_LokiRulesMatchSelector_WithDefaultStackNamespaceRules(t *testing.T
 		return nil
 	}
 
-	rules, err := rules.List(context.TODO(), k, stackNs, rs)
+	rules, err := rules.ListAlertingRules(context.TODO(), k, stackNs, rs)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, rules.Items)
 	require.Len(t, rules.Items, 1)
 }
 
-func TestList_LokiRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
+func TestList_AlertingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
 	const stackNs = "some-ns"
 
 	k := &k8sfakes.FakeClient{}
@@ -118,8 +118,8 @@ func TestList_LokiRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
 		m := labels.Set(rs.Selector.MatchLabels)
 
 		if l.Matches(m) {
-			k.SetClientObjectList(ol, &lokiv1beta1.LokiRuleList{
-				Items: []lokiv1beta1.LokiRule{
+			k.SetClientObjectList(ol, &lokiv1beta1.AlertingRuleList{
+				Items: []lokiv1beta1.AlertingRule{
 					{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:      "rule-a",
@@ -172,7 +172,169 @@ func TestList_LokiRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
 		return nil
 	}
 
-	rules, err := rules.List(context.TODO(), k, stackNs, rs)
+	rules, err := rules.ListAlertingRules(context.TODO(), k, stackNs, rs)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, rules.Items)
+	require.Len(t, rules.Items, 2)
+}
+
+func TestList_RecordingRulesMatchSelector_WithDefaultStackNamespaceRules(t *testing.T) {
+	const stackNs = "some-ns"
+
+	k := &k8sfakes.FakeClient{}
+	rs := &lokiv1beta1.RulesSpec{
+		Selector: &metav1.LabelSelector{
+			MatchLabels: map[string]string{
+				"labelname": "labelvalue",
+			},
+		},
+	}
+
+	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object) error {
+		if name.Name == stackNs {
+			k.SetClientObject(object, &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: stackNs,
+				},
+			})
+			return nil
+		}
+		return apierrors.NewNotFound(schema.GroupResource{}, "something wasn't found")
+	}
+
+	k.ListStub = func(_ context.Context, ol client.ObjectList, opt ...client.ListOption) error {
+		l := opt[0].(*client.MatchingLabelsSelector)
+		m := labels.Set(rs.Selector.MatchLabels)
+
+		if l.Matches(m) {
+			k.SetClientObjectList(ol, &lokiv1beta1.RecordingRuleList{
+				Items: []lokiv1beta1.RecordingRule{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "rule-a",
+							Namespace: stackNs,
+							Labels: map[string]string{
+								"labelname": "labelvalue",
+							},
+						},
+					},
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "rule-b",
+							Namespace: "other-ns",
+							Labels: map[string]string{
+								"labelname": "labelvalue",
+							},
+						},
+					},
+				},
+			})
+
+			return nil
+		}
+
+		k.SetClientObjectList(ol, &corev1.NamespaceList{})
+
+		return nil
+	}
+
+	rules, err := rules.ListRecordingRules(context.TODO(), k, stackNs, rs)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, rules.Items)
+	require.Len(t, rules.Items, 1)
+}
+
+func TestList_RecordingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
+	const stackNs = "some-ns"
+
+	k := &k8sfakes.FakeClient{}
+	rs := &lokiv1beta1.RulesSpec{
+		Selector: &metav1.LabelSelector{
+			MatchLabels: map[string]string{
+				"labelname": "labelvalue",
+			},
+		},
+		NamespaceSelector: &metav1.LabelSelector{
+			MatchLabels: map[string]string{
+				"group.acme.org/logs": "true",
+			},
+		},
+	}
+
+	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object) error {
+		if name.Name == "some-ns" {
+			k.SetClientObject(object, &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: stackNs,
+				},
+			})
+			return nil
+		}
+		return apierrors.NewNotFound(schema.GroupResource{}, "something wasn't found")
+	}
+
+	k.ListStub = func(_ context.Context, ol client.ObjectList, opt ...client.ListOption) error {
+		l := opt[0].(*client.MatchingLabelsSelector)
+		m := labels.Set(rs.Selector.MatchLabels)
+
+		if l.Matches(m) {
+			k.SetClientObjectList(ol, &lokiv1beta1.RecordingRuleList{
+				Items: []lokiv1beta1.RecordingRule{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "rule-a",
+							Namespace: "matching-ns",
+							Labels: map[string]string{
+								"labelname": "labelvalue",
+							},
+						},
+					},
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "rule-b",
+							Namespace: stackNs,
+						},
+					},
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:      "rule-c",
+							Namespace: "not-matching-ns",
+							Labels: map[string]string{
+								"labelname": "labelvalue",
+							},
+						},
+					},
+				},
+			})
+
+			return nil
+		}
+
+		n := labels.Set(rs.NamespaceSelector.MatchLabels)
+		if l.Matches(n) {
+			k.SetClientObjectList(ol, &corev1.NamespaceList{
+				Items: []corev1.Namespace{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "matching-ns",
+							Labels: map[string]string{
+								"group.acme.org/logs": "true",
+							},
+						},
+					},
+				},
+			})
+			return nil
+		}
+
+		k.SetClientObjectList(ol, &corev1.NamespaceList{})
+
+		return nil
+	}
+
+	rules, err := rules.ListRecordingRules(context.TODO(), k, stackNs, rs)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, rules.Items)

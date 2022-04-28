@@ -17,8 +17,21 @@ func LokiRulesConfigMap(opts Options) (*corev1.ConfigMap, string, error) {
 		rStr []byte
 	)
 
-	for _, r := range opts.Rules {
-		rOpts := rules.Options{Groups: r.Spec.Groups}
+	for _, r := range opts.AlertingRules {
+		rOpts := rules.Options{AlertingGroups: r.Spec.Groups}
+
+		c, err := rules.Build(rOpts)
+		if err != nil {
+			return nil, "", err
+		}
+
+		key := fmt.Sprintf("%s-%s.yaml", r.Namespace, r.Name)
+		data[key] = c
+		rStr = append(rStr, []byte(c)...)
+	}
+
+	for _, r := range opts.RecordingRules {
+		rOpts := rules.Options{RecordingGroups: r.Spec.Groups}
 
 		c, err := rules.Build(rOpts)
 		if err != nil {

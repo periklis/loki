@@ -124,16 +124,28 @@ func main() {
 		logger.Error(err, "unable to create controller", "controller", "LokiStack")
 		os.Exit(1)
 	}
-	if err = (&controllers.LokiRuleReconciler{
+	if err = (&controllers.AlertingRuleReconciler{
 		Client: mgr.GetClient(),
-		Log:    logger.WithName("controllers").WithName("LokiRule"),
+		Log:    logger.WithName("controllers").WithName("AlertingRule"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		logger.Error(err, "unable to create controller", "controller", "LokiRule")
+		logger.Error(err, "unable to create controller", "controller", "AlertingRule")
 		os.Exit(1)
 	}
-	if err = (&lokiv1beta1.LokiRule{}).SetupWebhookWithManager(mgr); err != nil {
-		logger.Error(err, "unable to create webhook", "webhook", "LokiRule")
+	if err = (&lokiv1beta1.AlertingRule{}).SetupWebhookWithManager(mgr); err != nil {
+		logger.Error(err, "unable to create webhook", "webhook", "AlertingRule")
+		os.Exit(1)
+	}
+	if err = (&controllers.RecordingRuleReconciler{
+		Client: mgr.GetClient(),
+		Log:    logger.WithName("controllers").WithName("RecordingRule"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		logger.Error(err, "unable to create controller", "controller", "RecordingRule")
+		os.Exit(1)
+	}
+	if err = (&lokiv1beta1.RecordingRule{}).SetupWebhookWithManager(mgr); err != nil {
+		logger.Error(err, "unable to create webhook", "webhook", "RecordingRule")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

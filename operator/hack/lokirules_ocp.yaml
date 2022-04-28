@@ -1,5 +1,5 @@
 apiVersion: loki.grafana.com/v1beta1
-kind: LokiRule
+kind: AlertingRule
 metadata:
   name: lokistack-dev
   namespace: openshift-logging
@@ -8,7 +8,6 @@ metadata:
 spec:
   groups:
     - name: should_fire
-      interval: "10m"
       rules:
         - alert: HighPercentageError
           expr: |
@@ -22,7 +21,6 @@ spec:
           annotations:
               summary: High request latency
     - name: credentials_leak
-      interval: "1m"
       rules:
         - alert: http-credentials-leaked
           annotations:
@@ -31,6 +29,16 @@ spec:
           for: 10m
           labels:
             severity: critical
+---
+apiVersion: loki.grafana.com/v1beta1
+kind: RecordingRule
+metadata:
+  name: lokistack-dev
+  namespace: openshift-logging
+  labels:
+    loki.grafana.com/cluster-monitoring: "true"
+spec:
+  groups:
     - name: should_record
       interval: 10m
       rules:
@@ -39,7 +47,7 @@ spec:
             sum(rate({container="nginx"}[10m]))
 ---
 apiVersion: loki.grafana.com/v1beta1
-kind: LokiRule
+kind: AlertingRule
 metadata:
   name: loki-operator-dev
   namespace: openshift-operators-redhat
@@ -48,7 +56,6 @@ metadata:
 spec:
   groups:
     - name: should_operator_fire_on_errors
-      interval: "10m"
       rules:
         - alert: HighPercentageError
           expr: |
@@ -62,7 +69,6 @@ spec:
           annotations:
               summary: High request latency
     - name: credentials_operator_leak
-      interval: "1m"
       rules:
         - alert: http-credentials-leaked
           annotations:
@@ -71,6 +77,16 @@ spec:
           for: 10m
           labels:
             severity: critical
+---
+apiVersion: loki.grafana.com/v1beta1
+kind: RecordingRule
+metadata:
+  name: loki-operator-dev
+  namespace: openshift-operators-redhat
+  labels:
+    loki.grafana.com/cluster-monitoring: "true"
+spec:
+  groups:
     - name: should_operator_record
       interval: 10m
       rules:

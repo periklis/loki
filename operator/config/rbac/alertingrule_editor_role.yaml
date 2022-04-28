@@ -1,13 +1,13 @@
-# permissions for end users to edit lokirules.
+# permissions for end users to edit alertingrules.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: lokirule-editor-role
+  name: alertingrule-editor-role
 rules:
 - apiGroups:
   - loki.grafana.com
   resources:
-  - lokirules
+  - alertingrules
   verbs:
   - create
   - delete
@@ -19,6 +19,6 @@ rules:
 - apiGroups:
   - loki.grafana.com
   resources:
-  - lokirules/status
+  - alertingrules/status
   verbs:
   - get

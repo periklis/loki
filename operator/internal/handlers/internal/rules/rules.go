@@ -12,22 +12,50 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// List returns a k8s resource list of LokiRules for the given spec or an error. Three cases apply:
+// ListAlertingRules returns a k8s resource list of AlertingRules for the given spec or an error. Three cases apply:
 // - Return only matching rules in the stack namespace if no namespace selector given.
 // - Return only matching rules in the stack namespace and in namespaces matching the namespace selector.
 // - Return no rules if rules selector does not apply at all.
-func List(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.LokiRuleList, error) {
+func ListAlertingRules(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.AlertingRuleList, error) {
 	nsl, err := selectRulesNamespaces(ctx, k, stackNs, rs)
 	if err != nil {
-		return lokiv1beta1.LokiRuleList{}, err
+		return lokiv1beta1.AlertingRuleList{}, err
 	}
 
-	rules, err := selectRules(ctx, k, rs)
+	rules, err := selectAlertingRules(ctx, k, rs)
 	if err != nil {
-		return lokiv1beta1.LokiRuleList{}, err
+		return lokiv1beta1.AlertingRuleList{}, err
 	}
 
-	var lrl lokiv1beta1.LokiRuleList
+	var lrl lokiv1beta1.AlertingRuleList
+	for _, rule := range rules.Items {
+		for _, ns := range nsl.Items {
+			if rule.Namespace == ns.Name {
+				lrl.Items = append(lrl.Items, rule)
+				break
+			}
+		}
+	}
+
+	return lrl, nil
+}
+
+// ListRecordingRules returns a k8s resource list of AlertingRules for the given spec or an error. Three cases apply:
+// - Return only matching rules in the stack namespace if no namespace selector given.
+// - Return only matching rules in the stack namespace and in namespaces matching the namespace selector.
+// - Return no rules if rules selector does not apply at all.
+func ListRecordingRules(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.RecordingRuleList, error) {
+	nsl, err := selectRulesNamespaces(ctx, k, stackNs, rs)
+	if err != nil {
+		return lokiv1beta1.RecordingRuleList{}, err
+	}
+
+	rules, err := selectRecordingRules(ctx, k, rs)
+	if err != nil {
+		return lokiv1beta1.RecordingRuleList{}, err
+	}
+
+	var lrl lokiv1beta1.RecordingRuleList
 	for _, rule := range rules.Items {
 		for _, ns := range nsl.Items {
 			if rule.Namespace == ns.Name {
@@ -73,16 +101,31 @@ func selectRulesNamespaces(ctx context.Context, k k8s.Client, stackNs string, rs
 	return nsList, nil
 }
 
-func selectRules(ctx context.Context, k k8s.Client, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.LokiRuleList, error) {
+func selectAlertingRules(ctx context.Context, k k8s.Client, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.AlertingRuleList, error) {
 	rulesSelector, err := metav1.LabelSelectorAsSelector(rs.Selector)
 	if err != nil {
-		return lokiv1beta1.LokiRuleList{}, kverrors.Wrap(err, "failed to create LokiRules selector", "selector", rs.Selector)
+		return lokiv1beta1.AlertingRuleList{}, kverrors.Wrap(err, "failed to create AlertingRules selector", "selector", rs.Selector)
 	}
 
-	var rl lokiv1beta1.LokiRuleList
+	var rl lokiv1beta1.AlertingRuleList
 	err = k.List(ctx, &rl, &client.MatchingLabelsSelector{Selector: rulesSelector})
 	if err != nil {
-		return lokiv1beta1.LokiRuleList{}, kverrors.Wrap(err, "failed to list LokiRules for selector", "selector", rs.Selector)
+		return lokiv1beta1.AlertingRuleList{}, kverrors.Wrap(err, "failed to list AlertingRules for selector", "selector", rs.Selector)
+	}
+
+	return rl, nil
+}
+
+func selectRecordingRules(ctx context.Context, k k8s.Client, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.RecordingRuleList, error) {
+	rulesSelector, err := metav1.LabelSelectorAsSelector(rs.Selector)
+	if err != nil {
+		return lokiv1beta1.RecordingRuleList{}, kverrors.Wrap(err, "failed to create RecordingRules selector", "selector", rs.Selector)
+	}
+
+	var rl lokiv1beta1.RecordingRuleList
+	err = k.List(ctx, &rl, &client.MatchingLabelsSelector{Selector: rulesSelector})
+	if err != nil {
+		return lokiv1beta1.RecordingRuleList{}, kverrors.Wrap(err, "failed to list RecordingRules for selector", "selector", rs.Selector)
 	}
 
 	return rl, nil

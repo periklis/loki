@@ -1,29 +1,24 @@
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  labels:
-    app.kubernetes.io/instance: loki-operator-v0.0.1
-    app.kubernetes.io/managed-by: operator-lifecycle-manager
-    app.kubernetes.io/name: loki-operator
-    app.kubernetes.io/part-of: cluster-logging
-    app.kubernetes.io/version: 0.0.1
-  name: lokirules.loki.grafana.com
+  name: alertingrules.loki.grafana.com
 spec:
   group: loki.grafana.com
   names:
-    kind: LokiRule
-    listKind: LokiRuleList
-    plural: lokirules
-    singular: lokirule
+    kind: AlertingRule
+    listKind: AlertingRuleList
+    plural: alertingrules
+    singular: alertingrule
   scope: Namespaced
   versions:
   - name: v1beta1
     schema:
       openAPIV3Schema:
-        description: LokiRule is the Schema for the lokirules API
+        description: AlertingRule is the Schema for the alertingrules API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -38,22 +33,17 @@ spec:
           metadata:
             type: object
           spec:
-            description: LokiRuleSpec defines the desired state of LokiRule
+            description: AlertingRuleSpec defines the desired state of AlertingRule
             properties:
               groups:
-                description: List of groups for alerting and/or recording rules.
+                description: List of groups for alerting rules.
                 items:
-                  description: LokiRuleGroup defines a group of Loki alerting and/or
-                    recording rules.
+                  description: AlertingRuleGroup defines a group of Loki alerting
+                    rules.
                   properties:
-                    interval:
-                      description: Interval defines the time interval between evaluation
-                        of the given recoding rule.
-                      pattern: ((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)
-                      type: string
                     limit:
                       description: Limit defines the number of alerts an alerting
-                        rule and series a recording rule can produce. 0 is no limit.
+                        rule can produce. 0 is no limit.
                       format: int32
                       type: integer
                     name:
@@ -61,11 +51,10 @@ spec:
                         rule. Must be unique within all loki rules.
                       type: string
                     rules:
-                      description: Rules defines a list of alerting and/or recording
-                        rules
+                      description: Rules defines a list of alerting rules
                       items:
-                        description: LokiRuleGroupSpec defines the spec for a Loki
-                          alerting or recording rule.
+                        description: AlertingRuleGroupSpec defines the spec for a
+                          Loki alerting rule.
                         properties:
                           alert:
                             description: The name of the alert. Must be a valid label
@@ -92,26 +81,21 @@ spec:
                               type: string
                             description: Labels to add to each alert.
                             type: object
-                          record:
-                            description: The name of the time series to output to.
-                              Must be a valid metric name.
-                            type: string
                         required:
                         - expr
                         type: object
                       type: array
                   required:
-                  - interval
                   - name
                   - rules
                   type: object
                 type: array
             type: object
           status:
-            description: LokiRuleStatus defines the observed state of LokiRule
+            description: AlertingRuleStatus defines the observed state of AlertingRule
             properties:
               conditions:
-                description: Conditions of the LokiRule generation health.
+                description: Conditions of the AlertingRule generation health.
                 items:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct

@@ -19,21 +19,23 @@ func TestLokiRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
 	cm, _, err := manifests.LokiRulesConfigMap(testOptions())
 	require.NoError(t, err)
 	require.NotNil(t, cm)
-	require.Len(t, cm.Data, 2)
-	require.Contains(t, cm.Data, "dev-rules.yaml")
-	require.Contains(t, cm.Data, "prod-rules.yaml")
+	require.Len(t, cm.Data, 4)
+	require.Contains(t, cm.Data, "dev-alerting-rules.yaml")
+	require.Contains(t, cm.Data, "prod-alerting-rules.yaml")
+	require.Contains(t, cm.Data, "dev-recording-rules.yaml")
+	require.Contains(t, cm.Data, "prod-recording-rules.yaml")
 }
 
 func testOptions() manifests.Options {
 	return manifests.Options{
-		Rules: []lokiv1beta1.LokiRule{
+		AlertingRules: []lokiv1beta1.AlertingRule{
 			{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "rules",
+					Name:      "alerting-rules",
 					Namespace: "dev",
 				},
-				Spec: lokiv1beta1.LokiRuleSpec{
-					Groups: []*lokiv1beta1.LokiRuleGroup{
+				Spec: lokiv1beta1.AlertingRuleSpec{
+					Groups: []*lokiv1beta1.AlertingRuleGroup{
 						{
 							Name: "rule-a",
 						},
@@ -45,11 +47,45 @@ func testOptions() manifests.Options {
 			},
 			{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "rules",
+					Name:      "alerting-rules",
 					Namespace: "prod",
 				},
-				Spec: lokiv1beta1.LokiRuleSpec{
-					Groups: []*lokiv1beta1.LokiRuleGroup{
+				Spec: lokiv1beta1.AlertingRuleSpec{
+					Groups: []*lokiv1beta1.AlertingRuleGroup{
+						{
+							Name: "rule-c",
+						},
+						{
+							Name: "rule-d",
+						},
+					},
+				},
+			},
+		},
+		RecordingRules: []lokiv1beta1.RecordingRule{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "recording-rules",
+					Namespace: "dev",
+				},
+				Spec: lokiv1beta1.RecordingRuleSpec{
+					Groups: []*lokiv1beta1.RecordingRuleGroup{
+						{
+							Name: "rule-a",
+						},
+						{
+							Name: "rule-b",
+						},
+					},
+				},
+			},
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "recording-rules",
+					Namespace: "prod",
+				},
+				Spec: lokiv1beta1.RecordingRuleSpec{
+					Groups: []*lokiv1beta1.RecordingRuleGroup{
 						{
 							Name: "rule-c",
 						},
