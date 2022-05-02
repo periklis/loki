@@ -1,21 +1,19 @@
 package manifests_test
 
 import (
-	"strings"
 	"testing"
 
 	lokiv1beta1 "github.com/grafana/loki/operator/api/v1beta1"
 	"github.com/grafana/loki/operator/internal/manifests"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 )
 
 func TestNewRulerStatefulSet_HasTemplateConfigHashAnnotation(t *testing.T) {
 	ss := manifests.NewRulerStatefulSet(manifests.Options{
-		Name:               "abcd",
-		Namespace:          "efgh",
-		ConfigSHA1:         "deadbeef",
-		AlertringRulesSHA1: "deadbeef",
-		RecordingRulesSHA1: "deadbeef",
+		Name:       "abcd",
+		Namespace:  "efgh",
+		ConfigSHA1: "deadbeef",
 		Stack: lokiv1beta1.LokiStackSpec{
 			StorageClassName: "standard",
 			Template: &lokiv1beta1.LokiTemplateSpec{
@@ -27,13 +25,9 @@ func TestNewRulerStatefulSet_HasTemplateConfigHashAnnotation(t *testing.T) {
 	})
 
 	expected := "loki.grafana.com/config-hash"
-	alertsExpected := "loki.grafana.com/alerting-rules-hash"
-	recordingsExpected := "loki.grafana.com/recording-rules-hash"
 	annotations := ss.Spec.Template.Annotations
 	require.Contains(t, annotations, expected)
 	require.Equal(t, annotations[expected], "deadbeef")
-	require.Equal(t, annotations[alertsExpected], "deadbeef")
-	require.Equal(t, annotations[recordingsExpected], "deadbeef")
 }
 
 func TestNewRulerStatefulSet_SelectorMatchesLabels(t *testing.T) {
@@ -63,7 +57,7 @@ func TestNewRulerStatefulSet_SelectorMatchesLabels(t *testing.T) {
 	}
 }
 
-func TestNewRulerStatefulSet_MountsRulesInIndependentConfigMapVolumes(t *testing.T) {
+func TestNewRulerStatefulSet_MountsRulesInPerTenantIDSubDirectories(t *testing.T) {
 	sts := manifests.NewRulerStatefulSet(manifests.Options{
 		Name:      "abcd",
 		Namespace: "efgh",
@@ -75,30 +69,23 @@ func TestNewRulerStatefulSet_MountsRulesInIndependentConfigMapVolumes(t *testing
 				},
 			},
 		},
+		RulesTenants: map[string][]string{
+			"tenant-a": {"rule-a-alerts.yaml", "rule-b-recs.yaml"},
+			"tenant-b": {"rule-a-alerts.yaml", "rule-b-recs.yaml"},
+		},
 	})
 
 	vs := sts.Spec.Template.Spec.Volumes
-	vms := sts.Spec.Template.Spec.Containers[0].VolumeMounts
 
 	var (
-		volumeNames      []string
-		volumeMountNames []string
-		volumeMountPaths = make(map[string]string)
+		volumeNames []string
+		volumeItems []corev1.KeyToPath
 	)
 	for _, v := range vs {
 		volumeNames = append(volumeNames, v.Name)
-	}
-	for _, v := range vms {
-		volumeMountNames = append(volumeMountNames, v.Name)
-		volumeMountPaths[v.Name] = v.MountPath
+		volumeItems = append(volumeItems, v.ConfigMap.Items...)
 	}
 
-	require.Contains(t, volumeNames, "alertingrules")
-	require.Contains(t, volumeNames, "recordingrules")
-	require.Contains(t, volumeMountNames, "alertingrules")
-	require.Contains(t, volumeMountNames, "recordingrules")
-	require.True(t, strings.HasPrefix(volumeMountPaths["alertingrules"], "/tmp/rules"))
-	require.True(t, strings.HasSuffix(volumeMountPaths["alertingrules"], "/alerting-rules"))
-	require.True(t, strings.HasPrefix(volumeMountPaths["recordingrules"], "/tmp/rules"))
-	require.True(t, strings.HasSuffix(volumeMountPaths["recordingrules"], "/recording-rules"))
+	require.NotEmpty(t, volumeNames)
+	require.NotEmpty(t, volumeItems)
 }

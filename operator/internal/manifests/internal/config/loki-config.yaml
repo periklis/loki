@@ -166,7 +166,11 @@ ruler:
     truncate_frequency: 60m
     min_age: 5m
     max_age: 4h
-  rule_path: {{ .Ruler.RulesDirectory }}
+  rule_path: {{ .StorageDirectory }}
+  storage:
+    type: local
+    local:
+      directory: {{ .Ruler.RulesStorageDirectory }}
   ring:
     kvstore:
       store: memberlist

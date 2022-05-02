@@ -37,9 +37,8 @@ type Address struct {
 
 // Ruler configuration
 type Ruler struct {
-	Enabled        bool
-	Address        Address
-	RulesDirectory string
+	Enabled               bool
+	RulesStorageDirectory string
 }
 
 // MaxConcurrent for concurrent query processing.

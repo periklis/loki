@@ -6,6 +6,13 @@ import (
 
 // RecordingRuleSpec defines the desired state of RecordingRule
 type RecordingRuleSpec struct {
+	// Tenant to associate the recording rule groups.
+	//
+	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Tenant ID"
+	TenantID string `json:"tenantID"`
+
 	// List of groups for recording rules.
 	//
 	// +optional

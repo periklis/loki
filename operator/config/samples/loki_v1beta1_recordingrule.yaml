@@ -3,6 +3,7 @@ kind: RecordingRule
 metadata:
   name: recordingrule-sample
 spec:
+  tenantID: "test-tenant"
   groups:
     - name: "recoding-rules-group"
       interval: 10m

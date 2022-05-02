@@ -47,24 +47,14 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 				},
 			},
 			{
-				Name: alertingRulesVolumeName,
+				Name: rulesStorageVolumeName,
 				VolumeSource: corev1.VolumeSource{
 					ConfigMap: &corev1.ConfigMapVolumeSource{
 						DefaultMode: &defaultConfigMapMode,
 						LocalObjectReference: corev1.LocalObjectReference{
-							Name: AlertringRulesConfigMapName(opts.Name),
+							Name: RulesConfigMapName(opts.Name),
 						},
-					},
-				},
-			},
-			{
-				Name: recordingRulesVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						DefaultMode: &defaultConfigMapMode,
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: RecordingRulesConfigMapName(opts.Name),
-						},
+						Items: ruleVolumeItems(opts.RulesTenants),
 					},
 				},
 			},
@@ -79,6 +69,7 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 				},
 				Args: []string{
 					"-target=ruler",
+					"-log.level=debug",
 					fmt.Sprintf("-config.file=%s", path.Join(config.LokiConfigMountDir, config.LokiConfigFileName)),
 					fmt.Sprintf("-runtime-config.file=%s", path.Join(config.LokiConfigMountDir, config.LokiRuntimeConfigFileName)),
 				},
@@ -108,19 +99,19 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 						MountPath: config.LokiConfigMountDir,
 					},
 					{
-						Name:      alertingRulesVolumeName,
+						Name:      rulesStorageVolumeName,
 						ReadOnly:  false,
-						MountPath: path.Join(rulesDirectory, alertingRulesDirectory),
-					},
-					{
-						Name:      recordingRulesVolumeName,
-						ReadOnly:  false,
-						MountPath: path.Join(rulesDirectory, recordingRulesDirectory),
+						MountPath: rulesStorageDirectory,
 					},
 					{
 						Name:      walVolumeName,
 						ReadOnly:  false,
 						MountPath: walDirectory,
+					},
+					{
+						Name:      storageVolumeName,
+						ReadOnly:  false,
+						MountPath: dataDirectory,
 					},
 				},
 				TerminationMessagePath:   "/dev/termination-log",
@@ -137,7 +128,6 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 
 	l := ComponentLabels(LabelRulerComponent, opts.Name)
 	a := commonAnnotations(opts.ConfigSHA1)
-	a = rulerAnnotations(a, opts.AlertringRulesSHA1, opts.RecordingRulesSHA1)
 
 	return &appsv1.StatefulSet{
 		TypeMeta: metav1.TypeMeta{
@@ -170,7 +160,7 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Labels: l,
-						Name:   walVolumeName,
+						Name:   storageVolumeName,
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
 						AccessModes: []corev1.PersistentVolumeAccessMode{
@@ -180,6 +170,25 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 						Resources: corev1.ResourceRequirements{
 							Requests: map[corev1.ResourceName]resource.Quantity{
 								corev1.ResourceStorage: opts.ResourceRequirements.Ruler.PVCSize,
+							},
+						},
+						StorageClassName: pointer.StringPtr(opts.Stack.StorageClassName),
+						VolumeMode:       &volumeFileSystemMode,
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: l,
+						Name:   walVolumeName,
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{
+							// TODO: should we verify that this is possible with the given storage class first?
+							corev1.ReadWriteOnce,
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: map[corev1.ResourceName]resource.Quantity{
+								corev1.ResourceStorage: opts.ResourceRequirements.WALStorage.PVCSize,
 							},
 						},
 						StorageClassName: pointer.StringPtr(opts.Stack.StorageClassName),
@@ -254,8 +263,17 @@ func configureRulerServiceMonitorPKI(statefulSet *appsv1.StatefulSet, stackName 
 	return configureServiceMonitorPKI(&statefulSet.Spec.Template.Spec, serviceName)
 }
 
-func rulerAnnotations(a map[string]string, alertsSHA1, recordingsSHA1 string) map[string]string {
-	a["loki.grafana.com/alerting-rules-hash"] = alertsSHA1
-	a["loki.grafana.com/recording-rules-hash"] = recordingsSHA1
-	return a
+func ruleVolumeItems(tenants map[string][]string) []corev1.KeyToPath {
+	var items []corev1.KeyToPath
+
+	for id, rules := range tenants {
+		for _, rule := range rules {
+			items = append(items, corev1.KeyToPath{
+				Key:  rule,
+				Path: fmt.Sprintf("%s/%s", id, rule),
+			})
+		}
+	}
+
+	return items
 }

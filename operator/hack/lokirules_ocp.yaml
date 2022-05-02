@@ -6,6 +6,7 @@ metadata:
   labels:
     loki.grafana.com/cluster-monitoring: "true"
 spec:
+  tenantID: "application"
   groups:
     - name: should_fire
       rules:
@@ -38,6 +39,7 @@ metadata:
   labels:
     loki.grafana.com/cluster-monitoring: "true"
 spec:
+  tenantID: "application"
   groups:
     - name: should_record
       interval: 10m
@@ -54,6 +56,7 @@ metadata:
   labels:
     loki.grafana.com/cluster-monitoring: "true"
 spec:
+  tenantID: "infrastructure"
   groups:
     - name: should_operator_fire_on_errors
       rules:
@@ -86,6 +89,7 @@ metadata:
   labels:
     loki.grafana.com/cluster-monitoring: "true"
 spec:
+  tenantID: "infrastructure"
   groups:
     - name: should_operator_record
       interval: 10m

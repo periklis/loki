@@ -40,7 +40,8 @@ metadata:
                   }
                 ]
               }
-            ]
+            ],
+            "tenantID": "test-tenant"
           }
         },
         {
@@ -81,7 +82,8 @@ metadata:
                   }
                 ]
               }
-            ]
+            ],
+            "tenantID": "test-tenant"
           }
         }
       ]
@@ -163,6 +165,9 @@ spec:
       - description: Labels to add to each alert.
         displayName: Labels
         path: groups[0].rules[0].labels
+      - description: Tenant to associate the alerting rule groups.
+        displayName: Tenant ID
+        path: tenantID
       statusDescriptors:
       - description: Conditions of the AlertingRule generation health.
         displayName: Conditions
@@ -612,6 +617,9 @@ spec:
           name.
         displayName: Metric Name
         path: groups[0].rules[0].record
+      - description: Tenant to associate the recording rule groups.
+        displayName: Tenant ID
+        path: tenantID
       statusDescriptors:
       - description: Conditions of the RecordingRule generation health.
         displayName: Conditions

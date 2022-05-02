@@ -59,21 +59,13 @@ func BuildAll(opts Options) ([]client.Object, error) {
 	res = append(res, BuildLokiGossipRingService(opts.Name))
 
 	if opts.Stack.Rules != nil && opts.Stack.Rules.Enabled {
-		alertingRulesCm, sha1, err := AlertingRulesConfigMap(opts)
+		rulesCm, tenants, err := RulesConfigMap(opts)
 		if err != nil {
 			return nil, err
 		}
 
-		res = append(res, alertingRulesCm)
-		opts.AlertringRulesSHA1 = sha1
-
-		recordingRulesCm, sha1, err := RecordingRulesConfigMap(opts)
-		if err != nil {
-			return nil, err
-		}
-
-		res = append(res, recordingRulesCm)
-		opts.RecordingRulesSHA1 = sha1
+		res = append(res, rulesCm)
+		opts.RulesTenants = tenants
 
 		rulerObjs, err := BuildRuler(opts)
 		if err != nil {

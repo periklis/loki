@@ -6,6 +6,13 @@ import (
 
 // AlertingRuleSpec defines the desired state of AlertingRule
 type AlertingRuleSpec struct {
+	// Tenant to associate the alerting rule groups.
+	//
+	// +required
+	// +kubebuilder:validation:Required
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Tenant ID"
+	TenantID string `json:"tenantID"`
+
 	// List of groups for alerting rules.
 	//
 	// +optional

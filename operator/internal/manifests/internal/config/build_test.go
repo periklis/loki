@@ -675,7 +675,11 @@ ruler:
     truncate_frequency: 60m
     min_age: 5m
     max_age: 4h
-  rule_path: /tmp/rules
+  rule_path: /tmp/loki
+  storage:
+    type: local
+    local:
+      directory: /tmp/rules
   ring:
     kvstore:
       store: memberlist
@@ -749,8 +753,8 @@ overrides:
 			Port: 9095,
 		},
 		Ruler: Ruler{
-			Enabled:        true,
-			RulesDirectory: "/tmp/rules",
+			Enabled:               true,
+			RulesStorageDirectory: "/tmp/rules",
 		},
 		StorageDirectory: "/tmp/loki",
 		MaxConcurrent: MaxConcurrent{

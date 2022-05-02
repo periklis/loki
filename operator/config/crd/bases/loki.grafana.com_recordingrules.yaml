@@ -80,6 +80,11 @@ spec:
                   - rules
                   type: object
                 type: array
+              tenantID:
+                description: Tenant to associate the recording rule groups.
+                type: string
+            required:
+            - tenantID
             type: object
           status:
             description: RecordingRuleStatus defines the observed state of RecordingRule

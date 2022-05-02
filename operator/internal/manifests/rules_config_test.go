@@ -9,34 +9,28 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestAlertringRulesConfigMap_ReturnsSHA1OfAllDataContents(t *testing.T) {
-	_, sha1C, err := manifests.AlertingRulesConfigMap(testOptions())
-	require.NoError(t, err)
-	require.NotEmpty(t, sha1C)
-}
-
-func TestAlertingRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
-	cm, _, err := manifests.AlertingRulesConfigMap(testOptions())
+func TestRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
+	cm, _, err := manifests.RulesConfigMap(testOptions())
 	require.NoError(t, err)
 	require.NotNil(t, cm)
-	require.Len(t, cm.Data, 2)
-	require.Contains(t, cm.Data, "dev-alerting-rules.yaml")
-	require.Contains(t, cm.Data, "prod-alerting-rules.yaml")
+	require.Len(t, cm.Data, 4)
+	require.Contains(t, cm.Data, "dev-alerting-rules-alerts.yaml")
+	require.Contains(t, cm.Data, "dev-recording-rules-recs.yaml")
+	require.Contains(t, cm.Data, "prod-alerting-rules-alerts.yaml")
+	require.Contains(t, cm.Data, "prod-recording-rules-recs.yaml")
 }
 
-func TestRecordingRulesConfigMap_ReturnsSHA1OfAllDataContents(t *testing.T) {
-	_, sha1C, err := manifests.RecordingRulesConfigMap(testOptions())
-	require.NoError(t, err)
-	require.NotEmpty(t, sha1C)
-}
-
-func TestRecordingRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
-	cm, _, err := manifests.RecordingRulesConfigMap(testOptions())
+func TestRulesConfigMap_ReturnsTenantMapPerRule(t *testing.T) {
+	cm, tenants, err := manifests.RulesConfigMap(testOptions())
 	require.NoError(t, err)
 	require.NotNil(t, cm)
-	require.Len(t, cm.Data, 2)
-	require.Contains(t, cm.Data, "dev-recording-rules.yaml")
-	require.Contains(t, cm.Data, "prod-recording-rules.yaml")
+	require.Len(t, cm.Data, 4)
+	require.Contains(t, tenants, "tenant-a")
+	require.Contains(t, tenants, "tenant-b")
+	require.Contains(t, tenants["tenant-a"], "dev-alerting-rules-alerts.yaml")
+	require.Contains(t, tenants["tenant-a"], "prod-alerting-rules-alerts.yaml")
+	require.Contains(t, tenants["tenant-b"], "dev-recording-rules-recs.yaml")
+	require.Contains(t, tenants["tenant-b"], "prod-recording-rules-recs.yaml")
 }
 
 func testOptions() manifests.Options {
@@ -48,6 +42,7 @@ func testOptions() manifests.Options {
 					Namespace: "dev",
 				},
 				Spec: lokiv1beta1.AlertingRuleSpec{
+					TenantID: "tenant-a",
 					Groups: []*lokiv1beta1.AlertingRuleGroup{
 						{
 							Name: "rule-a",
@@ -64,6 +59,7 @@ func testOptions() manifests.Options {
 					Namespace: "prod",
 				},
 				Spec: lokiv1beta1.AlertingRuleSpec{
+					TenantID: "tenant-a",
 					Groups: []*lokiv1beta1.AlertingRuleGroup{
 						{
 							Name: "rule-c",
@@ -82,6 +78,7 @@ func testOptions() manifests.Options {
 					Namespace: "dev",
 				},
 				Spec: lokiv1beta1.RecordingRuleSpec{
+					TenantID: "tenant-b",
 					Groups: []*lokiv1beta1.RecordingRuleGroup{
 						{
 							Name: "rule-a",
@@ -98,6 +95,7 @@ func testOptions() manifests.Options {
 					Namespace: "prod",
 				},
 				Spec: lokiv1beta1.RecordingRuleSpec{
+					TenantID: "tenant-b",
 					Groups: []*lokiv1beta1.RecordingRuleGroup{
 						{
 							Name: "rule-c",

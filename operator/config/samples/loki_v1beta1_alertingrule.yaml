@@ -3,6 +3,7 @@ kind: AlertingRule
 metadata:
   name: alertingrule-sample
 spec:
+  tenantID: "test-tenant"
   groups:
     - name: "alerting-rules-group"
       interval: "10m"

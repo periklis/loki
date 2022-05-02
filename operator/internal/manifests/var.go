@@ -143,14 +143,9 @@ func RulerName(stackName string) string {
 	return fmt.Sprintf("%s-ruler", stackName)
 }
 
-// AlertringRulesConfigMapName is the name of the alerting rules configmap
-func AlertringRulesConfigMapName(stackName string) string {
-	return fmt.Sprintf("%s-alerting-rules", stackName)
-}
-
-// RecordingRulesConfigMapName is the name of the recording rules configmap
-func RecordingRulesConfigMapName(stackName string) string {
-	return fmt.Sprintf("%s-recording-rules", stackName)
+// RulesConfigMapName is the name of the alerting rules configmap
+func RulesConfigMapName(stackName string) string {
+	return fmt.Sprintf("%s-rules", stackName)
 }
 
 // GatewayName is the name of the lokiStack-gateway statefulset
