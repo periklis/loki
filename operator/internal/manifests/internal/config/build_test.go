@@ -668,6 +668,7 @@ schema_config:
       schema: v11
       store: boltdb-shipper
 ruler:
+  enable_api: true
   enable_sharding: true
   wal:
     dir: /tmp/wal
