@@ -17,27 +17,23 @@ func RulesConfigMap(opts Options) (*corev1.ConfigMap, map[string][]string, error
 	)
 
 	for _, r := range opts.AlertingRules {
-		rOpts := rules.Options{AlertingGroups: r.Spec.Groups}
-
-		c, err := rules.Build(rOpts)
+		c, err := rules.MarshalAlertingRule(r)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		key := fmt.Sprintf("%s-%s-alerts.yaml", r.Namespace, r.Name)
+		key := fmt.Sprintf("%s-%s-%s.yaml", r.Namespace, r.Name, r.UID)
 		tenants[r.Spec.TenantID] = append(tenants[r.Spec.TenantID], key)
 		data[key] = c
 	}
 
 	for _, r := range opts.RecordingRules {
-		rOpts := rules.Options{RecordingGroups: r.Spec.Groups}
-
-		c, err := rules.Build(rOpts)
+		c, err := rules.MarshalRecordingRule(r)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		key := fmt.Sprintf("%s-%s-recs.yaml", r.Namespace, r.Name)
+		key := fmt.Sprintf("%s-%s-%s.yaml", r.Namespace, r.Name, r.UID)
 		tenants[r.Spec.TenantID] = append(tenants[r.Spec.TenantID], key)
 		data[key] = c
 	}

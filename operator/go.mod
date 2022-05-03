@@ -25,6 +25,7 @@ require github.com/ViaQ/logerr/v2 v2.0.0
 require (
 	github.com/google/go-cmp v0.5.7
 	github.com/grafana/loki v1.6.2-0.20220420044148-f62b4ae1905c
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -152,7 +153,6 @@ require (
 	google.golang.org/grpc v1.44.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	inet.af/netaddr v0.0.0-20210707202901-70468d781e6c // indirect
 	k8s.io/apiextensions-apiserver v0.23.0 // indirect

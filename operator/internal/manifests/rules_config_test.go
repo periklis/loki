@@ -7,6 +7,7 @@ import (
 	"github.com/grafana/loki/operator/internal/manifests"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func TestRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
@@ -14,10 +15,10 @@ func TestRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cm)
 	require.Len(t, cm.Data, 4)
-	require.Contains(t, cm.Data, "dev-alerting-rules-alerts.yaml")
-	require.Contains(t, cm.Data, "dev-recording-rules-recs.yaml")
-	require.Contains(t, cm.Data, "prod-alerting-rules-alerts.yaml")
-	require.Contains(t, cm.Data, "prod-recording-rules-recs.yaml")
+	require.Contains(t, cm.Data, "dev-alerting-rules-alerts1.yaml")
+	require.Contains(t, cm.Data, "dev-recording-rules-recs1.yaml")
+	require.Contains(t, cm.Data, "prod-alerting-rules-alerts2.yaml")
+	require.Contains(t, cm.Data, "prod-recording-rules-recs2.yaml")
 }
 
 func TestRulesConfigMap_ReturnsTenantMapPerRule(t *testing.T) {
@@ -27,10 +28,10 @@ func TestRulesConfigMap_ReturnsTenantMapPerRule(t *testing.T) {
 	require.Len(t, cm.Data, 4)
 	require.Contains(t, tenants, "tenant-a")
 	require.Contains(t, tenants, "tenant-b")
-	require.Contains(t, tenants["tenant-a"], "dev-alerting-rules-alerts.yaml")
-	require.Contains(t, tenants["tenant-a"], "prod-alerting-rules-alerts.yaml")
-	require.Contains(t, tenants["tenant-b"], "dev-recording-rules-recs.yaml")
-	require.Contains(t, tenants["tenant-b"], "prod-recording-rules-recs.yaml")
+	require.Contains(t, tenants["tenant-a"], "dev-alerting-rules-alerts1.yaml")
+	require.Contains(t, tenants["tenant-a"], "prod-alerting-rules-alerts2.yaml")
+	require.Contains(t, tenants["tenant-b"], "dev-recording-rules-recs1.yaml")
+	require.Contains(t, tenants["tenant-b"], "prod-recording-rules-recs2.yaml")
 }
 
 func testOptions() manifests.Options {
@@ -40,6 +41,7 @@ func testOptions() manifests.Options {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "alerting-rules",
 					Namespace: "dev",
+					UID:       types.UID("alerts1"),
 				},
 				Spec: lokiv1beta1.AlertingRuleSpec{
 					TenantID: "tenant-a",
@@ -57,6 +59,7 @@ func testOptions() manifests.Options {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "alerting-rules",
 					Namespace: "prod",
+					UID:       types.UID("alerts2"),
 				},
 				Spec: lokiv1beta1.AlertingRuleSpec{
 					TenantID: "tenant-a",
@@ -76,6 +79,7 @@ func testOptions() manifests.Options {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "recording-rules",
 					Namespace: "dev",
+					UID:       types.UID("recs1"),
 				},
 				Spec: lokiv1beta1.RecordingRuleSpec{
 					TenantID: "tenant-b",
@@ -93,6 +97,7 @@ func testOptions() manifests.Options {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "recording-rules",
 					Namespace: "prod",
+					UID:       types.UID("recs2"),
 				},
 				Spec: lokiv1beta1.RecordingRuleSpec{
 					TenantID: "tenant-b",
