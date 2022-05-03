@@ -69,7 +69,6 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 				},
 				Args: []string{
 					"-target=ruler",
-					"-log.level=debug",
 					fmt.Sprintf("-config.file=%s", path.Join(config.LokiConfigMountDir, config.LokiConfigFileName)),
 					fmt.Sprintf("-runtime-config.file=%s", path.Join(config.LokiConfigMountDir, config.LokiRuntimeConfigFileName)),
 				},
