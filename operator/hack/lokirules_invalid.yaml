@@ -6,6 +6,7 @@ metadata:
   labels:
     loki.grafana.com/cluster-monitoring: "true"
 spec:
+  tenantID: "tenant-a"
   groups:
     - name: same-group-name
       rules:
@@ -27,6 +28,7 @@ metadata:
   labels:
     loki.grafana.com/cluster-monitoring: "true"
 spec:
+  tenantID: "tenant-b"
   groups:
     - name: should_record
       interval: "broken"
