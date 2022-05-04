@@ -1,6 +1,7 @@
 package manifests_test
 
 import (
+	"fmt"
 	"testing"
 
 	lokiv1beta1 "github.com/grafana/loki/operator/api/v1beta1"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
-	cm, _, err := manifests.RulesConfigMap(testOptions())
+	cm, err := manifests.RulesConfigMap(testOptions())
 	require.NoError(t, err)
 	require.NotNil(t, cm)
 	require.Len(t, cm.Data, 4)
@@ -22,20 +23,24 @@ func TestRulesConfigMap_ReturnsDataEntriesPerRule(t *testing.T) {
 }
 
 func TestRulesConfigMap_ReturnsTenantMapPerRule(t *testing.T) {
-	cm, tenants, err := manifests.RulesConfigMap(testOptions())
+	opts := testOptions()
+	cm, err := manifests.RulesConfigMap(opts)
 	require.NoError(t, err)
 	require.NotNil(t, cm)
 	require.Len(t, cm.Data, 4)
-	require.Contains(t, tenants, "tenant-a")
-	require.Contains(t, tenants, "tenant-b")
-	require.Contains(t, tenants["tenant-a"], "dev-alerting-rules-alerts1.yaml")
-	require.Contains(t, tenants["tenant-a"], "prod-alerting-rules-alerts2.yaml")
-	require.Contains(t, tenants["tenant-b"], "dev-recording-rules-recs1.yaml")
-	require.Contains(t, tenants["tenant-b"], "prod-recording-rules-recs2.yaml")
+	fmt.Print(opts.TenantConfigMap)
+	require.Contains(t, opts.TenantConfigMap["tenant-a"].RuleFiles, "dev-alerting-rules-alerts1.yaml")
+	require.Contains(t, opts.TenantConfigMap["tenant-a"].RuleFiles, "prod-alerting-rules-alerts2.yaml")
+	require.Contains(t, opts.TenantConfigMap["tenant-b"].RuleFiles, "dev-recording-rules-recs1.yaml")
+	require.Contains(t, opts.TenantConfigMap["tenant-b"].RuleFiles, "prod-recording-rules-recs2.yaml")
 }
 
-func testOptions() manifests.Options {
-	return manifests.Options{
+func testOptions() *manifests.Options {
+	return &manifests.Options{
+		TenantConfigMap: map[string]manifests.TenantConfig{
+			"tenant-a": {},
+			"tenant-b": {},
+		},
 		AlertingRules: []lokiv1beta1.AlertingRule{
 			{
 				ObjectMeta: metav1.ObjectMeta{

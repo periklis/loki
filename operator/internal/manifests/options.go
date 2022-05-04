@@ -24,7 +24,6 @@ type Options struct {
 
 	AlertingRules  []lokiv1beta1.AlertingRule
 	RecordingRules []lokiv1beta1.RecordingRule
-	RulesTenants   map[string][]string
 
 	ObjectStorage storage.Options
 
@@ -57,6 +56,7 @@ type TenantConfig struct {
 	OIDC      *TenantOIDCSpec
 	OPA       *TenantOPASpec
 	OpenShift *TenantOpenShiftSpec
+	RuleFiles []string
 }
 
 // TenantOIDCSpec stub config for OIDC configuration options (e.g. used in static or dynamic mode)

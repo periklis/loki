@@ -69,9 +69,9 @@ func TestNewRulerStatefulSet_MountsRulesInPerTenantIDSubDirectories(t *testing.T
 				},
 			},
 		},
-		RulesTenants: map[string][]string{
-			"tenant-a": {"rule-a-alerts.yaml", "rule-b-recs.yaml"},
-			"tenant-b": {"rule-a-alerts.yaml", "rule-b-recs.yaml"},
+		TenantConfigMap: map[string]manifests.TenantConfig{
+			"tenant-a": {RuleFiles: []string{"rule-a-alerts.yaml", "rule-b-recs.yaml"}},
+			"tenant-b": {RuleFiles: []string{"rule-a-alerts.yaml", "rule-b-recs.yaml"}},
 		},
 	})
 

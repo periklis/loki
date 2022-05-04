@@ -10,32 +10,35 @@ import (
 
 // RulesConfigMap returns a ConfigMap resource that contains
 // all loki alerting and recording rules as YAML data.
-func RulesConfigMap(opts Options) (*corev1.ConfigMap, map[string][]string, error) {
-	var (
-		data    = make(map[string]string)
-		tenants = make(map[string][]string)
-	)
+func RulesConfigMap(opts *Options) (*corev1.ConfigMap, error) {
+	data := make(map[string]string)
 
 	for _, r := range opts.AlertingRules {
 		c, err := rules.MarshalAlertingRule(r)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		key := fmt.Sprintf("%s-%s-%s.yaml", r.Namespace, r.Name, r.UID)
-		tenants[r.Spec.TenantID] = append(tenants[r.Spec.TenantID], key)
-		data[key] = c
+		if tenant, ok := opts.TenantConfigMap[r.Spec.TenantID]; ok {
+			tenant.RuleFiles = append(tenant.RuleFiles, key)
+			data[key] = c
+			opts.TenantConfigMap[r.Spec.TenantID] = tenant
+		}
 	}
 
 	for _, r := range opts.RecordingRules {
 		c, err := rules.MarshalRecordingRule(r)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		key := fmt.Sprintf("%s-%s-%s.yaml", r.Namespace, r.Name, r.UID)
-		tenants[r.Spec.TenantID] = append(tenants[r.Spec.TenantID], key)
-		data[key] = c
+		if tenant, ok := opts.TenantConfigMap[r.Spec.TenantID]; ok {
+			tenant.RuleFiles = append(tenant.RuleFiles, key)
+			data[key] = c
+			opts.TenantConfigMap[r.Spec.TenantID] = tenant
+		}
 	}
 
 	l := commonLabels(opts.Name)
@@ -51,5 +54,5 @@ func RulesConfigMap(opts Options) (*corev1.ConfigMap, map[string][]string, error
 			Labels:    l,
 		},
 		Data: data,
-	}, tenants, nil
+	}, nil
 }

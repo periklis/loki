@@ -54,7 +54,7 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 						LocalObjectReference: corev1.LocalObjectReference{
 							Name: RulesConfigMapName(opts.Name),
 						},
-						Items: ruleVolumeItems(opts.RulesTenants),
+						Items: ruleVolumeItems(opts.TenantConfigMap),
 					},
 				},
 			},
@@ -262,11 +262,11 @@ func configureRulerServiceMonitorPKI(statefulSet *appsv1.StatefulSet, stackName 
 	return configureServiceMonitorPKI(&statefulSet.Spec.Template.Spec, serviceName)
 }
 
-func ruleVolumeItems(tenants map[string][]string) []corev1.KeyToPath {
+func ruleVolumeItems(tenants map[string]TenantConfig) []corev1.KeyToPath {
 	var items []corev1.KeyToPath
 
-	for id, rules := range tenants {
-		for _, rule := range rules {
+	for id, tenant := range tenants {
+		for _, rule := range tenant.RuleFiles {
 			items = append(items, corev1.KeyToPath{
 				Key:  rule,
 				Path: fmt.Sprintf("%s/%s", id, rule),
