@@ -333,8 +333,10 @@ func gatewayConfigOptions(opt Options) gateway.Options {
 
 	tenantConfigMap := make(map[string]gateway.TenantData)
 	for tenant, tenantData := range opt.TenantConfigMap {
-		tenantConfigMap[tenant] = gateway.TenantData{
-			CookieSecret: tenantData.CookieSecret,
+		if tenantData.OpenShift != nil {
+			tenantConfigMap[tenant] = gateway.TenantData{
+				CookieSecret: tenantData.OpenShift.CookieSecret,
+			}
 		}
 	}
 

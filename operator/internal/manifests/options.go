@@ -30,7 +30,7 @@ type Options struct {
 
 	OpenShiftOptions openshift.Options
 	TenantSecrets    []*TenantSecrets
-	TenantConfigMap  map[string]openshift.TenantData
+	TenantConfigMap  map[string]TenantConfig
 }
 
 // FeatureFlags contains flags that activate various features
@@ -50,4 +50,22 @@ type TenantSecrets struct {
 	ClientID     string
 	ClientSecret string
 	IssuerCAPath string
+}
+
+// TenantConfig for tenant authorizationconfig
+type TenantConfig struct {
+	OIDC      *TenantOIDCSpec
+	OPA       *TenantOPASpec
+	OpenShift *TenantOpenShiftSpec
+}
+
+// TenantOIDCSpec stub config for OIDC configuration options (e.g. used in static or dynamic mode)
+type TenantOIDCSpec struct{}
+
+// TenantOPASpec stub config for OPA configuration options (e.g. used in dynamic mode)
+type TenantOPASpec struct{}
+
+// TenantOpenShiftSpec config for OpenShift authentication options (e.g. used in openshift-logging mode)
+type TenantOpenShiftSpec struct {
+	CookieSecret string
 }

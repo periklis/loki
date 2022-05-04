@@ -28,6 +28,5 @@ type Secret struct {
 
 // TenantData defines the existing tenantID and cookieSecret for lokistack reconcile.
 type TenantData struct {
-	TenantID     string
 	CookieSecret string
 }

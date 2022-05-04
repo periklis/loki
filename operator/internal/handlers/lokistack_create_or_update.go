@@ -11,7 +11,6 @@ import (
 	"github.com/grafana/loki/operator/internal/handlers/internal/rules"
 	"github.com/grafana/loki/operator/internal/handlers/internal/secrets"
 	"github.com/grafana/loki/operator/internal/manifests"
-	"github.com/grafana/loki/operator/internal/manifests/openshift"
 	"github.com/grafana/loki/operator/internal/metrics"
 	"github.com/grafana/loki/operator/internal/status"
 
@@ -79,9 +78,9 @@ func CreateOrUpdateLokiStack(
 	}
 
 	var (
-		baseDomain      string
-		tenantSecrets   []*manifests.TenantSecrets
-		tenantConfigMap map[string]openshift.TenantData
+		baseDomain    string
+		tenantSecrets []*manifests.TenantSecrets
+		tenantConfigs map[string]manifests.TenantConfig
 	)
 	if flags.EnableGateway && stack.Spec.Tenants == nil {
 		return &status.DegradedError{
@@ -110,12 +109,12 @@ func CreateOrUpdateLokiStack(
 			if err != nil {
 				return err
 			}
+		}
 
-			// extract the existing tenant's id, cookieSecret if exists, otherwise create new.
-			tenantConfigMap, err = gateway.GetTenantConfigMapData(ctx, k, req)
-			if err != nil {
-				ll.Error(err, "error in getting tenant config map data")
-			}
+		// extract the existing tenant's id, cookieSecret if exists, otherwise create new.
+		tenantConfigs, err = gateway.GetTenantConfigMapData(ctx, k, req)
+		if err != nil {
+			ll.Error(err, "error in getting tenant config map data")
 		}
 	}
 
@@ -148,7 +147,7 @@ func CreateOrUpdateLokiStack(
 		AlertingRules:     alertingRules.Items,
 		RecordingRules:    recordingRules.Items,
 		TenantSecrets:     tenantSecrets,
-		TenantConfigMap:   tenantConfigMap,
+		TenantConfigMap:   tenantConfigs,
 	}
 
 	ll.Info("begin building manifests")
