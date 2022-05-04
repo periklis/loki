@@ -28,18 +28,20 @@ func TestRulesConfigMap_ReturnsTenantMapPerRule(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, cm)
 	require.Len(t, cm.Data, 4)
-	fmt.Print(opts.TenantConfigMap)
-	require.Contains(t, opts.TenantConfigMap["tenant-a"].RuleFiles, "dev-alerting-rules-alerts1.yaml")
-	require.Contains(t, opts.TenantConfigMap["tenant-a"].RuleFiles, "prod-alerting-rules-alerts2.yaml")
-	require.Contains(t, opts.TenantConfigMap["tenant-b"].RuleFiles, "dev-recording-rules-recs1.yaml")
-	require.Contains(t, opts.TenantConfigMap["tenant-b"].RuleFiles, "prod-recording-rules-recs2.yaml")
+	fmt.Print(opts.Tenants.Configs)
+	require.Contains(t, opts.Tenants.Configs["tenant-a"].RuleFiles, "dev-alerting-rules-alerts1.yaml")
+	require.Contains(t, opts.Tenants.Configs["tenant-a"].RuleFiles, "prod-alerting-rules-alerts2.yaml")
+	require.Contains(t, opts.Tenants.Configs["tenant-b"].RuleFiles, "dev-recording-rules-recs1.yaml")
+	require.Contains(t, opts.Tenants.Configs["tenant-b"].RuleFiles, "prod-recording-rules-recs2.yaml")
 }
 
 func testOptions() *manifests.Options {
 	return &manifests.Options{
-		TenantConfigMap: map[string]manifests.TenantConfig{
-			"tenant-a": {},
-			"tenant-b": {},
+		Tenants: manifests.Tenants{
+			Configs: map[string]manifests.TenantConfig{
+				"tenant-a": {},
+				"tenant-b": {},
+			},
 		},
 		AlertingRules: []lokiv1beta1.AlertingRule{
 			{

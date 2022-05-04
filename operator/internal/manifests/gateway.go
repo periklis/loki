@@ -321,7 +321,7 @@ func gatewayConfigMap(opt Options) (*corev1.ConfigMap, string, error) {
 // gatewayConfigOptions converts Options to gateway.Options
 func gatewayConfigOptions(opt Options) gateway.Options {
 	var gatewaySecrets []*gateway.Secret
-	for _, secret := range opt.TenantSecrets {
+	for _, secret := range opt.Tenants.Secrets {
 		gatewaySecret := &gateway.Secret{
 			TenantName:   secret.TenantName,
 			ClientID:     secret.ClientID,
@@ -332,7 +332,7 @@ func gatewayConfigOptions(opt Options) gateway.Options {
 	}
 
 	tenantConfigMap := make(map[string]gateway.TenantData)
-	for tenant, tenantData := range opt.TenantConfigMap {
+	for tenant, tenantData := range opt.Tenants.Configs {
 		if tenantData.OpenShift != nil {
 			tenantConfigMap[tenant] = gateway.TenantData{
 				CookieSecret: tenantData.OpenShift.CookieSecret,

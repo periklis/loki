@@ -28,8 +28,8 @@ type Options struct {
 	ObjectStorage storage.Options
 
 	OpenShiftOptions openshift.Options
-	TenantSecrets    []*TenantSecrets
-	TenantConfigMap  map[string]TenantConfig
+
+	Tenants Tenants
 }
 
 // FeatureFlags contains flags that activate various features
@@ -41,6 +41,14 @@ type FeatureFlags struct {
 	EnableGateway                   bool
 	EnableGatewayRoute              bool
 	EnableGrafanaLabsStats          bool
+}
+
+// Tenants contains the configuration per tenant and secrets for authn/authz.
+// Secrets are required only for modes static and dynamic to reconcile the OIDC provider.
+// Configs are required only for all modes to reconcile rules and gateway configuration.
+type Tenants struct {
+	Secrets []*TenantSecrets
+	Configs map[string]TenantConfig
 }
 
 // TenantSecrets for clientID, clientSecret and issuerCAPath for tenant's authentication.

@@ -28,7 +28,7 @@ func ApplyGatewayDefaultOptions(opts *Options) error {
 
 	case lokiv1beta1.OpenshiftLogging:
 		tenantData := make(map[string]openshift.TenantData)
-		for name, tenant := range opts.TenantConfigMap {
+		for name, tenant := range opts.Tenants.Configs {
 			tenantData[name] = openshift.TenantData{
 				CookieSecret: tenant.OpenShift.CookieSecret,
 			}

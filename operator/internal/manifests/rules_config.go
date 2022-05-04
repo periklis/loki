@@ -20,10 +20,10 @@ func RulesConfigMap(opts *Options) (*corev1.ConfigMap, error) {
 		}
 
 		key := fmt.Sprintf("%s-%s-%s.yaml", r.Namespace, r.Name, r.UID)
-		if tenant, ok := opts.TenantConfigMap[r.Spec.TenantID]; ok {
+		if tenant, ok := opts.Tenants.Configs[r.Spec.TenantID]; ok {
 			tenant.RuleFiles = append(tenant.RuleFiles, key)
 			data[key] = c
-			opts.TenantConfigMap[r.Spec.TenantID] = tenant
+			opts.Tenants.Configs[r.Spec.TenantID] = tenant
 		}
 	}
 
@@ -34,10 +34,10 @@ func RulesConfigMap(opts *Options) (*corev1.ConfigMap, error) {
 		}
 
 		key := fmt.Sprintf("%s-%s-%s.yaml", r.Namespace, r.Name, r.UID)
-		if tenant, ok := opts.TenantConfigMap[r.Spec.TenantID]; ok {
+		if tenant, ok := opts.Tenants.Configs[r.Spec.TenantID]; ok {
 			tenant.RuleFiles = append(tenant.RuleFiles, key)
 			data[key] = c
-			opts.TenantConfigMap[r.Spec.TenantID] = tenant
+			opts.Tenants.Configs[r.Spec.TenantID] = tenant
 		}
 	}
 

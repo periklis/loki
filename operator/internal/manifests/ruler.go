@@ -54,7 +54,7 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 						LocalObjectReference: corev1.LocalObjectReference{
 							Name: RulesConfigMapName(opts.Name),
 						},
-						Items: ruleVolumeItems(opts.TenantConfigMap),
+						Items: ruleVolumeItems(opts.Tenants.Configs),
 					},
 				},
 			},

@@ -146,8 +146,10 @@ func CreateOrUpdateLokiStack(
 		ObjectStorage:     *storage,
 		AlertingRules:     alertingRules.Items,
 		RecordingRules:    recordingRules.Items,
-		TenantSecrets:     tenantSecrets,
-		TenantConfigMap:   tenantConfigs,
+		Tenants: manifests.Tenants{
+			Secrets: tenantSecrets,
+			Configs: tenantConfigs,
+		},
 	}
 
 	ll.Info("begin building manifests")
