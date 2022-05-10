@@ -41,6 +41,10 @@ func monitoringRbacName(stackName string) string {
 	return fmt.Sprintf("%s-metrics-discovery", stackName)
 }
 
+func rulerRbacName(opts Options) string {
+	return fmt.Sprintf("%s-ruler", opts.BuildOpts.LokiStackName)
+}
+
 func ingressHost(stackName, namespace, baseDomain string) string {
 	return fmt.Sprintf("%s-%s.apps.%s", stackName, namespace, baseDomain)
 }
@@ -49,15 +53,19 @@ func routeName(opts Options) string {
 	return opts.BuildOpts.LokiStackName
 }
 
-func serviceAccountName(opts Options) string {
+func gatewayServiceAccountName(opts Options) string {
 	return opts.BuildOpts.GatewayName
 }
 
-func serviceCABundleName(opts Options) string {
-	return fmt.Sprintf("%s-ca-bundle", opts.BuildOpts.GatewayName)
+func rulerServiceAccountName(opts Options) string {
+	return fmt.Sprintf("%s-ruler", opts.BuildOpts.LokiStackName)
 }
 
-func serviceAccountAnnotations(opts Options) map[string]string {
+func serviceCABundleName(opts Options) string {
+	return fmt.Sprintf("%s-ca-bundle", opts.BuildOpts.LokiStackName)
+}
+
+func gatewayServiceAccountAnnotations(opts Options) map[string]string {
 	a := make(map[string]string, len(opts.Authentication))
 	for _, auth := range opts.Authentication {
 		key := fmt.Sprintf("serviceaccounts.openshift.io/oauth-redirectreference.%s", auth.TenantName)

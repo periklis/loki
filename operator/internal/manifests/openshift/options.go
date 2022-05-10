@@ -42,6 +42,7 @@ type BuildOptions struct {
 	Labels                          map[string]string
 	EnableServiceMonitors           bool
 	EnableCertificateSigningService bool
+	EnableRulerAlertManager         bool
 }
 
 // TenantData defines the existing cookieSecret for lokistack reconcile.
@@ -56,6 +57,7 @@ func NewOptions(
 	gwLabels map[string]string,
 	enableServiceMonitors bool,
 	enableCertSigningService bool,
+	enableRulerAlertManager bool,
 	tenantConfigMap map[string]TenantData,
 ) Options {
 	host := ingressHost(stackName, stackNamespace, gwBaseDomain)
@@ -86,6 +88,7 @@ func NewOptions(
 			Labels:                          gwLabels,
 			EnableServiceMonitors:           enableServiceMonitors,
 			EnableCertificateSigningService: enableCertSigningService,
+			EnableRulerAlertManager:         enableRulerAlertManager,
 		},
 		Authentication: authn,
 		Authorization: AuthorizationSpec{

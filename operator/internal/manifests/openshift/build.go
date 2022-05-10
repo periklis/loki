@@ -7,9 +7,10 @@ import "sigs.k8s.io/controller-runtime/pkg/client"
 func Build(opts Options) []client.Object {
 	objs := []client.Object{
 		BuildRoute(opts),
-		BuildServiceAccount(opts),
-		BuildClusterRole(opts),
-		BuildClusterRoleBinding(opts),
+		BuildGatewayServiceAccount(opts),
+		BuildGatewayClusterRole(opts),
+		BuildGatewayClusterRoleBinding(opts),
+		BuildServiceCAConfigMap(opts),
 	}
 
 	if opts.BuildOpts.EnableServiceMonitors {
@@ -20,8 +21,12 @@ func Build(opts Options) []client.Object {
 		)
 	}
 
-	if opts.BuildOpts.EnableCertificateSigningService {
-		objs = append(objs, BuildServiceCAConfigMap(opts))
+	if opts.BuildOpts.EnableRulerAlertManager {
+		objs = append(objs,
+			BuildRulerServiceAccount(opts),
+			BuildRulerClusterRole(opts),
+			BuildRulerClusterRoleBinding(opts),
+		)
 	}
 
 	return objs

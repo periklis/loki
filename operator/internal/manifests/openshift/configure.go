@@ -2,6 +2,7 @@ package openshift
 
 import (
 	"fmt"
+	"path"
 	"regexp"
 	"strings"
 
@@ -20,6 +21,9 @@ const (
 	tenantInfrastructure = "infrastructure"
 	// tenantAudit is the name of the tenant holding audit logs.
 	tenantAudit = "audit"
+	// alertManagerServerName is the certificate server name to verify when accessing
+	// OpenShift Monitoring's AlertManager instance on via https://alertmanager-operated.openshift-monitoring.svc:9095
+	alertManagerServerName = "alertmanager-main.openshift-monitoring.svc"
 )
 
 var (
@@ -38,6 +42,7 @@ var (
 // apiserver through the sidecar.
 func ConfigureGatewayDeployment(
 	d *appsv1.Deployment,
+	stackName string,
 	gwContainerName string,
 	sercretVolumeName, tlsDir, certFile, keyFile string,
 	caDir, caFile string,
@@ -66,7 +71,7 @@ func ConfigureGatewayDeployment(
 
 		caBundleVolumeName := serviceCABundleName(Options{
 			BuildOpts: BuildOptions{
-				GatewayName: d.GetName(),
+				LokiStackName: stackName,
 			},
 		})
 
@@ -155,6 +160,69 @@ func ConfigureGatewayServiceMonitor(sm *monitoringv1.ServiceMonitor, withTLS boo
 
 	if err := mergo.Merge(&sm.Spec, spec, mergo.WithAppendSlice); err != nil {
 		return kverrors.Wrap(err, "failed to merge sidecar service monitor endpoints")
+	}
+
+	return nil
+}
+
+// ConfigureRulerStatefulSet merges the serviceaccount name into the ruler component pod spec.
+func ConfigureRulerStatefulSet(
+	sts *appsv1.StatefulSet,
+	stackName string,
+	containerName string,
+	caDir, caFile string,
+) error {
+	var gwIndex int
+	for i, c := range sts.Spec.Template.Spec.Containers {
+		if c.Name == containerName {
+			gwIndex = i
+			break
+		}
+	}
+
+	rulerContainer := sts.Spec.Template.Spec.Containers[gwIndex].DeepCopy()
+	rulerVolumes := sts.Spec.Template.Spec.Volumes
+
+	rulerContainer.Args = append(rulerContainer.Args,
+		fmt.Sprintf("-ruler.alertmanager-client.tls-ca-path=%s", path.Join(caDir, caFile)),
+		fmt.Sprintf("-ruler.alertmanager-client.tls-server-name=%s", alertManagerServerName),
+		fmt.Sprintf("-ruler.alertmanager-client.credentials-file=%s", bearerTokenFile),
+	)
+
+	caBundleVolumeName := serviceCABundleName(Options{
+		BuildOpts: BuildOptions{
+			LokiStackName: stackName,
+		},
+	})
+
+	rulerContainer.VolumeMounts = append(rulerContainer.VolumeMounts, corev1.VolumeMount{
+		Name:      caBundleVolumeName,
+		ReadOnly:  true,
+		MountPath: caDir,
+	})
+
+	rulerVolumes = append(rulerVolumes, corev1.Volume{
+		Name: caBundleVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				DefaultMode: &defaultConfigMapMode,
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: caBundleVolumeName,
+				},
+			},
+		},
+	})
+
+	p := corev1.PodSpec{
+		ServiceAccountName: sts.GetName(),
+		Containers: []corev1.Container{
+			*rulerContainer,
+		},
+		Volumes: rulerVolumes,
+	}
+
+	if err := mergo.Merge(&sts.Spec.Template.Spec, p, mergo.WithOverride); err != nil {
+		return kverrors.Wrap(err, "failed to merge ruler pod spec")
 	}
 
 	return nil

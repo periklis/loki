@@ -34,6 +34,11 @@ func ApplyGatewayDefaultOptions(opts *Options) error {
 			}
 		}
 
+		enableRulerAlertManager := false
+		if opts.Stack.Rules != nil && opts.Stack.Rules.Enabled {
+			enableRulerAlertManager = true
+		}
+
 		defaults := openshift.NewOptions(
 			opts.Name,
 			opts.Namespace,
@@ -44,6 +49,7 @@ func ApplyGatewayDefaultOptions(opts *Options) error {
 			ComponentLabels(LabelGatewayComponent, opts.Name),
 			opts.Flags.EnableServiceMonitors,
 			opts.Flags.EnableCertificateSigningService,
+			enableRulerAlertManager,
 			tenantData,
 		)
 
@@ -56,13 +62,14 @@ func ApplyGatewayDefaultOptions(opts *Options) error {
 	return nil
 }
 
-func configureDeploymentForMode(d *appsv1.Deployment, mode lokiv1beta1.ModeType, flags FeatureFlags) error {
+func configureDeploymentForMode(d *appsv1.Deployment, stackName string, mode lokiv1beta1.ModeType, flags FeatureFlags) error {
 	switch mode {
 	case lokiv1beta1.Static, lokiv1beta1.Dynamic:
 		return nil // nothing to configure
 	case lokiv1beta1.OpenshiftLogging:
 		return openshift.ConfigureGatewayDeployment(
 			d,
+			stackName,
 			gatewayContainerName,
 			tlsMetricsSercetVolume,
 			gateway.LokiGatewayTLSDir,
@@ -72,6 +79,23 @@ func configureDeploymentForMode(d *appsv1.Deployment, mode lokiv1beta1.ModeType,
 			gateway.LokiGatewayCAFile,
 			flags.EnableTLSServiceMonitorConfig,
 			flags.EnableCertificateSigningService,
+		)
+	}
+
+	return nil
+}
+
+func configureStatefulSetForMode(sts *appsv1.StatefulSet, stackName string, mode lokiv1beta1.ModeType) error {
+	switch mode {
+	case lokiv1beta1.Static, lokiv1beta1.Dynamic:
+		return nil // nothing to configure
+	case lokiv1beta1.OpenshiftLogging:
+		return openshift.ConfigureRulerStatefulSet(
+			sts,
+			stackName,
+			rulerContainerName,
+			gateway.LokiGatewayCABundleDir,
+			gateway.LokiGatewayCAFile,
 		)
 	}
 

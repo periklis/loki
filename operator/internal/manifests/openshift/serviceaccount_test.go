@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBuildServiceAccount_AnnotationsMatchDefaultTenants(t *testing.T) {
-	opts := NewOptions("abc", "ns", "abc", "example.com", "abc", "abc", map[string]string{}, false, false, map[string]TenantData{})
+func TestBuildGatewayServiceAccount_AnnotationsMatchDefaultTenants(t *testing.T) {
+	opts := NewOptions("abc", "ns", "abc", "example.com", "abc", "abc", map[string]string{}, false, false, false, map[string]TenantData{})
 
-	sa := BuildServiceAccount(opts)
+	sa := BuildGatewayServiceAccount(opts)
 	require.Len(t, sa.GetAnnotations(), len(defaultTenants))
 
 	var keys []string

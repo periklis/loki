@@ -5,12 +5,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// BuildClusterRole returns a k8s ClusterRole object for the
+// BuildGatewayClusterRole returns a k8s ClusterRole object for the
 // lokistack gateway serviceaccount to allow creating:
 // - TokenReviews to authenticate the user by bearer token.
 // - SubjectAccessReview to authorize the user by bearer token.
 //   if having access to read/create logs.
-func BuildClusterRole(opts Options) *rbacv1.ClusterRole {
+func BuildGatewayClusterRole(opts Options) *rbacv1.ClusterRole {
 	return &rbacv1.ClusterRole{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRole",
@@ -47,11 +47,11 @@ func BuildClusterRole(opts Options) *rbacv1.ClusterRole {
 	}
 }
 
-// BuildClusterRoleBinding returns a k8s ClusterRoleBinding object for
+// BuildGatewayClusterRoleBinding returns a k8s ClusterRoleBinding object for
 // the lokistack gateway serviceaccount to grant access to:
 // - rbac.authentication.k8s.io/TokenReviews
 // - rbac.authorization.k8s.io/SubjectAccessReviews
-func BuildClusterRoleBinding(opts Options) *rbacv1.ClusterRoleBinding {
+func BuildGatewayClusterRoleBinding(opts Options) *rbacv1.ClusterRoleBinding {
 	return &rbacv1.ClusterRoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRoleBinding",
@@ -69,7 +69,7 @@ func BuildClusterRoleBinding(opts Options) *rbacv1.ClusterRoleBinding {
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      rbacv1.ServiceAccountKind,
-				Name:      serviceAccountName(opts),
+				Name:      gatewayServiceAccountName(opts),
 				Namespace: opts.BuildOpts.LokiStackNamespace,
 			},
 		},

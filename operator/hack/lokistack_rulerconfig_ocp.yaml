@@ -1,0 +1,15 @@
+apiVersion: loki.grafana.com/v1beta1
+kind: RulerConfig
+metadata:
+  name: lokistack-dev
+spec:
+  evaluationInterval: 1m
+  pollInterval: 1m
+  alertmanager:
+    externalUrl: "http://www.mycompany.org/alerts"
+    externalLabels:
+      environment: production
+      region: us-east-2
+    enableV2: true
+    endpoints:
+      - "https://alertmanager-operated.openshift-monitoring.svc:9095"

@@ -7,20 +7,38 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// BuildServiceAccount returns a k8s object for the LokiStack Gateway
+// BuildGatewayServiceAccount returns a k8s object for the LokiStack Gateway
 // serviceaccount. This ServiceAccount is used in parallel as an
 // OpenShift OAuth Client.
-func BuildServiceAccount(opts Options) client.Object {
+func BuildGatewayServiceAccount(opts Options) client.Object {
 	return &corev1.ServiceAccount{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ServiceAccount",
 			APIVersion: corev1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Annotations: serviceAccountAnnotations(opts),
+			Annotations: gatewayServiceAccountAnnotations(opts),
 			Labels:      opts.BuildOpts.Labels,
-			Name:        serviceAccountName(opts),
+			Name:        gatewayServiceAccountName(opts),
 			Namespace:   opts.BuildOpts.LokiStackNamespace,
+		},
+		AutomountServiceAccountToken: pointer.Bool(true),
+	}
+}
+
+// BuildRulerServiceAccount returns a k8s object for the LokiStack Gateway
+// serviceaccount. This ServiceAccount is used in parallel as an
+// OpenShift OAuth Client.
+func BuildRulerServiceAccount(opts Options) client.Object {
+	return &corev1.ServiceAccount{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ServiceAccount",
+			APIVersion: corev1.SchemeGroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Labels:    opts.BuildOpts.Labels,
+			Name:      rulerServiceAccountName(opts),
+			Namespace: opts.BuildOpts.LokiStackNamespace,
 		},
 		AutomountServiceAccountToken: pointer.Bool(true),
 	}

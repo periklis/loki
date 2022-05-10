@@ -29,6 +29,8 @@ const (
 	gatewayHTTPPortName     = "public"
 	gatewayInternalPortName = "metrics"
 
+	rulerContainerName = "ruler"
+
 	// EnvRelatedImageLoki is the environment variable to fetch the Loki image pullspec.
 	EnvRelatedImageLoki = "RELATED_IMAGE_LOKI"
 	// EnvRelatedImageGateway is the environment variable to fetch the Gateway image pullspec.

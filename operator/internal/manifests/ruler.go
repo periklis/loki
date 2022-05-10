@@ -24,6 +24,13 @@ func BuildRuler(opts Options) ([]client.Object, error) {
 		}
 	}
 
+	if opts.Stack.Tenants != nil {
+		mode := opts.Stack.Tenants.Mode
+		if err := configureStatefulSetForMode(statefulSet, opts.Name, mode); err != nil {
+			return nil, err
+		}
+	}
+
 	return []client.Object{
 		statefulSet,
 		NewRulerGRPCService(opts),
@@ -62,7 +69,7 @@ func NewRulerStatefulSet(opts Options) *appsv1.StatefulSet {
 		Containers: []corev1.Container{
 			{
 				Image: opts.Image,
-				Name:  "loki-ruler",
+				Name:  rulerContainerName,
 				Resources: corev1.ResourceRequirements{
 					Limits:   opts.ResourceRequirements.Ruler.Limits,
 					Requests: opts.ResourceRequirements.Ruler.Requests,

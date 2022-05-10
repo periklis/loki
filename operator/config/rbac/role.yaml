@@ -165,6 +165,14 @@ rules:
   - update
 - apiGroups:
   - monitoring.coreos.com
+  resourceNames:
+  - non-existant
+  resources:
+  - alertmanagers
+  verbs:
+  - patch
+- apiGroups:
+  - monitoring.coreos.com
   resources:
   - prometheusrules
   - servicemonitors

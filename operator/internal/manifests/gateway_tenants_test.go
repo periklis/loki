@@ -458,7 +458,7 @@ func TestConfigureDeploymentForMode(t *testing.T) {
 											MountPath: "/var/run/tls",
 										},
 										{
-											Name:      "gateway-ca-bundle",
+											Name:      "lokistack-dev-ca-bundle",
 											ReadOnly:  true,
 											MountPath: "/var/run/ca",
 										},
@@ -530,12 +530,12 @@ func TestConfigureDeploymentForMode(t *testing.T) {
 									Name: "tls-secret-volume",
 								},
 								{
-									Name: "gateway-ca-bundle",
+									Name: "lokistack-dev-ca-bundle",
 									VolumeSource: corev1.VolumeSource{
 										ConfigMap: &corev1.ConfigMapVolumeSource{
 											DefaultMode: &defaultConfigMapMode,
 											LocalObjectReference: corev1.LocalObjectReference{
-												Name: "gateway-ca-bundle",
+												Name: "lokistack-dev-ca-bundle",
 											},
 										},
 									},
@@ -551,7 +551,7 @@ func TestConfigureDeploymentForMode(t *testing.T) {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
-			err := configureDeploymentForMode(tc.dpl, tc.mode, tc.flags)
+			err := configureDeploymentForMode(tc.dpl, "lokistack-dev", tc.mode, tc.flags)
 			require.NoError(t, err)
 			require.Equal(t, tc.want, tc.dpl)
 		})
