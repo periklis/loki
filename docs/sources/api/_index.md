@@ -19,6 +19,7 @@ These endpoints are exposed by all components:
 - [`GET /ready`](#get-ready)
 - [`GET /metrics`](#get-metrics)
 - [`GET /config`](#get-config)
+- [`GET /services`](#get-services)
 - [`GET /loki/api/v1/status/buildinfo`](#get-lokiapiv1statusbuildinfo)
 
 These endpoints are exposed by the querier and the query frontend:
@@ -387,8 +388,9 @@ $ curl -G -s  "http://localhost:3100/loki/api/v1/query_range" --data-urlencode '
 
 ## `GET /loki/api/v1/labels`
 
-`/loki/api/v1/labels` retrieves the list of known labels within a given time span. It
-accepts the following query parameters in the URL:
+`/loki/api/v1/labels` retrieves the list of known labels within a given time span.
+Loki may use a larger time span than the one specified.
+It accepts the following query parameters in the URL:
 
 - `start`: The start time for the query as a nanosecond Unix epoch. Defaults to 6 hours ago.
 - `end`: The end time for the query as a nanosecond Unix epoch. Defaults to now.
@@ -424,8 +426,8 @@ $ curl -G -s  "http://localhost:3100/loki/api/v1/labels" | jq
 ## `GET /loki/api/v1/label/<name>/values`
 
 `/loki/api/v1/label/<name>/values` retrieves the list of known values for a given
-label within a given time span. It accepts the following query parameters in
-the URL:
+label within a given time span. Loki may use a larger time span than the one specified.
+It accepts the following query parameters in the URL:
 
 - `start`: The start time for the query as a nanosecond Unix epoch. Defaults to 6 hours ago.
 - `end`: The end time for the query as a nanosecond Unix epoch. Defaults to now.
@@ -816,6 +818,19 @@ modify the output. If it has the value `diff` only the differences between the d
 and the current are returned. A value of `defaults` returns the default configuration.
 
 In microservices mode, the `/config` endpoint is exposed by all components.
+
+## `GET /services`
+
+`/services` returns a list of all running services and their current states.
+
+Services can have the following states:
+
+- **New**: Service is new, not running yet (initial state)
+- **Starting**: Service is starting; if starting succeeds, service enters **Running** state
+- **Running**: Service is fully running now; when service stops running, it enters **Stopping** state
+- **Stopping**: Service is shutting down
+- **Terminated**: Service has stopped successfully (terminal state)
+- **Failed**: Service has failed in **Starting**, **Running** or **Stopping** state (terminal state)
 
 ## `GET /loki/api/v1/status/buildinfo`
 
