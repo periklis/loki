@@ -13,10 +13,9 @@ import (
 )
 
 var att = []struct {
-	desc    string
-	spec    v1beta1.AlertingRuleSpec
-	err     *apierrors.StatusError
-	wantErr bool
+	desc string
+	spec v1beta1.AlertingRuleSpec
+	err  *apierrors.StatusError
 }{
 	{
 		desc: "valid spec",
@@ -108,7 +107,6 @@ var att = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 	{
 		desc: "parse eval interval err",
@@ -131,7 +129,6 @@ var att = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 	{
 		desc: "parse for interval err",
@@ -161,7 +158,6 @@ var att = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 	{
 		desc: "parse LogQL expression err",
@@ -189,7 +185,6 @@ var att = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 }
 
@@ -206,7 +201,7 @@ func TestAlertingRuleValidationWebhook_ValidateCreate(t *testing.T) {
 			}
 
 			err := l.ValidateCreate()
-			if tc.wantErr {
+			if err != nil {
 				require.Equal(t, tc.err, err)
 			} else {
 				require.NoError(t, err)
@@ -228,29 +223,11 @@ func TestAlertingRuleValidationWebhook_ValidateUpdate(t *testing.T) {
 			}
 
 			err := l.ValidateUpdate(&v1beta1.AlertingRule{})
-			if tc.wantErr {
+			if err != nil {
 				require.Equal(t, tc.err, err)
 			} else {
 				require.NoError(t, err)
 			}
-		})
-	}
-}
-
-func TestAlertingRuleValidationWebhook_ValidateDelete_DoNothing(t *testing.T) {
-	for _, tc := range att {
-		tc := tc
-		t.Run(tc.desc, func(t *testing.T) {
-			t.Parallel()
-			l := v1beta1.AlertingRule{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "testing-rule",
-				},
-				Spec: tc.spec,
-			}
-
-			err := l.ValidateDelete()
-			require.NoError(t, err)
 		})
 	}
 }

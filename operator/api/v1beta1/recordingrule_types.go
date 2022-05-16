@@ -6,7 +6,7 @@ import (
 
 // RecordingRuleSpec defines the desired state of RecordingRule
 type RecordingRuleSpec struct {
-	// Tenant to associate the recording rule groups.
+	// TenantID of tenant where the recording rules are evaluated in.
 	//
 	// +required
 	// +kubebuilder:validation:Required
@@ -23,8 +23,7 @@ type RecordingRuleSpec struct {
 
 // RecordingRuleGroup defines a group of Loki  recording rules.
 type RecordingRuleGroup struct {
-	// Name defines a name of the present recoding rule. Must be unique
-	// within all loki rules.
+	// Name of the recoding rule grup. Must be unique within all recording rules.
 	//
 	// +required
 	// +kubebuilder:validation:Required

@@ -2,18 +2,16 @@ package v1beta1
 
 import (
 	"github.com/grafana/loki/pkg/logql/syntax"
+
 	"github.com/prometheus/common/model"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
-
-// log is for logging in this package.
-var alertingrulelog = logf.Log.WithName("alertingrule-resource")
 
 // SetupWebhookWithManager registers the AlertingRuleWebhook to the controller-runtime manager
 // or returns an error.
@@ -29,61 +27,36 @@ var _ webhook.Validator = &AlertingRule{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *AlertingRule) ValidateCreate() error {
-	alertingrulelog.Info("validate create", "name", r.Name)
-
-	errs := r.validate()
-	if len(errs) == 0 {
-		return nil
-	}
-
-	return apierrors.NewInvalid(
-		schema.GroupKind{Group: "loki.grafana.com", Kind: "AlertingRule"},
-		r.Name,
-		errs,
-	)
+	return r.validate()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *AlertingRule) ValidateUpdate(old runtime.Object) error {
-	alertingrulelog.Info("validate update", "name", r.Name)
-
-	errs := r.validate()
-	if len(errs) == 0 {
-		return nil
-	}
-
-	return apierrors.NewInvalid(
-		schema.GroupKind{Group: "loki.grafana.com", Kind: "AlertingRule"},
-		r.Name,
-		errs,
-	)
+func (r *AlertingRule) ValidateUpdate(_ runtime.Object) error {
+	return r.validate()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *AlertingRule) ValidateDelete() error {
-	alertingrulelog.Info("validate delete", "name", r.Name)
 	// Do nothing
 	return nil
 }
 
-func (r *AlertingRule) validate() field.ErrorList {
+func (r *AlertingRule) validate() error {
 	var allErrs field.ErrorList
 
-	found := make([]string, 0)
+	found := make(map[string]bool)
 
 	for i, g := range r.Spec.Groups {
 		// Check for group name uniqueness
-		for _, n := range found {
-			if n == g.Name {
-				allErrs = append(allErrs, field.Invalid(
-					field.NewPath("Spec").Child("Groups").Index(i).Child("Name"),
-					g.Name,
-					ErrGroupNamesNotUnique.Error(),
-				))
-			}
+		if found[g.Name] {
+			allErrs = append(allErrs, field.Invalid(
+				field.NewPath("Spec").Child("Groups").Index(i).Child("Name"),
+				g.Name,
+				ErrGroupNamesNotUnique.Error(),
+			))
 		}
 
-		found = append(found, g.Name)
+		found[g.Name] = true
 
 		// Check if rule evaluation period is a valid PromQL duration
 		_, err := model.ParseDuration(string(g.Interval))
@@ -120,5 +93,13 @@ func (r *AlertingRule) validate() field.ErrorList {
 		}
 	}
 
-	return allErrs
+	if len(allErrs) == 0 {
+		return nil
+	}
+
+	return apierrors.NewInvalid(
+		schema.GroupKind{Group: "loki.grafana.com", Kind: "AlertingRule"},
+		r.Name,
+		allErrs,
+	)
 }

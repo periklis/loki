@@ -58,8 +58,8 @@ spec:
                       format: int32
                       type: integer
                     name:
-                      description: Name defines a name of the present recoding/alerting
-                        rule. Must be unique within all loki rules.
+                      description: Name of the alerting rule group. Must be unique
+                        within all alerting rules.
                       type: string
                     rules:
                       description: Rules defines a list of alerting rules
@@ -102,7 +102,8 @@ spec:
                   type: object
                 type: array
               tenantID:
-                description: Tenant to associate the alerting rule groups.
+                description: TenantID of tenant where the alerting rules are evaluated
+                  in.
                 type: string
             required:
             - tenantID

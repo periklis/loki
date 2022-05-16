@@ -270,7 +270,14 @@ func TestSetComponentsStatus_WhenRulerNotEnabled_DoNothing(t *testing.T) {
 		return apierrors.NewNotFound(schema.GroupResource{}, "something wasn't found")
 	}
 
-	k.ListStub = func(_ context.Context, l client.ObjectList, _ ...client.ListOption) error {
+	k.ListStub = func(_ context.Context, l client.ObjectList, o ...client.ListOption) error {
+		s := o[0].(client.MatchingLabels)
+
+		c, ok := s["app.kubernetes.io/component"]
+		if !ok || c == "ruler" {
+			return nil
+		}
+
 		pods := v1.PodList{
 			Items: []v1.Pod{
 				{
@@ -297,7 +304,7 @@ func TestSetComponentsStatus_WhenRulerNotEnabled_DoNothing(t *testing.T) {
 
 	sw.UpdateStub = func(_ context.Context, obj client.Object, _ ...client.UpdateOption) error {
 		stack := obj.(*lokiv1beta1.LokiStack)
-		require.Nil(t, stack.Status.Components.Ruler)
+		require.Equal(t, stack.Status.Components.Ruler, lokiv1beta1.PodStatusMap{})
 		return nil
 	}
 

@@ -13,10 +13,9 @@ import (
 )
 
 var rtt = []struct {
-	desc    string
-	spec    v1beta1.RecordingRuleSpec
-	err     *apierrors.StatusError
-	wantErr bool
+	desc string
+	spec v1beta1.RecordingRuleSpec
+	err  *apierrors.StatusError
 }{
 	{
 		desc: "valid spec",
@@ -78,7 +77,6 @@ var rtt = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 	{
 		desc: "parse eval interval err",
@@ -101,7 +99,6 @@ var rtt = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 	{
 		desc: "invalid record metric name",
@@ -130,7 +127,6 @@ var rtt = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 	{
 		desc: "parse LogQL expression err",
@@ -158,7 +154,6 @@ var rtt = []struct {
 				),
 			},
 		),
-		wantErr: true,
 	},
 }
 
@@ -175,7 +170,7 @@ func TestRecordingRuleValidationWebhook_ValidateCreate(t *testing.T) {
 			}
 
 			err := l.ValidateCreate()
-			if tc.wantErr {
+			if err != nil {
 				require.Equal(t, tc.err, err)
 			} else {
 				require.NoError(t, err)
@@ -197,29 +192,11 @@ func TestRecordingRuleValidationWebhook_ValidateUpdate(t *testing.T) {
 			}
 
 			err := l.ValidateUpdate(&v1beta1.RecordingRule{})
-			if tc.wantErr {
+			if err != nil {
 				require.Equal(t, tc.err, err)
 			} else {
 				require.NoError(t, err)
 			}
-		})
-	}
-}
-
-func TestRecordingRuleValidationWebhook_ValidateDelete_DoNothing(t *testing.T) {
-	for _, tc := range rtt {
-		tc := tc
-		t.Run(tc.desc, func(t *testing.T) {
-			t.Parallel()
-			l := v1beta1.RecordingRule{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "testing-rule",
-				},
-				Spec: tc.spec,
-			}
-
-			err := l.ValidateDelete()
-			require.NoError(t, err)
 		})
 	}
 }

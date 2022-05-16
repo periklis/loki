@@ -6,7 +6,7 @@ import (
 
 // AlertingRuleSpec defines the desired state of AlertingRule
 type AlertingRuleSpec struct {
-	// Tenant to associate the alerting rule groups.
+	// TenantID of tenant where the alerting rules are evaluated in.
 	//
 	// +required
 	// +kubebuilder:validation:Required
@@ -23,8 +23,7 @@ type AlertingRuleSpec struct {
 
 // AlertingRuleGroup defines a group of Loki alerting rules.
 type AlertingRuleGroup struct {
-	// Name defines a name of the present recoding/alerting rule. Must be unique
-	// within all loki rules.
+	// Name of the alerting rule group. Must be unique within all alerting rules.
 	//
 	// +required
 	// +kubebuilder:validation:Required

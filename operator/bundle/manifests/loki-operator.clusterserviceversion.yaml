@@ -139,8 +139,8 @@ spec:
         path: groups[0].limit
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:number
-      - description: Name defines a name of the present recoding/alerting rule. Must
-          be unique within all loki rules.
+      - description: Name of the alerting rule group. Must be unique within all alerting
+          rules.
         displayName: Name
         path: groups[0].name
       - description: Rules defines a list of alerting rules
@@ -165,7 +165,7 @@ spec:
       - description: Labels to add to each alert.
         displayName: Labels
         path: groups[0].rules[0].labels
-      - description: Tenant to associate the alerting rule groups.
+      - description: TenantID of tenant where the alerting rules are evaluated in.
         displayName: Tenant ID
         path: tenantID
       statusDescriptors:
@@ -601,8 +601,8 @@ spec:
         path: groups[0].limit
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:number
-      - description: Name defines a name of the present recoding rule. Must be unique
-          within all loki rules.
+      - description: Name of the recoding rule grup. Must be unique within all recording
+          rules.
         displayName: Name
         path: groups[0].name
       - description: Rules defines a list of recording rules
@@ -617,7 +617,7 @@ spec:
           name.
         displayName: Metric Name
         path: groups[0].rules[0].record
-      - description: Tenant to associate the recording rule groups.
+      - description: TenantID of tenant where the recording rules are evaluated in.
         displayName: Tenant ID
         path: tenantID
       statusDescriptors:
