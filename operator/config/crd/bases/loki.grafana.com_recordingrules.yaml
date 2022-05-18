@@ -53,7 +53,7 @@ spec:
                       format: int32
                       type: integer
                     name:
-                      description: Name of the recoding rule grup. Must be unique
+                      description: Name of the recording rule group. Must be unique
                         within all recording rules.
                       type: string
                     rules:

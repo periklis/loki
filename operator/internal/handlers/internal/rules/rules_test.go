@@ -42,6 +42,15 @@ func TestList_AlertingRulesMatchSelector_WithDefaultStackNamespaceRules(t *testi
 	}
 
 	k.ListStub = func(_ context.Context, ol client.ObjectList, opt ...client.ListOption) error {
+		switch ol.(type) {
+		case *corev1.NamespaceList:
+			k.SetClientObjectList(ol, &corev1.NamespaceList{})
+			return nil
+		case *lokiv1beta1.RecordingRuleList:
+			k.SetClientObjectList(ol, &lokiv1beta1.RecordingRuleList{})
+			return nil
+		}
+
 		l := opt[0].(*client.MatchingLabelsSelector)
 		m := labels.Set(rs.Selector.MatchLabels)
 
@@ -68,20 +77,16 @@ func TestList_AlertingRulesMatchSelector_WithDefaultStackNamespaceRules(t *testi
 					},
 				},
 			})
-
-			return nil
 		}
-
-		k.SetClientObjectList(ol, &corev1.NamespaceList{})
 
 		return nil
 	}
 
-	rules, err := rules.ListAlertingRules(context.TODO(), k, stackNs, rs)
+	rules, _, err := rules.List(context.TODO(), k, stackNs, rs)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, rules.Items)
-	require.Len(t, rules.Items, 1)
+	require.NotEmpty(t, rules)
+	require.Len(t, rules, 1)
 }
 
 func TestList_AlertingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
@@ -114,6 +119,12 @@ func TestList_AlertingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.
 	}
 
 	k.ListStub = func(_ context.Context, ol client.ObjectList, opt ...client.ListOption) error {
+		switch ol.(type) {
+		case *lokiv1beta1.RecordingRuleList:
+			k.SetClientObjectList(ol, &lokiv1beta1.RecordingRuleList{})
+			return nil
+		}
+
 		l := opt[0].(*client.MatchingLabelsSelector)
 		m := labels.Set(rs.Selector.MatchLabels)
 
@@ -164,6 +175,7 @@ func TestList_AlertingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.
 					},
 				},
 			})
+
 			return nil
 		}
 
@@ -172,11 +184,11 @@ func TestList_AlertingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.
 		return nil
 	}
 
-	rules, err := rules.ListAlertingRules(context.TODO(), k, stackNs, rs)
+	rules, _, err := rules.List(context.TODO(), k, stackNs, rs)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, rules.Items)
-	require.Len(t, rules.Items, 2)
+	require.NotEmpty(t, rules)
+	require.Len(t, rules, 2)
 }
 
 func TestList_RecordingRulesMatchSelector_WithDefaultStackNamespaceRules(t *testing.T) {
@@ -204,6 +216,15 @@ func TestList_RecordingRulesMatchSelector_WithDefaultStackNamespaceRules(t *test
 	}
 
 	k.ListStub = func(_ context.Context, ol client.ObjectList, opt ...client.ListOption) error {
+		switch ol.(type) {
+		case *corev1.NamespaceList:
+			k.SetClientObjectList(ol, &corev1.NamespaceList{})
+			return nil
+		case *lokiv1beta1.AlertingRuleList:
+			k.SetClientObjectList(ol, &lokiv1beta1.AlertingRuleList{})
+			return nil
+		}
+
 		l := opt[0].(*client.MatchingLabelsSelector)
 		m := labels.Set(rs.Selector.MatchLabels)
 
@@ -230,20 +251,16 @@ func TestList_RecordingRulesMatchSelector_WithDefaultStackNamespaceRules(t *test
 					},
 				},
 			})
-
-			return nil
 		}
-
-		k.SetClientObjectList(ol, &corev1.NamespaceList{})
 
 		return nil
 	}
 
-	rules, err := rules.ListRecordingRules(context.TODO(), k, stackNs, rs)
+	_, rules, err := rules.List(context.TODO(), k, stackNs, rs)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, rules.Items)
-	require.Len(t, rules.Items, 1)
+	require.NotEmpty(t, rules)
+	require.Len(t, rules, 1)
 }
 
 func TestList_RecordingRulesMatchSelector_FilteredByNamespaceSelector(t *testing.T) {
@@ -276,6 +293,12 @@ func TestList_RecordingRulesMatchSelector_FilteredByNamespaceSelector(t *testing
 	}
 
 	k.ListStub = func(_ context.Context, ol client.ObjectList, opt ...client.ListOption) error {
+		switch ol.(type) {
+		case *lokiv1beta1.AlertingRuleList:
+			k.SetClientObjectList(ol, &lokiv1beta1.AlertingRuleList{})
+			return nil
+		}
+
 		l := opt[0].(*client.MatchingLabelsSelector)
 		m := labels.Set(rs.Selector.MatchLabels)
 
@@ -334,9 +357,9 @@ func TestList_RecordingRulesMatchSelector_FilteredByNamespaceSelector(t *testing
 		return nil
 	}
 
-	rules, err := rules.ListRecordingRules(context.TODO(), k, stackNs, rs)
+	_, rules, err := rules.List(context.TODO(), k, stackNs, rs)
 
 	require.NoError(t, err)
-	require.NotEmpty(t, rules.Items)
-	require.Len(t, rules.Items, 2)
+	require.NotEmpty(t, rules)
+	require.Len(t, rules, 2)
 }

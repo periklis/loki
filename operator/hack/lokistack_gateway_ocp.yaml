@@ -15,7 +15,7 @@ spec:
     enabled: true
     selector:
       matchLabels:
-        loki.grafana.com/cluster-monitoring: "true"
+        openshift.io/cluster-monitoring: "true"
     namespaceSelector:
       matchLabels:
-        loki.grafana.com/cluster-monitoring: "true"
+        openshift.io/cluster-monitoring: "true"

@@ -119,18 +119,13 @@ func CreateOrUpdateLokiStack(
 	}
 
 	var (
-		alertingRules  lokiv1beta1.AlertingRuleList
-		recordingRules lokiv1beta1.RecordingRuleList
+		alertingRules  []lokiv1beta1.AlertingRule
+		recordingRules []lokiv1beta1.RecordingRule
 	)
 	if stack.Spec.Rules != nil && stack.Spec.Rules.Enabled {
-		alertingRules, err = rules.ListAlertingRules(ctx, k, req.Namespace, stack.Spec.Rules)
+		alertingRules, recordingRules, err = rules.List(ctx, k, req.Namespace, stack.Spec.Rules)
 		if err != nil {
-			log.Error(err, "failed to lookup alerting rules", "spec", stack.Spec.Rules)
-		}
-
-		recordingRules, err = rules.ListRecordingRules(ctx, k, req.Namespace, stack.Spec.Rules)
-		if err != nil {
-			log.Error(err, "failed to lookup recording rules", "spec", stack.Spec.Rules)
+			log.Error(err, "failed to lookup rules", "spec", stack.Spec.Rules)
 		}
 	}
 
@@ -144,8 +139,8 @@ func CreateOrUpdateLokiStack(
 		Stack:             stack.Spec,
 		Flags:             flags,
 		ObjectStorage:     *storage,
-		AlertingRules:     alertingRules.Items,
-		RecordingRules:    recordingRules.Items,
+		AlertingRules:     alertingRules,
+		RecordingRules:    recordingRules,
 		Tenants: manifests.Tenants{
 			Secrets: tenantSecrets,
 			Configs: tenantConfigs,

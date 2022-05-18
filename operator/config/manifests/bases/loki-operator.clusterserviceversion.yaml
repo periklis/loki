@@ -515,7 +515,7 @@ spec:
         path: groups[0].limit
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:number
-      - description: Name of the recoding rule grup. Must be unique within all recording
+      - description: Name of the recording rule group. Must be unique within all recording
           rules.
         displayName: Name
         path: groups[0].name

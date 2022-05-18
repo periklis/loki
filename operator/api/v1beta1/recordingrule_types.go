@@ -23,7 +23,7 @@ type RecordingRuleSpec struct {
 
 // RecordingRuleGroup defines a group of Loki  recording rules.
 type RecordingRuleGroup struct {
-	// Name of the recoding rule grup. Must be unique within all recording rules.
+	// Name of the recording rule group. Must be unique within all recording rules.
 	//
 	// +required
 	// +kubebuilder:validation:Required

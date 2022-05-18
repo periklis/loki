@@ -12,60 +12,47 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// ListAlertingRules returns a k8s resource list of AlertingRules for the given spec or an error. Three cases apply:
+// List returns a slice of AlertingRules and a slice of RecordingRules for the given spec or an error. Three cases apply:
 // - Return only matching rules in the stack namespace if no namespace selector given.
 // - Return only matching rules in the stack namespace and in namespaces matching the namespace selector.
 // - Return no rules if rules selector does not apply at all.
-func ListAlertingRules(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.AlertingRuleList, error) {
+func List(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) ([]lokiv1beta1.AlertingRule, []lokiv1beta1.RecordingRule, error) {
 	nsl, err := selectRulesNamespaces(ctx, k, stackNs, rs)
 	if err != nil {
-		return lokiv1beta1.AlertingRuleList{}, err
+		return nil, nil, err
 	}
 
-	rules, err := selectAlertingRules(ctx, k, rs)
+	ar, err := selectAlertingRules(ctx, k, rs)
 	if err != nil {
-		return lokiv1beta1.AlertingRuleList{}, err
+		return nil, nil, err
 	}
 
-	var lrl lokiv1beta1.AlertingRuleList
-	for _, rule := range rules.Items {
+	var alerts []lokiv1beta1.AlertingRule
+	for _, rule := range ar.Items {
 		for _, ns := range nsl.Items {
 			if rule.Namespace == ns.Name {
-				lrl.Items = append(lrl.Items, rule)
+				alerts = append(alerts, rule)
 				break
 			}
 		}
 	}
 
-	return lrl, nil
-}
-
-// ListRecordingRules returns a k8s resource list of AlertingRules for the given spec or an error. Three cases apply:
-// - Return only matching rules in the stack namespace if no namespace selector given.
-// - Return only matching rules in the stack namespace and in namespaces matching the namespace selector.
-// - Return no rules if rules selector does not apply at all.
-func ListRecordingRules(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) (lokiv1beta1.RecordingRuleList, error) {
-	nsl, err := selectRulesNamespaces(ctx, k, stackNs, rs)
+	rr, err := selectRecordingRules(ctx, k, rs)
 	if err != nil {
-		return lokiv1beta1.RecordingRuleList{}, err
+		return nil, nil, err
 	}
 
-	rules, err := selectRecordingRules(ctx, k, rs)
-	if err != nil {
-		return lokiv1beta1.RecordingRuleList{}, err
-	}
-
-	var lrl lokiv1beta1.RecordingRuleList
-	for _, rule := range rules.Items {
+	var recs []lokiv1beta1.RecordingRule
+	for _, rule := range rr.Items {
 		for _, ns := range nsl.Items {
 			if rule.Namespace == ns.Name {
-				lrl.Items = append(lrl.Items, rule)
+				recs = append(recs, rule)
 				break
 			}
 		}
 	}
 
-	return lrl, nil
+	return alerts, recs, nil
 }
 
 func selectRulesNamespaces(ctx context.Context, k k8s.Client, stackNs string, rs *lokiv1beta1.RulesSpec) (corev1.NamespaceList, error) {

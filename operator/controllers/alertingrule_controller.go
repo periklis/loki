@@ -4,9 +4,13 @@ import (
 	"context"
 	"time"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/go-logr/logr"
 	lokiv1beta1 "github.com/grafana/loki/operator/api/v1beta1"
@@ -34,7 +38,7 @@ type AlertingRuleReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *AlertingRuleReconciler) Reconcile(ctx context.Context, _ ctrl.Request) (ctrl.Result, error) {
-	err := lokistack.AnnotateForAlertingRules(ctx, r.Client)
+	err := lokistack.AnnotateForDiscoveredRules(ctx, r.Client)
 	if err != nil {
 		return ctrl.Result{
 			Requeue:      true,
@@ -48,5 +52,6 @@ func (r *AlertingRuleReconciler) Reconcile(ctx context.Context, _ ctrl.Request) 
 func (r *AlertingRuleReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&lokiv1beta1.AlertingRule{}).
+		Watches(&source.Kind{Type: &corev1.Namespace{}}, &handler.EnqueueRequestForObject{}, builder.OnlyMetadata).
 		Complete(r)
 }

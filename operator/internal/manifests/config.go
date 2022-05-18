@@ -42,10 +42,7 @@ func LokiConfigMap(opt Options) (*corev1.ConfigMap, string, error) {
 
 // ConfigOptions converts Options to config.Options
 func ConfigOptions(opt Options) config.Options {
-	var rulerEnabled bool
-	if opt.Stack.Rules != nil && opt.Stack.Rules.Enabled {
-		rulerEnabled = true
-	}
+	rulerEnabled := opt.Stack.Rules != nil && opt.Stack.Rules.Enabled
 
 	return config.Options{
 		Stack:     opt.Stack,

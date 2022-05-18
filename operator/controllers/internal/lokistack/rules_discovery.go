@@ -11,19 +11,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// AnnotateForAlertingRules adds/updates the `loki.grafana.com/rulesDiscoveredAt` annotation
+// AnnotateForDiscoveredRules adds/updates the `loki.grafana.com/rulesDiscoveredAt` annotation
 // to all instance of LokiStack on all namespaces to trigger the reconciliation loop.
-func AnnotateForAlertingRules(ctx context.Context, k k8s.Client) error {
-	return updateLokiStackForRules(ctx, k)
-}
-
-// AnnotateForRecordingRules adds/updates the `loki.grafana.com/rulesDiscoveredAt` annotation
-// to all instance of LokiStack on all namespaces to trigger the reconciliation loop.
-func AnnotateForRecordingRules(ctx context.Context, k k8s.Client) error {
-	return updateLokiStackForRules(ctx, k)
-}
-
-func updateLokiStackForRules(ctx context.Context, k k8s.Client) error {
+func AnnotateForDiscoveredRules(ctx context.Context, k k8s.Client) error {
 	var stacks lokiv1beta1.LokiStackList
 	err := k.List(ctx, &stacks, client.MatchingLabelsSelector{Selector: labels.Everything()})
 	if err != nil {
@@ -36,7 +26,7 @@ func updateLokiStackForRules(ctx context.Context, k k8s.Client) error {
 			ss.Annotations = make(map[string]string)
 		}
 
-		ss.Annotations["loki.grafana.com/rulesDiscoveredAt"] = time.Now().Format(time.RFC3339)
+		ss.Annotations["loki.grafana.com/rulesDiscoveredAt"] = time.Now().UTC().Format(time.RFC3339)
 
 		if err := k.Update(ctx, ss); err != nil {
 			return kverrors.Wrap(err, "failed to update lokistack `rulesDiscoveredAt` annotation", "name", ss.Name, "namespace", ss.Namespace)
