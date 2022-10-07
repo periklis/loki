@@ -23,6 +23,12 @@ $(BINGO): $(BINGO_DIR)/bingo.mod
 	@echo "(re)installing $(GOBIN)/bingo-v0.6.0"
 	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=bingo.mod -o=$(GOBIN)/bingo-v0.6.0 "github.com/bwplotka/bingo"
 
+CLIENT_GEN := $(GOBIN)/client-gen-v0.24.3
+$(CLIENT_GEN): $(BINGO_DIR)/client-gen.mod
+	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
+	@echo "(re)installing $(GOBIN)/client-gen-v0.24.3"
+	@cd $(BINGO_DIR) && $(GO) build -mod=mod -modfile=client-gen.mod -o=$(GOBIN)/client-gen-v0.24.3 "k8s.io/code-generator/cmd/client-gen"
+
 CONTROLLER_GEN := $(GOBIN)/controller-gen-v0.9.0
 $(CONTROLLER_GEN): $(BINGO_DIR)/controller-gen.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.

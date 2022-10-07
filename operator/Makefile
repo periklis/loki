@@ -85,6 +85,16 @@ all: generate lint manager bin/loki-broker
 
 OCI_RUNTIME ?= $(shell which podman || which docker)
 
+GO_PKG=github.com/grafana/loki/operator
+TYPES_V1BETA1_TARGET := $(shell find apis/loki/v1beta1 -type f -iname "*_types.go")
+TYPES_V1_TARGET := $(shell find apis/loki/v1b -type f -iname "*_types.go")
+
+K8S_GEN_ARGS:=--go-header-file $(shell pwd)/.header --v=2 --logtostderr
+
+K8S_GEN_DEPS:=.header
+K8S_GEN_DEPS+=$(TYPES_V1_TARGET)
+K8S_GEN_DEPS+=$(TYPES_V1BETA1_TARGET)
+
 ##@ General
 
 # The help target prints out all targets with their descriptions organized
@@ -126,6 +136,20 @@ size-calculator: deps generate ## Build size-calculator binary
 .PHONY: go-generate
 go-generate: ## Run go generate
 	go generate ./...
+
+.PHONY: k8s-generate
+k8s-generate: $(K8S_GEN_DEPS) $(CLIENT_GEN) ## Run k8s code generators
+	rm -rf pkg/client/versioned
+	@echo ">> generating pkg/client/versioned..."
+	$(CLIENT_GEN) \
+		$(K8S_GEN_ARGS) \
+		--input-base     "" \
+		--clientset-name "versioned" \
+		--input          "$(GO_PKG)/apis/loki/v1,$(GO_PKG)/apis/loki/v1beta1" \
+		--output-package "$(GO_PKG)/pkg/client" \
+		--output-base    "."
+	mv $(GO_PKG)/pkg/client/versioned pkg/client
+	rm -r github.com
 
 .PHONY: generate
 generate: $(CONTROLLER_GEN) ## Generate controller and crd code
