@@ -584,15 +584,11 @@ func (t *Loki) setupModuleManager() error {
 				continue
 			}
 
-			if len(ds) == idx {
-				ds = append(ds, InternalServer)
-			} else {
-				a := append(ds[:idx+1], ds[idx:]...)
-				a[idx] = InternalServer
-				ds = a
-			}
-			deps[key] = ds
+			a := append(ds[:idx+1], ds[idx:]...)
+			a[idx] = InternalServer
+			deps[key] = a
 		}
+
 	}
 
 	for mod, targets := range deps {
