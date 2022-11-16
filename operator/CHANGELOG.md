@@ -1,5 +1,6 @@
 ## Main
 
+- [7711](https://github.com/grafana/loki/pull/7711) **Red-GV**: Remove default value from replicationFactor field
 - [7617](https://github.com/grafana/loki/pull/7617) **Red-GV**: Modify ingestionRate for respective shirt size
 - [7214](https://github.com/grafana/loki/pull/7214) **periklis**: Fix ruler GRPC tls client configuration
 - [7037](https://github.com/grafana/loki/pull/7037) **xperimental**: Skip enforcing matcher for certain tenants on OpenShift
