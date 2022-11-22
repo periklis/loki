@@ -1,5 +1,9 @@
 ## Main
 
+- [7744](https://github.com/grafana/loki/pull/7744) **periklis**: Fix object storage TLS spec CAKey descriptor
+- [7716](https://github.com/grafana/loki/pull/7716) **aminesnow**: Migrate API docs generation tool
+- [7710](https://github.com/grafana/loki/pull/7710) **periklis**: Fix LokiStackController watches for cluster-scoped resources
+- [7682](https://github.com/grafana/loki/pull/7682) **periklis**: Refactor cluster proxy to use configv1.Proxy on OpenShift
 - [7711](https://github.com/grafana/loki/pull/7711) **Red-GV**: Remove default value from replicationFactor field
 - [7617](https://github.com/grafana/loki/pull/7617) **Red-GV**: Modify ingestionRate for respective shirt size
 - [7214](https://github.com/grafana/loki/pull/7214) **periklis**: Fix ruler GRPC tls client configuration
