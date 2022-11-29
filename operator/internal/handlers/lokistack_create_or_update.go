@@ -28,6 +28,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const (
+	defaultCAKey = "service-ca.crt"
+)
+
 // CreateOrUpdateLokiStack handles LokiStack create and update events.
 func CreateOrUpdateLokiStack(
 	ctx context.Context,
@@ -97,8 +101,18 @@ func CreateOrUpdateLokiStack(
 	objStore.Schemas = storageSchemas
 
 	if stack.Spec.Storage.TLS != nil {
+		tlsConfig := stack.Spec.Storage.TLS
+
+		if tlsConfig.CA == "" {
+			return &status.DegradedError{
+				Message: "Missing object storage CA config map",
+				Reason:  lokiv1.ReasonMissingObjectStorageCAConfigMap,
+				Requeue: false,
+			}
+		}
+
 		var cm corev1.ConfigMap
-		key := client.ObjectKey{Name: stack.Spec.Storage.TLS.CA, Namespace: stack.Namespace}
+		key := client.ObjectKey{Name: tlsConfig.CA, Namespace: stack.Namespace}
 		if err = k.Get(ctx, key, &cm); err != nil {
 			if apierrors.IsNotFound(err) {
 				return &status.DegradedError{
@@ -110,7 +124,12 @@ func CreateOrUpdateLokiStack(
 			return kverrors.Wrap(err, "failed to lookup lokistack object storage CA config map", "name", key)
 		}
 
-		if !storage.IsValidCAConfigMap(&cm, stack.Spec.Storage.TLS.CAKey) {
+		caKey := defaultCAKey
+		if tlsConfig.CAKey != "" {
+			caKey = tlsConfig.CAKey
+		}
+
+		if !storage.IsValidCAConfigMap(&cm, caKey) {
 			return &status.DegradedError{
 				Message: "Invalid object storage CA configmap contents: missing key or no contents",
 				Reason:  lokiv1.ReasonInvalidObjectStorageCAConfigMap,
@@ -118,7 +137,7 @@ func CreateOrUpdateLokiStack(
 			}
 		}
 
-		objStore.TLS = &storageoptions.TLSConfig{CA: cm.Name, Key: stack.Spec.Storage.TLS.CAKey}
+		objStore.TLS = &storageoptions.TLSConfig{CA: cm.Name, Key: caKey}
 	}
 
 	var (
