@@ -30,6 +30,9 @@ func TestNewGatewayDeployment_HasTemplateConfigHashAnnotation(t *testing.T) {
 				Distributor: &lokiv1.LokiComponentSpec{
 					Replicas: rand.Int31(),
 				},
+				Gateway: &lokiv1.LokiComponentSpec{
+					Replicas: rand.Int31(),
+				},
 				Ingester: &lokiv1.LokiComponentSpec{
 					Replicas: rand.Int31(),
 				},
@@ -60,6 +63,9 @@ func TestGatewayConfigMap_ReturnsSHA1OfBinaryContents(t *testing.T) {
 					Replicas: rand.Int31(),
 				},
 				Distributor: &lokiv1.LokiComponentSpec{
+					Replicas: rand.Int31(),
+				},
+				Gateway: &lokiv1.LokiComponentSpec{
 					Replicas: rand.Int31(),
 				},
 				Ingester: &lokiv1.LokiComponentSpec{
