@@ -239,7 +239,7 @@ func TestBuildAll_WithFeatureGates_ServiceMonitors(t *testing.T) {
 		},
 		{
 			desc:         "service monitor per component created",
-			MonitorCount: 8,
+			MonitorCount: 9,
 			BuildOptions: Options{
 				Name:      "test",
 				Namespace: "test",
@@ -436,7 +436,7 @@ func TestBuildAll_WithFeatureGates_ServiceMonitorTLSEndpoints(t *testing.T) {
 	require.NoError(t, err)
 	objects, buildErr := BuildAll(opts)
 	require.NoError(t, buildErr)
-	require.Equal(t, 8, serviceMonitorCount(objects))
+	require.Equal(t, 9, serviceMonitorCount(objects))
 
 	for _, obj := range objects {
 		var (
@@ -591,6 +591,7 @@ func TestBuildAll_WithFeatureGates_GRPCEncryption(t *testing.T) {
 		"test-ingester":      "test-ingester-grpc",
 		"test-compactor":     "test-compactor-grpc",
 		"test-index-gateway": "test-index-gateway-grpc",
+		"test-nats":          "test-nats-grpc",
 		"test-ruler":         "test-ruler-grpc",
 	}
 
@@ -694,6 +695,9 @@ func TestBuildAll_WithFeatureGates_RestrictedPodSecurityStandard(t *testing.T) {
 						IndexGateway: &lokiv1.LokiComponentSpec{
 							Replicas: 1,
 						},
+						Nats: &lokiv1.LokiComponentSpec{
+							Replicas: 1,
+						},
 						Ruler: &lokiv1.LokiComponentSpec{
 							Replicas: 1,
 						},
@@ -735,6 +739,9 @@ func TestBuildAll_WithFeatureGates_RestrictedPodSecurityStandard(t *testing.T) {
 							Replicas: 1,
 						},
 						IndexGateway: &lokiv1.LokiComponentSpec{
+							Replicas: 1,
+						},
+						Nats: &lokiv1.LokiComponentSpec{
 							Replicas: 1,
 						},
 						Ruler: &lokiv1.LokiComponentSpec{

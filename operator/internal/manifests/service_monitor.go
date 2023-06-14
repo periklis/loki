@@ -18,6 +18,7 @@ func BuildServiceMonitors(opts Options) []client.Object {
 		NewQueryFrontendServiceMonitor(opts),
 		NewIndexGatewayServiceMonitor(opts),
 		NewRulerServiceMonitor(opts),
+		NewNATSServiceMonitor(opts),
 		NewGatewayServiceMonitor(opts),
 	}
 }
@@ -94,6 +95,17 @@ func NewRulerServiceMonitor(opts Options) *monitoringv1.ServiceMonitor {
 
 	serviceMonitorName := serviceMonitorName(RulerName(opts.Name))
 	serviceName := serviceNameRulerHTTP(opts.Name)
+	lokiEndpoint := lokiServiceMonitorEndpoint(opts.Name, lokiHTTPPortName, serviceName, opts.Namespace, opts.Gates.ServiceMonitorTLSEndpoints)
+
+	return newServiceMonitor(opts.Namespace, serviceMonitorName, l, lokiEndpoint)
+}
+
+// NewNATSServiceMonitor creates a k8s service monitor for the nats component
+func NewNATSServiceMonitor(opts Options) *monitoringv1.ServiceMonitor {
+	l := ComponentLabels(LabelNATSComponent, opts.Name)
+
+	serviceMonitorName := serviceMonitorName(NATSName(opts.Name))
+	serviceName := serviceNameNATSHTTP(opts.Name)
 	lokiEndpoint := lokiServiceMonitorEndpoint(opts.Name, lokiHTTPPortName, serviceName, opts.Namespace, opts.Gates.ServiceMonitorTLSEndpoints)
 
 	return newServiceMonitor(opts.Namespace, serviceMonitorName, l, lokiEndpoint)

@@ -150,7 +150,7 @@ metadata:
     categories: OpenShift Optional, Logging & Tracing
     certified: "false"
     containerImage: quay.io/openshift-logging/loki-operator:v0.1.0
-    createdAt: "2023-06-12T17:36:51Z"
+    createdAt: "2023-06-14T13:29:49Z"
     description: |
       The Loki Operator for OCP provides a means for configuring and managing a Loki stack for cluster logging.
       ## Prerequisites and Requirements
@@ -649,6 +649,20 @@ spec:
       - description: Replicas defines the number of replica pods of the component.
         displayName: Replicas
         path: template.ingester.replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Nats defines the NATS component spec.
+        displayName: NATS pods
+        path: template.nats
+      - description: PodAntiAffinity defines the pod anti affinity scheduling rules
+          to schedule pods of a component.
+        displayName: PodAntiAffinity
+        path: template.nats.podAntiAffinity
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:podAntiAffinity
+      - description: Replicas defines the number of replica pods of the component.
+        displayName: Replicas
+        path: template.nats.replicas
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:hidden
       - description: Querier defines the querier component spec.

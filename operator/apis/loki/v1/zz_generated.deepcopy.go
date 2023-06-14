@@ -894,6 +894,11 @@ func (in *LokiTemplateSpec) DeepCopyInto(out *LokiTemplateSpec) {
 		*out = new(LokiComponentSpec)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.Nats != nil {
+		in, out := &in.Nats, &out.Nats
+		*out = new(LokiComponentSpec)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Ruler != nil {
 		in, out := &in.Ruler, &out.Ruler
 		*out = new(LokiComponentSpec)

@@ -51,6 +51,11 @@ func BuildAll(opts Options) ([]client.Object, error) {
 		return nil, err
 	}
 
+	natsObjs, err := BuildNATS(opts)
+	if err != nil {
+		return nil, err
+	}
+
 	res = append(res, cm)
 	res = append(res, distributorObjs...)
 	res = append(res, ingesterObjs...)
@@ -58,6 +63,7 @@ func BuildAll(opts Options) ([]client.Object, error) {
 	res = append(res, compactorObjs...)
 	res = append(res, queryFrontendObjs...)
 	res = append(res, indexGatewayObjs...)
+	res = append(res, natsObjs...)
 	res = append(res, BuildLokiGossipRingService(opts.Name))
 
 	if opts.Stack.Rules != nil && opts.Stack.Rules.Enabled {

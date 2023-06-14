@@ -331,6 +331,13 @@ type LokiTemplateSpec struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Index Gateway pods"
 	IndexGateway *LokiComponentSpec `json:"indexGateway,omitempty"`
 
+	// Nats defines the NATS component spec.
+	//
+	// +optional
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="NATS pods"
+	Nats *LokiComponentSpec `json:"nats,omitempty"`
+
 	// Ruler defines the ruler component spec.
 	//
 	// +optional

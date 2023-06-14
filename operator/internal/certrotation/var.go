@@ -48,5 +48,7 @@ func ComponentCertSecretNames(stackName string) []string {
 		fmt.Sprintf("%s-query-frontend-grpc", stackName),
 		fmt.Sprintf("%s-ruler-http", stackName),
 		fmt.Sprintf("%s-ruler-grpc", stackName),
+		fmt.Sprintf("%s-nats-http", stackName),
+		fmt.Sprintf("%s-nats-grpc", stackName),
 	}
 }

@@ -20,6 +20,8 @@ const (
 	httpPort         = 3100
 	internalHTTPPort = 3101
 	grpcPort         = 9095
+	natsClusterPort  = 4248
+	natsClientPort   = 4222
 	protocolTCP      = "TCP"
 
 	gossipInstanceAddrEnvVarName = "HASH_RING_INSTANCE_ADDR"
@@ -28,6 +30,8 @@ const (
 	lokiInternalHTTPPortName = "healthchecks"
 	lokiGRPCPortName         = "grpclb"
 	lokiGossipPortName       = "gossip-ring"
+	lokiNATSClusterPortName  = "nats-cluster"
+	lokiNATSClientPortName   = "nats-client"
 
 	lokiLivenessPath  = "/loki/api/v1/status/buildinfo"
 	lokiReadinessPath = "/ready"
@@ -90,6 +94,8 @@ const (
 	LabelIndexGatewayComponent string = "index-gateway"
 	// LabelRulerComponent is the label value for the lokiStack-ruler component
 	LabelRulerComponent string = "ruler"
+	// LabelNATSComponent is the label value for the lokiStack-nats component
+	LabelNATSComponent string = "nats"
 	// LabelGatewayComponent is the label value for the lokiStack-gateway component
 	LabelGatewayComponent string = "lokistack-gateway"
 
@@ -128,6 +134,7 @@ var (
 	podAntiAffinityComponents = map[string]struct{}{
 		LabelIngesterComponent:      {},
 		LabelRulerComponent:         {},
+		LabelNATSComponent:          {},
 		LabelQueryFrontendComponent: {},
 	}
 )
@@ -245,6 +252,11 @@ func IndexGatewayName(stackName string) string {
 // RulerName is the name of the ruler statefulset
 func RulerName(stackName string) string {
 	return fmt.Sprintf("%s-ruler", stackName)
+}
+
+// NATSName is the name of the nats statefulset
+func NATSName(stackName string) string {
+	return fmt.Sprintf("%s-nats", stackName)
 }
 
 // RulesConfigMapName is the name of the alerting/recording rules configmap
@@ -377,6 +389,14 @@ func serviceNameRulerHTTP(stackName string) string {
 
 func serviceNameRulerGRPC(stackName string) string {
 	return fmt.Sprintf("%s-ruler-grpc", stackName)
+}
+
+func serviceNameNATSHTTP(stackName string) string {
+	return fmt.Sprintf("%s-nats-http", stackName)
+}
+
+func serviceNameNATSGRPC(stackName string) string {
+	return fmt.Sprintf("%s-nats-grpc", stackName)
 }
 
 func serviceNameGatewayHTTP(stackName string) string {
