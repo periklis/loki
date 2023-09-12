@@ -1,5 +1,17 @@
 ## Main
 
+## Release 5.6.12
+
+- [10539](https://github.com/grafana/loki/pull/10539) **periklis**: Update Loki operand to v2.9.0
+
+## Release 5.6.11
+
+No changes.
+
+## Release 5.6.10
+
+No changes.
+
 ## Release 5.6.9
 
 - [10019](https://github.com/grafana/loki/pull/10019) **periklis**: Update Loki operand to v2.8.3
