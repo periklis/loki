@@ -248,6 +248,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -531,6 +532,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -615,6 +617,7 @@ func TestBuild_ConfigAndRuntimeConfig_CreateLokiConfigFailed(t *testing.T) {
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -962,6 +965,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -1316,6 +1320,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -1700,6 +1705,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -2026,6 +2032,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -2443,6 +2450,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -2784,6 +2792,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -3275,6 +3284,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -3530,6 +3540,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},
@@ -3785,6 +3796,7 @@ overrides:
 				{
 					Version:       lokiv1.ObjectStorageSchemaV11,
 					EffectiveDate: "2020-10-01",
+					Store:         lokiv1.ObjectStorageSchemaBoltDBShipper,
 				},
 			},
 		},

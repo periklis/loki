@@ -74,3 +74,21 @@ type TLSConfig struct {
 	CA  string
 	Key string
 }
+
+func (o Options) EnableBoltDBShipper() bool {
+	for _, schema := range o.Schemas {
+		if schema.Store == lokiv1.ObjectStorageSchemaBoltDBShipper {
+			return true
+		}
+	}
+	return false
+}
+
+func (o Options) EnableTSDBShipper() bool {
+	for _, schema := range o.Schemas {
+		if schema.Store == lokiv1.ObjectStorageSchemaTSDB {
+			return true
+		}
+	}
+	return false
+}
