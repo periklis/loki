@@ -523,6 +523,7 @@ spec:
                   schemas:
                     default:
                     - effectiveDate: "2020-10-11"
+                      store: boltdb-shipper
                       version: v11
                     description: Schemas for reading and writing logs.
                     items:
@@ -535,14 +536,24 @@ spec:
                             date should be before the current date in UTC.
                           pattern: ^([0-9]{4,})([-]([0-9]{2})){2}$
                           type: string
+                        store:
+                          default: tsdb
+                          description: Store is the type of store used for the stream
+                            labels index.
+                          enum:
+                          - boltdb-shipper
+                          - tsdb
+                          type: string
                         version:
                           description: Version for writing and reading logs.
                           enum:
                           - v11
                           - v12
+                          - v13
                           type: string
                       required:
                       - effectiveDate
+                      - store
                       - version
                       type: object
                     minItems: 1
@@ -4022,14 +4033,24 @@ spec:
                             date should be before the current date in UTC.
                           pattern: ^([0-9]{4,})([-]([0-9]{2})){2}$
                           type: string
+                        store:
+                          default: tsdb
+                          description: Store is the type of store used for the stream
+                            labels index.
+                          enum:
+                          - boltdb-shipper
+                          - tsdb
+                          type: string
                         version:
                           description: Version for writing and reading logs.
                           enum:
                           - v11
                           - v12
+                          - v13
                           type: string
                       required:
                       - effectiveDate
+                      - store
                       - version
                       type: object
                     type: array

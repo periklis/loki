@@ -522,7 +522,7 @@ type ObjectStorageSecretSpec struct {
 // ObjectStorageSchemaVersion defines the storage schema version which will be
 // used with the Loki cluster.
 //
-// +kubebuilder:validation:Enum=v11;v12
+// +kubebuilder:validation:Enum=v11;v12;v13
 type ObjectStorageSchemaVersion string
 
 const (
@@ -531,6 +531,24 @@ const (
 
 	// ObjectStorageSchemaV12 when using v12 for the storage schema
 	ObjectStorageSchemaV12 ObjectStorageSchemaVersion = "v12"
+
+	// ObjectStorageSchemaV12 when using v12 for the storage schema
+	ObjectStorageSchemaV13 ObjectStorageSchemaVersion = "v13"
+)
+
+// ObjectStorageSchemaStore defines the index store type which
+// will be used to index and store the stream labels.
+//
+// +kubebuilder:validation:Enum=boltdb-shipper;tsdb
+type ObjectStorageSchemaStore string
+
+const (
+	// Deprecated: Please use the TSDB store type for new installations.
+	// ObjectStorageSchemaBoltDBShipper when using the the boltdb-shipper store.
+	ObjectStorageSchemaBoltDBShipper ObjectStorageSchemaStore = "boltdb-shipper"
+
+	// ObjectStorageSchemaTSDB when using the TDSB store.
+	ObjectStorageSchemaTSDB ObjectStorageSchemaStore = "tsdb"
 )
 
 // ObjectStorageSchema defines the requirements needed to configure a new
@@ -540,7 +558,7 @@ type ObjectStorageSchema struct {
 	//
 	// +required
 	// +kubebuilder:validation:Required
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:v11","urn:alm:descriptor:com.tectonic.ui:select:v12"},displayName="Version"
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:v11","urn:alm:descriptor:com.tectonic.ui:select:v12","urn:alm:descriptor:com.tectonic.ui:select:v13"},displayName="Version"
 	Version ObjectStorageSchemaVersion `json:"version"`
 
 	// EffectiveDate is the date in UTC that the schema will be applied on.
@@ -550,6 +568,14 @@ type ObjectStorageSchema struct {
 	// +required
 	// +kubebuilder:validation:Required
 	EffectiveDate StorageSchemaEffectiveDate `json:"effectiveDate"`
+
+	// Store is the type of store used for the stream labels index.
+	//
+	// +required
+	// +kubebuilder:validation:Required
+	// +kubebuilder:default:=tsdb
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:select:boltdb-shipper","urn:alm:descriptor:com.tectonic.ui:select:tsdb"},displayName="Store"
+	Store ObjectStorageSchemaStore `json:"store"`
 }
 
 // ObjectStorageSpec defines the requirements to access the object
@@ -560,7 +586,7 @@ type ObjectStorageSpec struct {
 	// +optional
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:MinItems:=1
-	// +kubebuilder:default:={{version:v11,effectiveDate:"2020-10-11"}}
+	// +kubebuilder:default:={{version:v11,effectiveDate:"2020-10-11",store:"boltdb-shipper"}}
 	Schemas []ObjectStorageSchema `json:"schemas"`
 
 	// Secret for object storage authentication.

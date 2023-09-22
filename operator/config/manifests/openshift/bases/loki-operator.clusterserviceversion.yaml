@@ -456,12 +456,19 @@ spec:
           logs.
         displayName: Object Storage
         path: storage
+      - description: Store is the type of store used for the stream labels index.
+        displayName: Store
+        path: storage.schemas[0].store
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:select:boltdb-shipper
+        - urn:alm:descriptor:com.tectonic.ui:select:tsdb
       - description: Version for writing and reading logs.
         displayName: Version
         path: storage.schemas[0].version
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:select:v11
         - urn:alm:descriptor:com.tectonic.ui:select:v12
+        - urn:alm:descriptor:com.tectonic.ui:select:v13
       - description: Name of a secret in the namespace configured for object storage
           secrets.
         displayName: Object Storage Secret Name
