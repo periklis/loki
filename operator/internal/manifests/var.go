@@ -57,6 +57,8 @@ const (
 	EnvRelatedImageLoki = "RELATED_IMAGE_LOKI"
 	// EnvRelatedImageGateway is the environment variable to fetch the Gateway image pullspec.
 	EnvRelatedImageGateway = "RELATED_IMAGE_GATEWAY"
+	// EnvOperatorRoleARN is the environment variable used for the operator running on an sts-enabled cluster.
+	EnvOperatorRoleARN = "ROLEARN"
 
 	// DefaultContainerImage declares the default fallback for loki image.
 	DefaultContainerImage = "docker.io/grafana/loki:2.9.2"

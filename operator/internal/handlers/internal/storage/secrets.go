@@ -1,7 +1,11 @@
 package storage
 
 import (
+	"bytes"
+	"errors"
+
 	"github.com/ViaQ/logerr/v2/kverrors"
+	"gopkg.in/ini.v1"
 	corev1 "k8s.io/api/core/v1"
 
 	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
@@ -9,7 +13,7 @@ import (
 )
 
 // ExtractSecret reads a k8s secret into a manifest object storage struct if valid.
-func ExtractSecret(s *corev1.Secret, secretType lokiv1.ObjectStorageSecretType) (*storage.Options, error) {
+func ExtractSecret(s *corev1.Secret, secretType lokiv1.ObjectStorageSecretType, sts *corev1.Secret) (*storage.Options, error) {
 	var err error
 	storageOpts := storage.Options{
 		SecretName:  s.Name,
@@ -18,11 +22,11 @@ func ExtractSecret(s *corev1.Secret, secretType lokiv1.ObjectStorageSecretType) 
 
 	switch secretType {
 	case lokiv1.ObjectStorageSecretAzure:
-		storageOpts.Azure, err = extractAzureConfigSecret(s)
+		storageOpts.Azure, err = extractAzureConfigSecret(s, sts)
 	case lokiv1.ObjectStorageSecretGCS:
-		storageOpts.GCS, err = extractGCSConfigSecret(s)
+		storageOpts.GCS, err = extractGCSConfigSecret(s, sts)
 	case lokiv1.ObjectStorageSecretS3:
-		storageOpts.S3, err = extractS3ConfigSecret(s)
+		storageOpts.S3, err = extractS3ConfigSecret(s, sts)
 	case lokiv1.ObjectStorageSecretSwift:
 		storageOpts.Swift, err = extractSwiftConfigSecret(s)
 	case lokiv1.ObjectStorageSecretAlibabaCloud:
@@ -37,7 +41,7 @@ func ExtractSecret(s *corev1.Secret, secretType lokiv1.ObjectStorageSecretType) 
 	return &storageOpts, nil
 }
 
-func extractAzureConfigSecret(s *corev1.Secret) (*storage.AzureStorageConfig, error) {
+func extractAzureConfigSecret(s, _ *corev1.Secret) (*storage.AzureStorageConfig, error) {
 	// Extract and validate mandatory fields
 	env := s.Data["environment"]
 	if len(env) == 0 {
@@ -56,6 +60,8 @@ func extractAzureConfigSecret(s *corev1.Secret) (*storage.AzureStorageConfig, er
 		return nil, kverrors.New("missing secret field", "field", "account_key")
 	}
 
+	// TODO(@periklis): Implement wif usage
+
 	// Extract and validate optional fields
 	endpointSuffix := s.Data["endpoint_suffix"]
 
@@ -68,7 +74,7 @@ func extractAzureConfigSecret(s *corev1.Secret) (*storage.AzureStorageConfig, er
 	}, nil
 }
 
-func extractGCSConfigSecret(s *corev1.Secret) (*storage.GCSStorageConfig, error) {
+func extractGCSConfigSecret(s, _ *corev1.Secret) (*storage.GCSStorageConfig, error) {
 	// Extract and validate mandatory fields
 	bucket := s.Data["bucketname"]
 	if len(bucket) == 0 {
@@ -81,46 +87,109 @@ func extractGCSConfigSecret(s *corev1.Secret) (*storage.GCSStorageConfig, error)
 		return nil, kverrors.New("missing google authentication credentials", "field", "key.json")
 	}
 
+	// TODO(@periklis): Implement wif usage
+
 	return &storage.GCSStorageConfig{
 		Bucket: string(bucket),
 	}, nil
 }
 
-func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
+func extractS3ConfigSecret(s, sts *corev1.Secret) (*storage.S3StorageConfig, error) {
 	// Extract and validate mandatory fields
-	endpoint := s.Data["endpoint"]
-	if len(endpoint) == 0 {
-		return nil, kverrors.New("missing secret field", "field", "endpoint")
-	}
 	buckets := s.Data["bucketnames"]
 	if len(buckets) == 0 {
 		return nil, kverrors.New("missing secret field", "field", "bucketnames")
 	}
-	id := s.Data["access_key_id"]
-	if len(id) == 0 {
-		return nil, kverrors.New("missing secret field", "field", "access_key_id")
-	}
-	secret := s.Data["access_key_secret"]
-	if len(secret) == 0 {
-		return nil, kverrors.New("missing secret field", "field", "access_key_secret")
-	}
 
 	// Extract and validate optional fields
-	region := s.Data["region"]
+	var (
+		// Static serviceaccount credentials
+		id       = s.Data["access_key_id"]
+		secret   = s.Data["access_key_secret"]
+		endpoint = s.Data["endpoint"]
+		// STS related fields
+		roleARN              = s.Data["role_arn"]
+		webIdentityTokenFile = s.Data["web_identity_token_file"]
+		// Other optional fields
+		region = s.Data["region"]
+	)
 
 	sseCfg, err := extractS3SSEConfig(s.Data)
 	if err != nil {
 		return nil, err
 	}
 
-	return &storage.S3StorageConfig{
-		Endpoint:        string(endpoint),
-		Buckets:         string(buckets),
-		AccessKeyID:     string(id),
-		AccessKeySecret: string(secret),
-		Region:          string(region),
-		SSE:             sseCfg,
-	}, nil
+	cfg := &storage.S3StorageConfig{
+		Buckets: string(buckets),
+		Region:  string(region),
+		SSE:     sseCfg,
+	}
+
+	// Prefer static serviceaccount if available
+	if len(id) != 0 && len(secret) != 0 {
+		cfg.AccessKeyID = string(id)
+		cfg.AccessKeySecret = string(secret)
+		cfg.Endpoint = string(endpoint)
+
+		if len(endpoint) == 0 {
+			return nil, kverrors.New("missing secret field", "field", "endpoint")
+		}
+
+		return cfg, nil
+	}
+
+	// Fallback to STS
+	switch {
+	case sts != nil: // Extract STS configuration from cluster environment
+		cfg.RoleARN, cfg.WebIdentityTokenPath, err = extractSTSSecret(sts)
+		if err != nil {
+			return nil, err
+		}
+	case len(roleARN) != 0 && len(webIdentityTokenFile) != 0: // Extract STS from user provided values
+		cfg.RoleARN = string(roleARN)
+		cfg.WebIdentityTokenPath = string(webIdentityTokenFile)
+	default:
+		return nil, kverrors.New("missing static or sts authentication")
+	}
+
+	return cfg, nil
+}
+
+var (
+	errMissingAWSCredentials = errors.New("missing secret for aws sts credentials")
+	errInvalidAWSCredentials = errors.New("invalid credentials file")
+)
+
+func extractSTSSecret(s *corev1.Secret) (string, string, error) {
+	var data []byte
+	switch {
+	case len(s.Data["credentials"]) > 0:
+		data = s.Data["credentials"]
+	default:
+		return "", "", errMissingAWSCredentials
+	}
+
+	cfg, err := ini.Load(bytes.NewReader(data))
+	if err != nil {
+		return "", "", errInvalidAWSCredentials
+	}
+
+	section, err := cfg.GetSection("default")
+	if err != nil {
+		return "", "", err
+	}
+
+	roleARN, err := section.GetKey("role_arn")
+	if err != nil {
+		return "", "", err
+	}
+
+	webIdentityTokenFile, err := section.GetKey("web_identity_token_file")
+	if err != nil {
+		return "", "", err
+	}
+
+	return roleARN.String(), webIdentityTokenFile.String(), nil
 }
 
 func extractS3SSEConfig(d map[string][]byte) (storage.S3SSEConfig, error) {

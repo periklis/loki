@@ -24,11 +24,17 @@ common:
     {{- end }}
     {{- with .ObjectStorage.S3 }}
     s3:
+      {{- if .RoleARN }}
+      s3: "s3://{{.Region}}/{{.Buckets}}"
+      s3forcepathstyle: false
+      {{- else }}
       s3: {{ .Endpoint }}
       bucketnames: {{ .Buckets }}
       region: {{ .Region }}
       access_key_id: {{ .AccessKeyID }}
       secret_access_key: {{ .AccessKeySecret }}
+      s3forcepathstyle: true
+      {{- end }}
       {{- with .SSE }}
       {{- if .Type }}
       sse:
@@ -42,7 +48,6 @@ common:
         {{- end}}
       {{- end }}
       {{- end }}
-      s3forcepathstyle: true
     {{- end }}
     {{- with .ObjectStorage.Swift }}
     swift:

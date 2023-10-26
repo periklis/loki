@@ -150,7 +150,7 @@ metadata:
     categories: OpenShift Optional, Logging & Tracing
     certified: "false"
     containerImage: quay.io/openshift-logging/loki-operator:0.1.0
-    createdAt: "2023-10-17T07:40:31Z"
+    createdAt: "2023-10-26T09:58:37Z"
     description: |
       The Loki Operator for OCP provides a means for configuring and managing a Loki stack for cluster logging.
       ## Prerequisites and Requirements
@@ -160,6 +160,7 @@ metadata:
       Loki is a memory intensive application.  The initial
       set of OCP nodes may not be large enough to support the Loki stack.  Additional OCP nodes must be added
       to the OCP cluster if you desire to run with the recommended (or better) memory.
+    features.operators.openshift.io/token-auth-aws: "true"
     olm.skipRange: '>=5.6.0-0 <5.8.0'
     operatorframework.io/cluster-monitoring: "true"
     operatorframework.io/suggested-namespace: openshift-operators-redhat
@@ -1408,6 +1409,18 @@ spec:
           - update
           - watch
         - apiGroups:
+          - cloudcredential.openshift.io
+          resources:
+          - credentialsrequests
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
           - config.openshift.io
           resources:
           - apiservers
@@ -1677,6 +1690,9 @@ spec:
                 - mountPath: /controller_manager_config.yaml
                   name: manager-config
                   subPath: controller_manager_config.yaml
+                - mountPath: /var/run/secrets/openshift/serviceaccount
+                  name: bound-sa-token
+                  readOnly: true
               - args:
                 - --secure-listen-address=0.0.0.0:8443
                 - --upstream=http://127.0.0.1:8080/
@@ -1716,6 +1732,12 @@ spec:
                   defaultMode: 420
                   optional: true
                   secretName: loki-operator-metrics
+              - name: bound-sa-token
+                projected:
+                  sources:
+                  - serviceAccountToken:
+                      audience: openshift
+                      path: token
       permissions:
       - rules:
         - apiGroups:

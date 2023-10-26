@@ -963,6 +963,9 @@ const (
 	// ReasonMissingObjectStorageSecret when the required secret to store logs to object
 	// storage is missing.
 	ReasonMissingObjectStorageSecret LokiStackConditionReason = "MissingObjectStorageSecret"
+	// ReasonMissingObjectStorageSTSSecret when the required secret for STS credentials to object
+	// storage is missing.
+	ReasonMissingObjectStorageSTSSecret LokiStackConditionReason = "MissingObjectStorageSTSSecret"
 	// ReasonInvalidObjectStorageSecret when the format of the secret is invalid.
 	ReasonInvalidObjectStorageSecret LokiStackConditionReason = "InvalidObjectStorageSecret"
 	// ReasonInvalidObjectStorageSchema when the spec contains an invalid schema(s).

@@ -32,6 +32,11 @@ func ConfigureDeployment(d *appsv1.Deployment, opts Options) error {
 	case lokiv1.ObjectStorageSecretGCS:
 		return configureDeployment(d, opts.SecretName)
 	case lokiv1.ObjectStorageSecretS3:
+		err := configureDeploymentSTS(d, opts.S3)
+		if err != nil {
+			return err
+		}
+
 		if opts.TLS == nil {
 			return nil
 		}
@@ -50,10 +55,15 @@ func ConfigureStatefulSet(d *appsv1.StatefulSet, opts Options) error {
 	case lokiv1.ObjectStorageSecretGCS:
 		return configureStatefulSet(d, opts.SecretName)
 	case lokiv1.ObjectStorageSecretS3:
+		err := configureStatefulSetSTS(d, opts.S3)
+		if err != nil {
+			return err
+		}
+
 		if opts.TLS == nil {
 			return nil
 		}
-		return configureStatefulSetCA(d, opts.TLS)
+		return configureStatefulSetCA(d, opts.TLS, opts.S3)
 	default:
 		return nil
 	}
@@ -74,9 +84,21 @@ func configureDeployment(d *appsv1.Deployment, secretName string) error {
 // ConfigureDeploymentCA merges a S3 CA ConfigMap volume into the deployment spec.
 func configureDeploymentCA(d *appsv1.Deployment, tls *TLSConfig) error {
 	p := ensureCAForS3(&d.Spec.Template.Spec, tls)
-
 	if err := mergo.Merge(&d.Spec.Template.Spec, p, mergo.WithOverride); err != nil {
 		return kverrors.Wrap(err, "failed to merge s3 object storage ca options ")
+	}
+
+	return nil
+}
+
+func configureDeploymentSTS(d *appsv1.Deployment, s3 *S3StorageConfig) error {
+	if s3 == nil {
+		return nil
+	}
+
+	p := ensureSTSEnvVars(&d.Spec.Template.Spec, s3)
+	if err := mergo.Merge(&d.Spec.Template.Spec, p, mergo.WithOverride); err != nil {
+		return kverrors.Wrap(err, "failed to merge s3 object storage sts options ")
 	}
 
 	return nil
@@ -95,11 +117,24 @@ func configureStatefulSet(s *appsv1.StatefulSet, secretName string) error {
 }
 
 // ConfigureStatefulSetCA merges a S3 CA ConfigMap volume into the statefulset spec.
-func configureStatefulSetCA(s *appsv1.StatefulSet, tls *TLSConfig) error {
+func configureStatefulSetCA(s *appsv1.StatefulSet, tls *TLSConfig, s3 *S3StorageConfig) error {
 	p := ensureCAForS3(&s.Spec.Template.Spec, tls)
 
 	if err := mergo.Merge(&s.Spec.Template.Spec, p, mergo.WithOverride); err != nil {
 		return kverrors.Wrap(err, "failed to merge s3 object storage ca options ")
+	}
+
+	return nil
+}
+
+func configureStatefulSetSTS(s *appsv1.StatefulSet, s3 *S3StorageConfig) error {
+	if s3 == nil {
+		return nil
+	}
+
+	p := ensureSTSEnvVars(&s.Spec.Template.Spec, s3)
+	if err := mergo.Merge(&s.Spec.Template.Spec, p, mergo.WithOverride); err != nil {
+		return kverrors.Wrap(err, "failed to merge s3 object storage sts options ")
 	}
 
 	return nil
@@ -161,6 +196,52 @@ func ensureCAForS3(p *corev1.PodSpec, tls *TLSConfig) corev1.PodSpec {
 	container.Args = append(container.Args,
 		fmt.Sprintf("-s3.http.ca-file=%s", path.Join(caDirectory, tls.Key)),
 	)
+
+	return corev1.PodSpec{
+		Containers: []corev1.Container{
+			*container,
+		},
+		Volumes: volumes,
+	}
+}
+
+func ensureSTSEnvVars(p *corev1.PodSpec, s3 *S3StorageConfig) corev1.PodSpec {
+	container := p.Containers[0].DeepCopy()
+	volumes := p.Volumes
+
+	volumes = append(volumes, corev1.Volume{
+		Name: "bound-sa-token",
+		VolumeSource: corev1.VolumeSource{
+			Projected: &corev1.ProjectedVolumeSource{
+				Sources: []corev1.VolumeProjection{
+					{
+						ServiceAccountToken: &corev1.ServiceAccountTokenProjection{
+							Audience: "openshift",
+							Path:     "token",
+						},
+					},
+				},
+			},
+		},
+	})
+
+	container.VolumeMounts = append(container.VolumeMounts, corev1.VolumeMount{
+		Name:      "bound-sa-token",
+		ReadOnly:  true,
+		MountPath: "/var/run/secrets/openshift/serviceaccount",
+	})
+
+	stsEnvVars := []corev1.EnvVar{
+		{
+			Name:  "AWS_ROLE_ARN",
+			Value: s3.RoleARN,
+		},
+		{
+			Name:  "AWS_WEB_IDENTITY_TOKEN_FILE",
+			Value: s3.WebIdentityTokenPath,
+		},
+	}
+	container.Env = append(container.Env, stsEnvVars...)
 
 	return corev1.PodSpec{
 		Containers: []corev1.Container{

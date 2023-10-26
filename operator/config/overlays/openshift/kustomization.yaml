@@ -35,6 +35,7 @@ configMapGenerator:
 
 patchesStrategicMerge:
 - auth_proxy_service_annotations_patch.yaml
+- manager_sts_patch.yaml
 - manager_auth_proxy_patch.yaml
 - manager_related_image_patch.yaml
 - manager_run_flags_patch.yaml

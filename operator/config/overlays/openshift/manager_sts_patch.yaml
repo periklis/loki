@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller-manager
+spec:
+  template:
+    spec:
+      containers:
+      - name: manager
+        volumeMounts:
+        - name: bound-sa-token
+          mountPath: /var/run/secrets/openshift/serviceaccount
+          readOnly: true
+      volumes:
+         # This service account token can be used to provide identity outside the cluster.
+         # For example, this token can be used with AssumeRoleWithWebIdentity to authenticate with AWS using IAM OIDC provider and STS.
+      - name: bound-sa-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: token
+              audience: openshift

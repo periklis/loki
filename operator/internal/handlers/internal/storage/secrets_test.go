@@ -3,22 +3,25 @@ package storage_test
 import (
 	"testing"
 
-	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
-	"github.com/grafana/loki/operator/internal/handlers/internal/storage"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+
+	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
+	"github.com/grafana/loki/operator/internal/handlers/internal/storage"
 )
 
 func TestAzureExtract(t *testing.T) {
 	type test struct {
 		name    string
 		secret  *corev1.Secret
+		wif     *corev1.Secret
 		wantErr bool
 	}
 	table := []test{
 		{
 			name:    "missing environment",
 			secret:  &corev1.Secret{},
+			wif:     &corev1.Secret{},
 			wantErr: true,
 		},
 		{
@@ -28,6 +31,7 @@ func TestAzureExtract(t *testing.T) {
 					"environment": []byte("here"),
 				},
 			},
+			wif:     &corev1.Secret{},
 			wantErr: true,
 		},
 		{
@@ -38,6 +42,7 @@ func TestAzureExtract(t *testing.T) {
 					"container":   []byte("this,that"),
 				},
 			},
+			wif:     &corev1.Secret{},
 			wantErr: true,
 		},
 		{
@@ -49,6 +54,7 @@ func TestAzureExtract(t *testing.T) {
 					"account_name": []byte("id"),
 				},
 			},
+			wif:     &corev1.Secret{},
 			wantErr: true,
 		},
 		{
@@ -61,6 +67,7 @@ func TestAzureExtract(t *testing.T) {
 					"account_key":  []byte("secret"),
 				},
 			},
+			wif: &corev1.Secret{},
 		},
 		{
 			name: "all set including optional",
@@ -73,6 +80,7 @@ func TestAzureExtract(t *testing.T) {
 					"endpoint_suffix": []byte("suffix"),
 				},
 			},
+			wif: &corev1.Secret{},
 		},
 	}
 	for _, tst := range table {
@@ -80,7 +88,7 @@ func TestAzureExtract(t *testing.T) {
 		t.Run(tst.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretAzure)
+			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretAzure, tst.wif)
 			if !tst.wantErr {
 				require.NoError(t, err)
 			}
@@ -95,12 +103,14 @@ func TestGCSExtract(t *testing.T) {
 	type test struct {
 		name    string
 		secret  *corev1.Secret
+		wif     *corev1.Secret
 		wantErr bool
 	}
 	table := []test{
 		{
 			name:    "missing bucketname",
 			secret:  &corev1.Secret{},
+			wif:     &corev1.Secret{},
 			wantErr: true,
 		},
 		{
@@ -110,6 +120,7 @@ func TestGCSExtract(t *testing.T) {
 					"bucketname": []byte("here"),
 				},
 			},
+			wif:     &corev1.Secret{},
 			wantErr: true,
 		},
 		{
@@ -120,6 +131,7 @@ func TestGCSExtract(t *testing.T) {
 					"key.json":   []byte("{\"type\": \"SA\"}"),
 				},
 			},
+			wif: &corev1.Secret{},
 		},
 	}
 	for _, tst := range table {
@@ -127,7 +139,7 @@ func TestGCSExtract(t *testing.T) {
 		t.Run(tst.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretGCS)
+			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretGCS, tst.wif)
 			if !tst.wantErr {
 				require.NoError(t, err)
 			}
@@ -142,6 +154,7 @@ func TestS3Extract(t *testing.T) {
 	type test struct {
 		name    string
 		secret  *corev1.Secret
+		sts     *corev1.Secret
 		wantErr bool
 	}
 	table := []test{
@@ -163,19 +176,31 @@ func TestS3Extract(t *testing.T) {
 			name: "missing access_key_id",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":    []byte("here"),
-					"bucketnames": []byte("this,that"),
+					"endpoint":                []byte("here"),
+					"bucketnames":             []byte("this,that"),
+					"role_arn":                []byte("test"),
+					"web_identity_token_file": []byte("test"),
 				},
 			},
-			wantErr: true,
 		},
 		{
 			name: "missing access_key_secret",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":      []byte("here"),
-					"bucketnames":   []byte("this,that"),
-					"access_key_id": []byte("id"),
+					"endpoint":                []byte("here"),
+					"bucketnames":             []byte("this,that"),
+					"access_key_id":           []byte("id"),
+					"role_arn":                []byte("test"),
+					"web_identity_token_file": []byte("test"),
+				},
+			},
+		},
+		{
+			name: "missing any access input",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":    []byte("here"),
+					"bucketnames": []byte("this,that"),
 				},
 			},
 			wantErr: true,
@@ -257,13 +282,44 @@ func TestS3Extract(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "all set for sts from user provided values",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":                []byte("here"),
+					"bucketnames":             []byte("this,that"),
+					"role_arn":                []byte("test"),
+					"web_identity_token_file": []byte("test"),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "all set for sts from environment",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":    []byte("here"),
+					"bucketnames": []byte("this,that"),
+				},
+			},
+			sts: &corev1.Secret{
+				Data: map[string][]byte{
+					"credentials": []byte(`
+[default]
+role_arn = test
+web_identity_token_file = test
+`),
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tst := range table {
 		tst := tst
 		t.Run(tst.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretS3)
+			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretS3, tst.sts)
 			if !tst.wantErr {
 				require.NoError(t, err)
 			}
@@ -408,7 +464,7 @@ func TestSwiftExtract(t *testing.T) {
 		t.Run(tst.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretSwift)
+			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretSwift, nil)
 			if !tst.wantErr {
 				require.NoError(t, err)
 			}
@@ -478,7 +534,7 @@ func TestAlibabaCloudExtract(t *testing.T) {
 		t.Run(tst.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretAlibabaCloud)
+			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretAlibabaCloud, nil)
 			if !tst.wantErr {
 				require.NoError(t, err)
 			}

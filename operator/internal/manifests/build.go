@@ -21,6 +21,8 @@ func BuildAll(opts Options) ([]client.Object, error) {
 	}
 	opts.ConfigSHA1 = sha1C
 
+	lokiSa := BuildServiceAccount(opts)
+
 	distributorObjs, err := BuildDistributor(opts)
 	if err != nil {
 		return nil, err
@@ -52,6 +54,7 @@ func BuildAll(opts Options) ([]client.Object, error) {
 	}
 
 	res = append(res, cm)
+	res = append(res, lokiSa)
 	res = append(res, distributorObjs...)
 	res = append(res, ingesterObjs...)
 	res = append(res, querierObjs...)

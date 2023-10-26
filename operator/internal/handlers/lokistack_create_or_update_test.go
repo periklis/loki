@@ -233,7 +233,8 @@ func TestCreateOrUpdateLokiStack_SetsNamespaceOnAllObjects(t *testing.T) {
 	}
 
 	k.GetStub = func(_ context.Context, name types.NamespacedName, out client.Object, _ ...client.GetOption) error {
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok := out.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(out, &stack)
 			return nil
 		}
@@ -319,7 +320,8 @@ func TestCreateOrUpdateLokiStack_SetsOwnerRefOnAllObjects(t *testing.T) {
 
 	// Create looks up the CR first, so we need to return our fake stack
 	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object, _ ...client.GetOption) error {
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok := object.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(object, &stack)
 			return nil
 		}
@@ -509,7 +511,8 @@ func TestCreateOrUpdateLokiStack_WhenGetReturnsNoError_UpdateObjects(t *testing.
 
 	// Create looks up the CR first, so we need to return our fake stack
 	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object, _ ...client.GetOption) error {
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok := object.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(object, &stack)
 		}
 		if defaultSecret.Name == name.Name {
@@ -572,7 +575,8 @@ func TestCreateOrUpdateLokiStack_WhenCreateReturnsError_ContinueWithOtherObjects
 	// GetStub looks up the CR first, so we need to return our fake stack
 	// return NotFound for everything else to trigger create.
 	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object, _ ...client.GetOption) error {
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok := object.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(object, &stack)
 			return nil
 		}
@@ -679,7 +683,8 @@ func TestCreateOrUpdateLokiStack_WhenUpdateReturnsError_ContinueWithOtherObjects
 	// GetStub looks up the CR first, so we need to return our fake stack
 	// return NotFound for everything else to trigger create.
 	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object, _ ...client.GetOption) error {
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok := object.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(object, &stack)
 		}
 		if defaultSecret.Name == name.Name {
@@ -1523,7 +1528,8 @@ func TestCreateOrUpdateLokiStack_RemovesRulerResourcesWhenDisabled(t *testing.T)
 		if ok {
 			return apierrors.NewNotFound(schema.GroupResource{}, "no ruler config")
 		}
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok = out.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(out, &stack)
 			return nil
 		}
@@ -1588,7 +1594,8 @@ func TestCreateOrUpdateLokiStack_RemovesRulerResourcesWhenDisabled(t *testing.T)
 			k.SetClientObject(out, &rulerSS)
 			return nil
 		}
-		if r.Name == name.Name && r.Namespace == name.Namespace {
+		_, ok = out.(*lokiv1.LokiStack)
+		if r.Name == name.Name && r.Namespace == name.Namespace && ok {
 			k.SetClientObject(out, &stack)
 			return nil
 		}

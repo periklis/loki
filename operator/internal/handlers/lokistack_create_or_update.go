@@ -24,6 +24,7 @@ import (
 	"github.com/grafana/loki/operator/internal/handlers/internal/rules"
 	"github.com/grafana/loki/operator/internal/handlers/internal/serviceaccounts"
 	"github.com/grafana/loki/operator/internal/handlers/internal/storage"
+	storage_openshift "github.com/grafana/loki/operator/internal/handlers/internal/storage/openshift"
 	"github.com/grafana/loki/operator/internal/handlers/internal/tlsprofile"
 	"github.com/grafana/loki/operator/internal/manifests"
 	manifests_openshift "github.com/grafana/loki/operator/internal/manifests/openshift"
@@ -80,7 +81,12 @@ func CreateOrUpdateLokiStack(
 		return kverrors.Wrap(err, "failed to lookup lokistack storage secret", "name", key)
 	}
 
-	objStore, err := storage.ExtractSecret(&storageSecret, stack.Spec.Storage.Secret.Type)
+	stsCreds, err := getSTSCredsFromEnv(ctx, k, ll, client.ObjectKeyFromObject(&stack), fg)
+	if err != nil {
+		return err
+	}
+
+	objStore, err := storage.ExtractSecret(&storageSecret, stack.Spec.Storage.Secret.Type, stsCreds)
 	if err != nil {
 		return &status.DegradedError{
 			Message: fmt.Sprintf("Invalid object storage secret contents: %s", err),
@@ -412,6 +418,34 @@ func CreateOrUpdateLokiStack(
 	}
 
 	return nil
+}
+
+func getSTSCredsFromEnv(ctx context.Context, k k8s.Client, l logr.Logger, stack client.ObjectKey, fg configv1.FeatureGates) (*corev1.Secret, error) {
+	var stsCreds corev1.Secret
+	stsEnv := storage_openshift.DiscoverSTSEnv()
+	l.Info("discovered STS cluster", "env", stsEnv)
+
+	if stsEnv == nil || !fg.OpenShift.Enabled {
+		return nil, nil
+	}
+
+	stsCredsKey, err := storage_openshift.CreateCredentialsRequest(ctx, k, stack, stsEnv)
+	if err != nil {
+		return nil, kverrors.Wrap(err, "failed creating OpenShift CCO CredentialRequest", "name", stack)
+	}
+
+	if err := k.Get(ctx, stsCredsKey, &stsCreds); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, &status.DegradedError{
+				Message: "Missing object storage sts secret",
+				Reason:  lokiv1.ReasonMissingObjectStorageSTSSecret,
+				Requeue: true,
+			}
+		}
+		return nil, kverrors.Wrap(err, "failed to lookup lokistack storage tat secret", "name", stack)
+	}
+
+	return &stsCreds, nil
 }
 
 func dependentAnnotations(ctx context.Context, k k8s.Client, obj client.Object) (map[string]string, error) {
