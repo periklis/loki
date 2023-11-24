@@ -29,19 +29,23 @@ var (
 	// loggingTenants represents the slice of all supported tenants on OpenshiftLogging mode.
 	loggingTenants = []string{
 		tenantApplication,
-		tenantInfrastructure,
 		tenantAudit,
+		tenantInfrastructure,
 	}
 
 	// networkTenants represents the slice of all supported tenants on OpenshiftNetwork mode.
 	networkTenants = []string{
 		tenantNetwork,
 	}
+
+	allTenants = append(loggingTenants, networkTenants...)
 )
 
 // GetTenants return the slice of all supported tenants for a specified mode
 func GetTenants(mode lokiv1.ModeType) []string {
 	switch mode {
+	case lokiv1.OpenShift:
+		return allTenants
 	case lokiv1.OpenshiftLogging:
 		return loggingTenants
 	case lokiv1.OpenshiftNetwork:
@@ -73,7 +77,7 @@ func ConfigureGatewayDeployment(
 		return kverrors.Wrap(err, "failed to merge sidecar container spec ")
 	}
 
-	if mode == lokiv1.OpenshiftLogging {
+	if mode == lokiv1.OpenShift || mode == lokiv1.OpenshiftLogging {
 		// enable extraction of namespace selector
 		for i, c := range d.Spec.Template.Spec.Containers {
 			if c.Name != "gateway" {

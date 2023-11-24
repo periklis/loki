@@ -482,6 +482,37 @@ func TestBuildGateway_WithTLSProfile(t *testing.T) {
 			},
 		},
 		{
+			desc: "openshift mode",
+			options: Options{
+				Name:      "abcd",
+				Namespace: "efgh",
+				Gates: configv1.FeatureGates{
+					LokiStackGateway: true,
+					HTTPEncryption:   true,
+					TLSProfile:       string(configv1.TLSProfileOldType),
+				},
+				TLSProfile: TLSProfileSpec{
+					MinTLSVersion: "min-version",
+					Ciphers:       []string{"cipher1", "cipher2"},
+				},
+				Stack: lokiv1.LokiStackSpec{
+					Template: &lokiv1.LokiTemplateSpec{
+						Gateway: &lokiv1.LokiComponentSpec{
+							Replicas: rand.Int31(),
+						},
+					},
+					Tenants: &lokiv1.TenantsSpec{
+						Mode: lokiv1.OpenShift,
+					},
+				},
+				Timeouts: defaultTimeoutConfig,
+			},
+			expectedArgs: []string{
+				"--tls.min-version=min-version",
+				"--tls.cipher-suites=cipher1,cipher2",
+			},
+		},
+		{
 			desc: "openshift-logging mode",
 			options: Options{
 				Name:      "abcd",
@@ -663,6 +694,39 @@ func TestBuildGateway_WithRulesEnabled(t *testing.T) {
 			},
 		},
 		{
+			desc: "openshift mode",
+			opts: Options{
+				Name:      "abcd",
+				Namespace: "efgh",
+				Gates: configv1.FeatureGates{
+					LokiStackGateway: true,
+					HTTPEncryption:   true,
+					OpenShift: configv1.OpenShiftFeatureGates{
+						ServingCertsService: true,
+					},
+				},
+				Stack: lokiv1.LokiStackSpec{
+					Template: &lokiv1.LokiTemplateSpec{
+						Gateway: &lokiv1.LokiComponentSpec{
+							Replicas: rand.Int31(),
+						},
+					},
+					Rules: &lokiv1.RulesSpec{
+						Enabled: true,
+					},
+					Tenants: &lokiv1.TenantsSpec{
+						Mode: lokiv1.OpenShift,
+					},
+				},
+				Timeouts: defaultTimeoutConfig,
+			},
+			wantArgs: []string{
+				"--logs.rules.endpoint=https://abcd-ruler-http.efgh.svc.cluster.local:3100",
+				"--logs.rules.read-only=true",
+				"--logs.rules.label-filters=application:kubernetes_namespace_name",
+			},
+		},
+		{
 			desc: "openshift-logging mode",
 			opts: Options{
 				Name:      "abcd",
@@ -717,7 +781,7 @@ func TestBuildGateway_WithRulesEnabled(t *testing.T) {
 						Enabled: true,
 					},
 					Tenants: &lokiv1.TenantsSpec{
-						Mode: lokiv1.OpenshiftLogging,
+						Mode: lokiv1.OpenshiftNetwork,
 					},
 				},
 				Timeouts: defaultTimeoutConfig,

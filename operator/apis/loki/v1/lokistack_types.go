@@ -227,7 +227,7 @@ type AuthenticationSpec struct {
 
 // ModeType is the authentication/authorization mode in which LokiStack Gateway will be configured.
 //
-// +kubebuilder:validation:Enum=static;dynamic;openshift-logging;openshift-network
+// +kubebuilder:validation:Enum=static;dynamic;openshift;openshift-logging;openshift-network
 type ModeType string
 
 const (
@@ -236,6 +236,8 @@ const (
 	Static ModeType = "static"
 	// Dynamic mode delegates the authorization to a third-party OPA-compatible endpoint.
 	Dynamic ModeType = "dynamic"
+	// Openshift mode provides fully automatic OpenShift in-cluster authentication and authorization support for application, audit, infrastructure and network logs.
+	OpenShift ModeType = "openshift"
 	// OpenshiftLogging mode provides fully automatic OpenShift in-cluster authentication and authorization support for application, infrastructure and audit logs.
 	OpenshiftLogging ModeType = "openshift-logging"
 	// OpenshiftNetwork mode provides fully automatic OpenShift in-cluster authentication and authorization support for network logs only.

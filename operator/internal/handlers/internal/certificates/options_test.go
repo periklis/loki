@@ -130,6 +130,10 @@ func TestGetOptions_PruneServiceCAAnnotations_ForTenantMode(t *testing.T) {
 			mode: lokiv1.Static,
 		},
 		{
+			mode:      lokiv1.OpenShift,
+			wantPrune: true,
+		},
+		{
 			mode:      lokiv1.OpenshiftLogging,
 			wantPrune: true,
 		},

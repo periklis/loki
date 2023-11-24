@@ -165,7 +165,7 @@ func CreateOrUpdateLokiStack(
 		}
 
 		switch stack.Spec.Tenants.Mode {
-		case lokiv1.OpenshiftLogging, lokiv1.OpenshiftNetwork:
+		case lokiv1.OpenShift, lokiv1.OpenshiftLogging, lokiv1.OpenshiftNetwork:
 			baseDomain, err = gateway.GetOpenShiftBaseDomain(ctx, k, req)
 			if err != nil {
 				return err

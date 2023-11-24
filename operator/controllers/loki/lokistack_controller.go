@@ -279,7 +279,8 @@ func (r *LokiStackReconciler) enqueueForAlertManagerServices() handler.EventHand
 				obj.GetNamespace() == openshift.MonitoringNS) {
 
 			for _, stack := range lokiStacks.Items {
-				if stack.Spec.Tenants != nil && (stack.Spec.Tenants.Mode == lokiv1.OpenshiftLogging ||
+				if stack.Spec.Tenants != nil && (stack.Spec.Tenants.Mode == lokiv1.OpenShift ||
+					stack.Spec.Tenants.Mode == lokiv1.OpenshiftLogging ||
 					stack.Spec.Tenants.Mode == lokiv1.OpenshiftNetwork) {
 					requests = append(requests, reconcile.Request{
 						NamespacedName: types.NamespacedName{

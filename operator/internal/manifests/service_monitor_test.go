@@ -296,6 +296,114 @@ func TestServiceMonitorEndpoints_ForGatewayServiceMonitor(t *testing.T) {
 			},
 		},
 		{
+			desc: "openshift",
+			opts: Options{
+				Name:      "test",
+				Namespace: "test",
+				Image:     "test",
+				Stack: lokiv1.LokiStackSpec{
+					Size: lokiv1.SizeOneXExtraSmall,
+					Tenants: &lokiv1.TenantsSpec{
+						Mode: lokiv1.OpenShift,
+					},
+					Template: &lokiv1.LokiTemplateSpec{
+						Gateway: &lokiv1.LokiComponentSpec{
+							Replicas: 1,
+						},
+					},
+				},
+			},
+			total: 2,
+			want: []monitoringv1.Endpoint{
+				{
+					Port:   gatewayInternalPortName,
+					Path:   "/metrics",
+					Scheme: "http",
+				},
+				{
+					Port:   "opa-metrics",
+					Path:   "/metrics",
+					Scheme: "http",
+				},
+			},
+		},
+		{
+			desc: "openshift with http encryption",
+			opts: Options{
+				Name:      "test",
+				Namespace: "test",
+				Image:     "test",
+				Gates: configv1.FeatureGates{
+					LokiStackGateway:           true,
+					BuiltInCertManagement:      configv1.BuiltInCertManagement{Enabled: true},
+					ServiceMonitors:            true,
+					ServiceMonitorTLSEndpoints: true,
+				},
+				Stack: lokiv1.LokiStackSpec{
+					Size: lokiv1.SizeOneXExtraSmall,
+					Tenants: &lokiv1.TenantsSpec{
+						Mode: lokiv1.OpenShift,
+					},
+					Template: &lokiv1.LokiTemplateSpec{
+						Gateway: &lokiv1.LokiComponentSpec{
+							Replicas: 1,
+						},
+					},
+				},
+			},
+			total: 2,
+			want: []monitoringv1.Endpoint{
+				{
+					Port:   gatewayInternalPortName,
+					Path:   "/metrics",
+					Scheme: "https",
+					BearerTokenSecret: corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: "test-gateway-token",
+						},
+						Key: corev1.ServiceAccountTokenKey,
+					},
+					TLSConfig: &monitoringv1.TLSConfig{
+						SafeTLSConfig: monitoringv1.SafeTLSConfig{
+							CA: monitoringv1.SecretOrConfigMap{
+								ConfigMap: &corev1.ConfigMapKeySelector{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: gatewaySigningCABundleName("test-gateway"),
+									},
+									Key: caFile,
+								},
+							},
+							ServerName: "test-gateway-http.test.svc.cluster.local",
+						},
+					},
+				},
+				{
+					Port:   "opa-metrics",
+					Path:   "/metrics",
+					Scheme: "https",
+					BearerTokenSecret: corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: "test-gateway-token",
+						},
+						Key: corev1.ServiceAccountTokenKey,
+					},
+					TLSConfig: &monitoringv1.TLSConfig{
+						SafeTLSConfig: monitoringv1.SafeTLSConfig{
+							CA: monitoringv1.SecretOrConfigMap{
+								ConfigMap: &corev1.ConfigMapKeySelector{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: gatewaySigningCABundleName("test-gateway"),
+									},
+									Key: caFile,
+								},
+							},
+							ServerName: "test-gateway-http.test.svc.cluster.local",
+						},
+					},
+				},
+			},
+		},
+		{
 			desc: "openshift-logging",
 			opts: Options{
 				Name:      "test",
