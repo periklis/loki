@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-
-	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 
 	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
@@ -55,13 +53,11 @@ func TestBuildRulerObjects_ClusterRoleRefMatches(t *testing.T) {
 	opts := NewOptions("abc", "ns", "abc", "abc", "abc", 1*time.Minute, map[string]string{}, "abc")
 
 	objs := BuildRulerObjects(*opts)
-	sa := objs[1].(*corev1.ServiceAccount)
-	cr := objs[2].(*rbacv1.ClusterRole)
-	rb := objs[3].(*rbacv1.ClusterRoleBinding)
+	cr := objs[1].(*rbacv1.ClusterRole)
+	rb := objs[2].(*rbacv1.ClusterRoleBinding)
 
-	require.Equal(t, sa.Kind, rb.Subjects[0].Kind)
-	require.Equal(t, sa.Name, rb.Subjects[0].Name)
-	require.Equal(t, sa.Namespace, rb.Subjects[0].Namespace)
 	require.Equal(t, cr.Kind, rb.RoleRef.Kind)
 	require.Equal(t, cr.Name, rb.RoleRef.Name)
+	require.Equal(t, rb.Subjects[0].Name, opts.BuildOpts.LokiStackName)
+	require.Equal(t, rb.Subjects[0].Namespace, opts.BuildOpts.LokiStackNamespace)
 }

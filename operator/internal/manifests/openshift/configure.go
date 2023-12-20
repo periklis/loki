@@ -214,7 +214,6 @@ func ConfigureRulerStatefulSet(
 	})
 
 	p := corev1.PodSpec{
-		ServiceAccountName: ss.GetName(),
 		Containers: []corev1.Container{
 			*rulerContainer,
 		},

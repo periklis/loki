@@ -103,7 +103,7 @@ func TestBuildRuler_HasExtraObjectsForTenantMode(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.Len(t, objs, 8)
+	require.Len(t, objs, 7)
 }
 
 func TestNewRulerStatefulSet_SelectorMatchesLabels(t *testing.T) {

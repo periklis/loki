@@ -31,7 +31,6 @@ func BuildGatewayTenantModeObjects(opts Options) []client.Object {
 func BuildRulerObjects(opts Options) []client.Object {
 	return []client.Object{
 		BuildAlertManagerCAConfigMap(opts),
-		BuildRulerServiceAccount(opts),
 		BuildRulerClusterRole(opts),
 		BuildRulerClusterRoleBinding(opts),
 	}

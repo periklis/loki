@@ -132,7 +132,7 @@ func BuildRulerClusterRoleBinding(opts Options) *rbacv1.ClusterRoleBinding {
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      rbacv1.ServiceAccountKind,
-				Name:      rulerServiceAccountName(opts),
+				Name:      opts.BuildOpts.LokiStackName,
 				Namespace: opts.BuildOpts.LokiStackNamespace,
 			},
 		},
