@@ -204,8 +204,8 @@ func TestLokiStackController_RegisterWatchedResources(t *testing.T) {
 	table := []test{
 		{
 			src:               &source.Kind{Type: &openshiftconfigv1.APIServer{}},
-			index:             1,
-			watchesCallsCount: 2,
+			index:             2,
+			watchesCallsCount: 3,
 			featureGates: configv1.FeatureGates{
 				OpenShift: configv1.OpenShiftFeatureGates{
 					ClusterTLSPolicy: true,
@@ -215,8 +215,8 @@ func TestLokiStackController_RegisterWatchedResources(t *testing.T) {
 		},
 		{
 			src:               &source.Kind{Type: &openshiftconfigv1.Proxy{}},
-			index:             1,
-			watchesCallsCount: 2,
+			index:             2,
+			watchesCallsCount: 3,
 			featureGates: configv1.FeatureGates{
 				OpenShift: configv1.OpenShiftFeatureGates{
 					ClusterProxy: true,
@@ -227,7 +227,14 @@ func TestLokiStackController_RegisterWatchedResources(t *testing.T) {
 		{
 			src:               &source.Kind{Type: &corev1.Secret{}},
 			index:             0,
-			watchesCallsCount: 1,
+			watchesCallsCount: 2,
+			featureGates:      configv1.FeatureGates{},
+			pred:              createUpdateOrDeletePred,
+		},
+		{
+			src:               &source.Kind{Type: &corev1.ConfigMap{}},
+			index:             1,
+			watchesCallsCount: 2,
 			featureGates:      configv1.FeatureGates{},
 			pred:              createUpdateOrDeletePred,
 		},

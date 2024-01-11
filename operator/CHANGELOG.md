@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.6.16
+
+- [11624](https://github.com/grafana/loki/pull/11624) **xperimental**: React to changes in ConfigMap used for storage CA
+
 ## Release 5.6.15
 
 - [11448](https://github.com/grafana/loki/pull/11448) **periklis**: Update Loki operand to v2.9.3
