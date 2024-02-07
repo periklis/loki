@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.8.4
+
+- [11824](https://github.com/grafana/loki/pull/11824) **xperimental**: Improve messages for errors in storage secret
+
 ## Release 5.8.3
 
 - [11232](https://github.com/grafana/loki/pull/11232) **periklis**: Update dependencies and dev tools
