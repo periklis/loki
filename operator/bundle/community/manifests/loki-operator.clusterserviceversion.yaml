@@ -150,7 +150,7 @@ metadata:
     categories: OpenShift Optional, Logging & Tracing
     certified: "false"
     containerImage: docker.io/grafana/loki-operator:main-99acb9b
-    createdAt: "2024-03-14T20:43:16Z"
+    createdAt: "2024-03-14T20:44:23Z"
     description: The Community Loki Operator provides Kubernetes native deployment
       and management of Loki and related logging components.
     operators.operatorframework.io/builder: operator-sdk-unknown
@@ -1488,7 +1488,7 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        serviceAccountName: default
+        serviceAccountName: loki-operator-controller-manager
       deployments:
       - label:
           app.kubernetes.io/instance: loki-operator-v0.2.0
@@ -1583,6 +1583,7 @@ spec:
                 kubernetes.io/os: linux
               securityContext:
                 runAsNonRoot: true
+              serviceAccountName: loki-operator-controller-manager
               terminationGracePeriodSeconds: 10
               volumes:
               - name: webhook-cert
@@ -1615,7 +1616,7 @@ spec:
           verbs:
           - create
           - patch
-        serviceAccountName: default
+        serviceAccountName: loki-operator-controller-manager
     strategy: deployment
   installModes:
   - supported: false
