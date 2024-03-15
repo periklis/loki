@@ -2,6 +2,8 @@
 
 ## Release 5.8.5
 
+- [12164](https://github.com/grafana/loki/pull/12164) **periklis**: Use safe bearer token authentication to scrape operator metrics
+- [12216](https://github.com/grafana/loki/pull/12216) **xperimental**: Fix duplicate operator metrics due to ServiceMonitor selector
 - [11968](https://github.com/grafana/loki/pull/11968) **xperimental**: Extend status to show difference between running and ready
 
 ## Release 5.8.4
