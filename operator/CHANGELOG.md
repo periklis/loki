@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.7.13
+
+- [12370](https://github.com/grafana/loki/pull/12370) **periklis**: Update Loki operand to v2.9.6
+
 ## Release 5.7.12
 
 - [12164](https://github.com/grafana/loki/pull/12164) **periklis**: Use safe bearer token authentication to scrape operator metrics
