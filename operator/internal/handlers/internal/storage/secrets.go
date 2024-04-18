@@ -1,54 +1,32 @@
 package storage
 
 import (
-	"context"
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"net/url"
 	"sort"
+	"strings"
+
+	"github.com/ViaQ/logerr/v2/kverrors"
+	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
+	"github.com/grafana/loki/operator/internal/manifests/storage"
 
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
-	"github.com/grafana/loki/operator/internal/external/k8s"
-	"github.com/grafana/loki/operator/internal/manifests/storage"
-	"github.com/grafana/loki/operator/internal/status"
 )
 
 var (
-	hashSeparator = []byte(",")
-
-	errSecretUnknownType  = errors.New("unknown secret type")
-	errSecretMissingField = errors.New("missing secret field")
-	errSecretHashError    = errors.New("error calculating hash for secret")
+	errS3EndpointUnparseable       = errors.New("can not parse S3 endpoint as URL")
+	errS3EndpointNoURL             = errors.New("endpoint for S3 must be an HTTP or HTTPS URL")
+	errS3EndpointUnsupportedScheme = errors.New("scheme of S3 endpoint URL is unsupported")
+	errS3EndpointAWSInvalid        = errors.New("endpoint for AWS S3 must include correct region")
 )
 
-func getSecret(ctx context.Context, k k8s.Client, stack *lokiv1.LokiStack) (*corev1.Secret, error) {
-	var storageSecret corev1.Secret
-	key := client.ObjectKey{Name: stack.Spec.Storage.Secret.Name, Namespace: stack.Namespace}
-	if err := k.Get(ctx, key, &storageSecret); err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, &status.DegradedError{
-				Message: "Missing object storage secret",
-				Reason:  lokiv1.ReasonMissingObjectStorageSecret,
-				Requeue: false,
-			}
-		}
-		return nil, fmt.Errorf("failed to lookup lokistack storage secret: %w", err)
-	}
+const awsEndpointSuffix = ".amazonaws.com"
 
-	return &storageSecret, nil
-}
-
-// extractSecret reads a k8s secret into a manifest object storage struct if valid.
-func extractSecret(s *corev1.Secret, secretType lokiv1.ObjectStorageSecretType) (storage.Options, error) {
-	hash, err := hashSecretData(s)
-	if err != nil {
-		return storage.Options{}, errSecretHashError
-	}
-
+// ExtractSecret reads a k8s secret into a manifest object storage struct if valid.
+func ExtractSecret(s *corev1.Secret, secretType lokiv1.ObjectStorageSecretType) (*storage.Options, error) {
+	var err error
 	storageOpts := storage.Options{
 		SecretName:  s.Name,
 		SecretSHA1:  hash,
@@ -148,13 +126,17 @@ func extractGCSConfigSecret(s *corev1.Secret) (*storage.GCSStorageConfig, error)
 
 func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 	// Extract and validate mandatory fields
-	buckets := s.Data[storage.KeyAWSBucketNames]
-	if len(buckets) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSBucketNames)
-	}
-	endpoint := s.Data[storage.KeyAWSEndpoint]
+	endpoint := s.Data["endpoint"]
+	region := s.Data["region"]
 	if len(endpoint) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSEndpoint)
+		return nil, kverrors.New("missing secret field", "field", "endpoint")
+	}
+	if err := validateS3Endpoint(string(endpoint), string(region)); err != nil {
+		return nil, err
+	}
+	buckets := s.Data["bucketnames"]
+	if len(buckets) == 0 {
+		return nil, kverrors.New("missing secret field", "field", "bucketnames")
 	}
 	id := s.Data[storage.KeyAWSAccessKeyID]
 	if len(id) == 0 {
@@ -165,14 +147,43 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeySecret)
 	}
 
-	// Extract and validate optional fields
-	region := s.Data[storage.KeyAWSRegion]
-
 	return &storage.S3StorageConfig{
 		Endpoint: string(endpoint),
 		Buckets:  string(buckets),
 		Region:   string(region),
 	}, nil
+}
+
+func validateS3Endpoint(endpoint string, region string) error {
+	if len(endpoint) == 0 {
+		return kverrors.New("missing secret field", "field", "endpoint")
+	}
+
+	parsedURL, err := url.Parse(endpoint)
+	if err != nil {
+		return kverrors.New("%w: %w", errS3EndpointUnparseable, err)
+	}
+
+	if parsedURL.Scheme == "" {
+		// Assume "just a hostname" when scheme is empty and produce a clearer error message
+		return errS3EndpointNoURL
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return kverrors.New("%w: %s", errS3EndpointUnsupportedScheme, parsedURL.Scheme)
+	}
+
+	if strings.HasSuffix(endpoint, awsEndpointSuffix) {
+		if len(region) == 0 {
+			return kverrors.New("missing secret field", "field", "region")
+		}
+
+		validEndpoint := fmt.Sprintf("https://s3.%s%s", region, awsEndpointSuffix)
+		if endpoint != validEndpoint {
+			return kverrors.New("%w: %s", errS3EndpointAWSInvalid, validEndpoint)
+		}
+	}
+	return nil
 }
 
 func extractSwiftConfigSecret(s *corev1.Secret) (*storage.SwiftStorageConfig, error) {
