@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ViaQ/logerr/v2/kverrors"
 	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
 	"github.com/grafana/loki/operator/internal/manifests/storage"
 
@@ -128,23 +127,20 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 	// Extract and validate mandatory fields
 	endpoint := s.Data["endpoint"]
 	region := s.Data["region"]
-	if len(endpoint) == 0 {
-		return nil, kverrors.New("missing secret field", "field", "endpoint")
-	}
 	if err := validateS3Endpoint(string(endpoint), string(region)); err != nil {
 		return nil, err
 	}
 	buckets := s.Data["bucketnames"]
 	if len(buckets) == 0 {
-		return nil, kverrors.New("missing secret field", "field", "bucketnames")
+		return nil, fmt.Errorf("missing secret field: %s", "bucketnames")
 	}
 	id := s.Data[storage.KeyAWSAccessKeyID]
 	if len(id) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeyID)
+		return nil, fmt.Errorf("missing secret field: %s", "access_key_id")
 	}
 	secret := s.Data[storage.KeyAWSAccessKeySecret]
 	if len(secret) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeySecret)
+		return nil, fmt.Errorf("missing secret field: %s", "access_key_secret")
 	}
 
 	return &storage.S3StorageConfig{
@@ -156,12 +152,12 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 
 func validateS3Endpoint(endpoint string, region string) error {
 	if len(endpoint) == 0 {
-		return kverrors.New("missing secret field", "field", "endpoint")
+		return fmt.Errorf("missing secret field: %s", "endpoint")
 	}
 
 	parsedURL, err := url.Parse(endpoint)
 	if err != nil {
-		return kverrors.New("%w: %w", errS3EndpointUnparseable, err)
+		return fmt.Errorf("%w: %w", errS3EndpointUnparseable, err)
 	}
 
 	if parsedURL.Scheme == "" {
@@ -170,17 +166,17 @@ func validateS3Endpoint(endpoint string, region string) error {
 	}
 
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return kverrors.New("%w: %s", errS3EndpointUnsupportedScheme, parsedURL.Scheme)
+		return fmt.Errorf("%w: %s", errS3EndpointUnsupportedScheme, parsedURL.Scheme)
 	}
 
 	if strings.HasSuffix(endpoint, awsEndpointSuffix) {
 		if len(region) == 0 {
-			return kverrors.New("missing secret field", "field", "region")
+			return fmt.Errorf("missing secret field: %s", "region")
 		}
 
-		validEndpoint := fmt.Sprintf("https://s3.%s%s", region, awsEndpointSuffix)
-		if endpoint != validEndpoint {
-			return kverrors.New("%w: %s", errS3EndpointAWSInvalid, validEndpoint)
+		validEndpointSuffix := fmt.Sprintf("%s://s3.%s%s", parsedURL.Scheme, region, awsEndpointSuffix)
+		if !strings.HasSuffix(endpoint, validEndpointSuffix) {
+			return fmt.Errorf("%w: %s", errS3EndpointAWSInvalid, validEndpointSuffix)
 		}
 	}
 	return nil
