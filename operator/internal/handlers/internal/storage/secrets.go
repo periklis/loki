@@ -168,37 +168,39 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 	if len(buckets) == 0 {
 		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSBucketNames)
 	}
-	endpoint := s.Data[storage.KeyAWSEndpoint]
-	if len(endpoint) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSEndpoint)
-	}
-	id := s.Data[storage.KeyAWSAccessKeyID]
-	if len(id) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeyID)
-	}
-	secret := s.Data[storage.KeyAWSAccessKeySecret]
-	if len(secret) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeySecret)
-	}
 
-	// Extract and validate optional fields
-	region := s.Data[storage.KeyAWSRegion]
+	var (
+		// Fields related with static authentication
+		endpoint = s.Data[storage.KeyAWSEndpoint]
+		id       = s.Data[storage.KeyAWSAccessKeyID]
+		secret   = s.Data[storage.KeyAWSAccessKeySecret]
+		// Optional fields
+		region = s.Data[storage.KeyAWSRegion]
+	)
 
 	sseCfg, err := extractS3SSEConfig(s.Data)
 	if err != nil {
 		return nil, err
 	}
 
+	cfg := &storage.S3StorageConfig{
+		Buckets: string(buckets),
+		Region:  string(region),
+		SSE:     sseCfg,
+	}
+	cfg.Endpoint = string(endpoint)
+
 	if err := validateS3Endpoint(string(endpoint), string(region)); err != nil {
 		return nil, err
 	}
+	if len(id) == 0 {
+		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeyID)
+	}
+	if len(secret) == 0 {
+		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeySecret)
+	}
 
-	return &storage.S3StorageConfig{
-		Endpoint: string(endpoint),
-		Buckets:  string(buckets),
-		Region:   string(region),
-		SSE:      sseCfg,
-	}, nil
+	return cfg, nil
 }
 
 func validateS3Endpoint(endpoint string, region string) error {
