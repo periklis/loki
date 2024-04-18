@@ -227,7 +227,8 @@ func TestS3Extract(t *testing.T) {
 			name: "missing access_key_id",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":    []byte("here"),
+					"endpoint":    []byte("https://s3.test-region.amazonaws.com"),
+					"region":      []byte("test-region"),
 					"bucketnames": []byte("this,that"),
 				},
 			},
@@ -237,7 +238,8 @@ func TestS3Extract(t *testing.T) {
 			name: "missing access_key_secret",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":      []byte("here"),
+					"endpoint":      []byte("https://s3.test-region.amazonaws.com"),
+					"region":        []byte("test-region"),
 					"bucketnames":   []byte("this,that"),
 					"access_key_id": []byte("id"),
 				},
@@ -248,7 +250,7 @@ func TestS3Extract(t *testing.T) {
 			name: "unsupported SSE type",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.REGION.amazonaws.com"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -261,7 +263,8 @@ func TestS3Extract(t *testing.T) {
 			name: "missing SSE-KMS kms_key_id",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":                   []byte("here"),
+					"endpoint":                   []byte("https://s3.test-region.amazonaws.com"),
+					"region":                     []byte("test-region"),
 					"bucketnames":                []byte("this,that"),
 					"access_key_id":              []byte("id"),
 					"access_key_secret":          []byte("secret"),
@@ -276,7 +279,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.test-region.amazonaws.com"),
+					"region":            []byte("test-region"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -290,7 +294,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":                   []byte("here"),
+					"endpoint":                   []byte("https://s3.test-region.amazonaws.com"),
+					"region":                     []byte("test-region"),
 					"bucketnames":                []byte("this,that"),
 					"access_key_id":              []byte("id"),
 					"access_key_secret":          []byte("secret"),
@@ -305,7 +310,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.test-region.amazonaws.com"),
+					"region":            []byte("test-region"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -318,12 +324,68 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://here"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
 				},
 			},
+		},
+		{
+			name: "endpoint is just hostname",
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{Name: "test"},
+				Data: map[string][]byte{
+					"endpoint":          []byte("hostname.example.com"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantError: "endpoint for S3 must be an HTTP or HTTPS URL",
+		},
+		{
+			name: "endpoint unsupported scheme",
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{Name: "test"},
+				Data: map[string][]byte{
+					"endpoint":          []byte("invalid://hostname"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantError: "scheme of S3 endpoint URL is unsupported: invalid",
+		},
+		{
+			name: "s3 region used in endpoint URL is incorrect",
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{Name: "test"},
+				Data: map[string][]byte{
+					"endpoint":          []byte("https://s3.wrong.amazonaws.com"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantError: "endpoint for AWS S3 must include correct region: https://s3.region.amazonaws.com",
+		},
+		{
+			name: "s3 endpoint format is not a valid s3 URL",
+			secret: &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{Name: "test"},
+				Data: map[string][]byte{
+					"endpoint":          []byte("http://region.amazonaws.com"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantError: "endpoint for AWS S3 must include correct region: https://s3.region.amazonaws.com",
 		},
 	}
 	for _, tst := range table {
