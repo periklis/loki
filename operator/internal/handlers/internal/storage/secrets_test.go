@@ -285,7 +285,7 @@ func TestS3Extract(t *testing.T) {
 					"access_key_secret": []byte("secret"),
 				},
 			},
-			wantErr: "endpoint for AWS S3 must include correct region: http://s3.region.amazonaws.com",
+			wantErr: "endpoint for AWS S3 must include correct region: https://s3.region.amazonaws.com",
 		},
 		{
 			name: "all set",
