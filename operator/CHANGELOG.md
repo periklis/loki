@@ -1,5 +1,7 @@
 ## Main
 
+- [12181](https://github.com/grafana/loki/pull/12181) **btaani**: Improve validation of provided S3 storage configuration
+
 ## Release 5.7.13
 
 - [12370](https://github.com/grafana/loki/pull/12370) **periklis**: Update Loki operand to v2.9.6
@@ -59,7 +61,6 @@ No changes.
 
 - [9623](https://github.com/grafana/loki/pull/9623) **periklis**: Fix timeout config constructor when only tenants limits
 - [9448](https://github.com/grafana/loki/pull/9448) **btaani**: Include runtime-config in compiling the SHA1 checksum
-- [12181](https://github.com/grafana/loki/pull/12181) **btaani**: Improve validation of provided S3 storage configuration
 - [9511](https://github.com/grafana/loki/pull/9511) **xperimental**: Do not update status after setting degraded condition
 - [9405](https://github.com/grafana/loki/pull/9405) **periklis**: Add support for configuring HTTP server timeouts
 

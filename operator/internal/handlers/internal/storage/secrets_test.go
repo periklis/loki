@@ -197,12 +197,16 @@ func TestS3Extract(t *testing.T) {
 	}
 	table := []test{
 		{
-			name:    "missing endpoint",
-			secret:  &corev1.Secret{},
+			name: "missing endpoint",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"bucketnames": []byte("this,that"),
+				},
+			},
 			wantErr: "missing secret field: endpoint",
 		},
 		{
-			name: "missing endpoint",
+			name: "missing bucketnames",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
 					"endpoint": []byte("http://here"),
@@ -302,11 +306,14 @@ func TestS3Extract(t *testing.T) {
 		t.Run(tst.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := storage.ExtractSecret(tst.secret, lokiv1.ObjectStorageSecretS3)
-			if tst.wantErr != "" {
-				require.EqualError(t, err, tst.wantErr)
-			} else {
+			opts, err := extractSecret(tst.secret, lokiv1.ObjectStorageSecretS3)
+			if tst.wantErr == "" {
 				require.NoError(t, err)
+				require.NotEmpty(t, opts.SecretName)
+				require.NotEmpty(t, opts.SecretSHA1)
+				require.Equal(t, opts.SharedStore, lokiv1.ObjectStorageSecretS3)
+			} else {
+				require.EqualError(t, err, tst.wantErr)
 			}
 		})
 	}
