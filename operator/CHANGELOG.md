@@ -1,5 +1,7 @@
 ## Main
 
+- [12181](https://github.com/grafana/loki/pull/12181) **btaani**: Improve validation of provided S3 storage configuration
+
 ## Release 5.8.6
 
 - [12370](https://github.com/grafana/loki/pull/12370) **periklis**: Update Loki operand to v2.9.6
