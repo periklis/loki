@@ -132,15 +132,15 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 	}
 	buckets := s.Data["bucketnames"]
 	if len(buckets) == 0 {
-		return nil, fmt.Errorf("missing secret field: %s", "bucketnames")
+		return nil, kverrors.New("missing secret field: bucketnames")
 	}
 	id := s.Data[storage.KeyAWSAccessKeyID]
 	if len(id) == 0 {
-		return nil, fmt.Errorf("missing secret field: %s", "access_key_id")
+		return nil, kverrors.New("missing secret field: access_key_id")
 	}
 	secret := s.Data[storage.KeyAWSAccessKeySecret]
 	if len(secret) == 0 {
-		return nil, fmt.Errorf("missing secret field: %s", "access_key_secret")
+		return nil, kverrors.New("missing secret field: access_key_secret")
 	}
 
 	return &storage.S3StorageConfig{
@@ -152,7 +152,7 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 
 func validateS3Endpoint(endpoint string, region string) error {
 	if len(endpoint) == 0 {
-		return fmt.Errorf("missing secret field: %s", "endpoint")
+		return kverrors.New("missing secret field: endpoint")
 	}
 
 	parsedURL, err := url.Parse(endpoint)
@@ -171,7 +171,7 @@ func validateS3Endpoint(endpoint string, region string) error {
 
 	if strings.HasSuffix(endpoint, awsEndpointSuffix) {
 		if len(region) == 0 {
-			return fmt.Errorf("missing secret field: %s", "region")
+			return kverrors.New("missing secret field: region")
 		}
 
 		validEndpointSuffix := fmt.Sprintf("%s://s3.%s%s", parsedURL.Scheme, region, awsEndpointSuffix)
