@@ -200,7 +200,15 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeySecret)
 	}
 
-	return cfg, nil
+	forcePathStyle := !strings.HasSuffix(string(endpoint), awsEndpointSuffix)
+
+	return &storage.S3StorageConfig{
+		Endpoint:       string(endpoint),
+		Buckets:        string(buckets),
+		Region:         string(region),
+		SSE:            sseCfg,
+		ForcePathStyle: forcePathStyle,
+	}, nil
 }
 
 func validateS3Endpoint(endpoint string, region string) error {
