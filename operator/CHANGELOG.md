@@ -1,7 +1,14 @@
 ## Main
 
+## Release 5.9.1
+
+- [12181](https://github.com/grafana/loki/pull/12181) **btaani**: Improve validation of provided S3 storage configuration
 - [12370](https://github.com/grafana/loki/pull/12370) **periklis**: Update Loki operand to v2.9.6
 - [12333](https://github.com/grafana/loki/pull/12333) **periklis**: Bump max OpenShift version to next release
+
+## Release 5.9.0
+
+No changes.
 
 ## 0.6.0 (2024-03-19)
 

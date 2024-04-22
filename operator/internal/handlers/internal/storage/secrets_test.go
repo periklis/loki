@@ -392,7 +392,8 @@ func TestS3Extract(t *testing.T) {
 			name: "missing access_key_id",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":    []byte("here"),
+					"endpoint":    []byte("https://s3.test-region.amazonaws.com"),
+					"region":      []byte("test-region"),
 					"bucketnames": []byte("this,that"),
 				},
 			},
@@ -402,7 +403,8 @@ func TestS3Extract(t *testing.T) {
 			name: "missing access_key_secret",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":      []byte("here"),
+					"endpoint":      []byte("https://s3.test-region.amazonaws.com"),
+					"region":        []byte("test-region"),
 					"bucketnames":   []byte("this,that"),
 					"access_key_id": []byte("id"),
 				},
@@ -413,7 +415,7 @@ func TestS3Extract(t *testing.T) {
 			name: "unsupported SSE type",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.REGION.amazonaws.com"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -426,7 +428,8 @@ func TestS3Extract(t *testing.T) {
 			name: "missing SSE-KMS kms_key_id",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":                   []byte("here"),
+					"endpoint":                   []byte("https://s3.test-region.amazonaws.com"),
+					"region":                     []byte("test-region"),
 					"bucketnames":                []byte("this,that"),
 					"access_key_id":              []byte("id"),
 					"access_key_secret":          []byte("secret"),
@@ -441,7 +444,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.test-region.amazonaws.com"),
+					"region":            []byte("test-region"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -456,7 +460,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":                   []byte("here"),
+					"endpoint":                   []byte("https://s3.test-region.amazonaws.com"),
+					"region":                     []byte("test-region"),
 					"bucketnames":                []byte("this,that"),
 					"access_key_id":              []byte("id"),
 					"access_key_secret":          []byte("secret"),
@@ -472,7 +477,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.test-region.amazonaws.com"),
+					"region":            []byte("test-region"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -486,7 +492,8 @@ func TestS3Extract(t *testing.T) {
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.test-region.amazonaws.com"),
+					"region":            []byte("test-region"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
