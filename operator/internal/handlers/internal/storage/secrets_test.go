@@ -191,16 +191,11 @@ func TestGCSExtract(t *testing.T) {
 
 func TestS3Extract(t *testing.T) {
 	type test struct {
-		name      string
-		secret    *corev1.Secret
-		wantError string
+		name    string
+		secret  *corev1.Secret
+		wantErr string
 	}
 	table := []test{
-		{
-			name:      "missing bucketnames",
-			secret:    &corev1.Secret{},
-			wantError: "missing secret field: bucketnames",
-		},
 		{
 			name: "missing endpoint",
 			secret: &corev1.Secret{
@@ -208,35 +203,97 @@ func TestS3Extract(t *testing.T) {
 					"bucketnames": []byte("this,that"),
 				},
 			},
-			wantError: "missing secret field: endpoint",
+			wantErr: "missing secret field: endpoint",
+		},
+		{
+			name: "missing bucketnames",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint": []byte("http://here"),
+				},
+			},
+			wantErr: "missing secret field: bucketnames",
 		},
 		{
 			name: "missing access_key_id",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":    []byte("here"),
+					"endpoint":    []byte("https://here"),
 					"bucketnames": []byte("this,that"),
 				},
 			},
-			wantError: "missing secret field: access_key_id",
+			wantErr: "missing secret field: access_key_id",
 		},
 		{
 			name: "missing access_key_secret",
 			secret: &corev1.Secret{
 				Data: map[string][]byte{
-					"endpoint":      []byte("here"),
+					"endpoint":      []byte("https://here"),
 					"bucketnames":   []byte("this,that"),
 					"access_key_id": []byte("id"),
 				},
 			},
-			wantError: "missing secret field: access_key_secret",
+			wantErr: "missing secret field: access_key_secret",
+		},
+		{
+			name: "endpoint is just hostname",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":          []byte("hostname.example.com"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantErr: "endpoint for S3 must be an HTTP or HTTPS URL",
+		},
+		{
+			name: "endpoint unsupported scheme",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":          []byte("invalid://hostname"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantErr: "scheme of S3 endpoint URL is unsupported: invalid",
+		},
+		{
+			name: "s3 region used in endpoint URL is incorrect",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":          []byte("https://s3.wrong.amazonaws.com"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantErr: "endpoint for AWS S3 must include correct region: https://s3.region.amazonaws.com",
+		},
+		{
+			name: "s3 endpoint format is not a valid s3 URL",
+			secret: &corev1.Secret{
+				Data: map[string][]byte{
+					"endpoint":          []byte("http://region.amazonaws.com"),
+					"region":            []byte("region"),
+					"bucketnames":       []byte("this,that"),
+					"access_key_id":     []byte("id"),
+					"access_key_secret": []byte("secret"),
+				},
+			},
+			wantErr: "endpoint for AWS S3 must include correct region: https://s3.region.amazonaws.com",
 		},
 		{
 			name: "all set",
 			secret: &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{Name: "test"},
 				Data: map[string][]byte{
-					"endpoint":          []byte("here"),
+					"endpoint":          []byte("https://s3.region.amazonaws.com"),
+					"region":            []byte("region"),
 					"bucketnames":       []byte("this,that"),
 					"access_key_id":     []byte("id"),
 					"access_key_secret": []byte("secret"),
@@ -250,13 +307,13 @@ func TestS3Extract(t *testing.T) {
 			t.Parallel()
 
 			opts, err := extractSecret(tst.secret, lokiv1.ObjectStorageSecretS3)
-			if tst.wantError == "" {
+			if tst.wantErr == "" {
 				require.NoError(t, err)
 				require.NotEmpty(t, opts.SecretName)
 				require.NotEmpty(t, opts.SecretSHA1)
 				require.Equal(t, opts.SharedStore, lokiv1.ObjectStorageSecretS3)
 			} else {
-				require.EqualError(t, err, tst.wantError)
+				require.EqualError(t, err, tst.wantErr)
 			}
 		})
 	}

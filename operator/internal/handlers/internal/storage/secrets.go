@@ -5,7 +5,9 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"net/url"
 	"sort"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -23,7 +25,14 @@ var (
 	errSecretUnknownType  = errors.New("unknown secret type")
 	errSecretMissingField = errors.New("missing secret field")
 	errSecretHashError    = errors.New("error calculating hash for secret")
+
+	errS3EndpointUnparseable       = errors.New("can not parse S3 endpoint as URL")
+	errS3EndpointNoURL             = errors.New("endpoint for S3 must be an HTTP or HTTPS URL")
+	errS3EndpointUnsupportedScheme = errors.New("scheme of S3 endpoint URL is unsupported")
+	errS3EndpointAWSInvalid        = errors.New("endpoint for AWS S3 must include correct region")
 )
+
+const awsEndpointSuffix = ".amazonaws.com"
 
 func getSecret(ctx context.Context, k k8s.Client, stack *lokiv1.LokiStack) (*corev1.Secret, error) {
 	var storageSecret corev1.Secret
@@ -152,27 +161,65 @@ func extractS3ConfigSecret(s *corev1.Secret) (*storage.S3StorageConfig, error) {
 	if len(buckets) == 0 {
 		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSBucketNames)
 	}
-	endpoint := s.Data[storage.KeyAWSEndpoint]
-	if len(endpoint) == 0 {
-		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSEndpoint)
+
+	var (
+		// Fields related with static authentication
+		endpoint = s.Data[storage.KeyAWSEndpoint]
+		id       = s.Data[storage.KeyAWSAccessKeyID]
+		secret   = s.Data[storage.KeyAWSAccessKeySecret]
+		// Optional fields
+		region = s.Data[storage.KeyAWSRegion]
+	)
+
+	cfg := &storage.S3StorageConfig{
+		Buckets: string(buckets),
+		Region:  string(region),
 	}
-	id := s.Data[storage.KeyAWSAccessKeyID]
+	cfg.Endpoint = string(endpoint)
+
+	if err := validateS3Endpoint(string(endpoint), string(region)); err != nil {
+		return nil, err
+	}
 	if len(id) == 0 {
 		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeyID)
 	}
-	secret := s.Data[storage.KeyAWSAccessKeySecret]
 	if len(secret) == 0 {
 		return nil, fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSAccessKeySecret)
 	}
 
-	// Extract and validate optional fields
-	region := s.Data[storage.KeyAWSRegion]
+	return cfg, nil
+}
 
-	return &storage.S3StorageConfig{
-		Endpoint: string(endpoint),
-		Buckets:  string(buckets),
-		Region:   string(region),
-	}, nil
+func validateS3Endpoint(endpoint string, region string) error {
+	if len(endpoint) == 0 {
+		return fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSEndpoint)
+	}
+
+	parsedURL, err := url.Parse(endpoint)
+	if err != nil {
+		return fmt.Errorf("%w: %w", errS3EndpointUnparseable, err)
+	}
+
+	if parsedURL.Scheme == "" {
+		// Assume "just a hostname" when scheme is empty and produce a clearer error message
+		return errS3EndpointNoURL
+	}
+
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return fmt.Errorf("%w: %s", errS3EndpointUnsupportedScheme, parsedURL.Scheme)
+	}
+
+	if strings.HasSuffix(endpoint, awsEndpointSuffix) {
+		if len(region) == 0 {
+			return fmt.Errorf("%w: %s", errSecretMissingField, storage.KeyAWSRegion)
+		}
+
+		validEndpoint := fmt.Sprintf("https://s3.%s%s", region, awsEndpointSuffix)
+		if endpoint != validEndpoint {
+			return fmt.Errorf("%w: %s", errS3EndpointAWSInvalid, validEndpoint)
+		}
+	}
+	return nil
 }
 
 func extractSwiftConfigSecret(s *corev1.Secret) (*storage.SwiftStorageConfig, error) {
