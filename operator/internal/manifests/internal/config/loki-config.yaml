@@ -21,12 +21,14 @@ common:
     {{- end }}
     {{- with .ObjectStorage.S3 }}
     s3:
-      s3: {{ .Endpoint }}
+      endpoint: {{ .Endpoint }}
       bucketnames: {{ .Buckets }}
       region: {{ .Region }}
       access_key_id: ${AWS_ACCESS_KEY_ID}
       secret_access_key: ${AWS_ACCESS_KEY_SECRET}
+       {{- if .ForcePathStyle  }}
       s3forcepathstyle: true
+      {{- end}}
     {{- end }}
     {{- with .ObjectStorage.Swift }}
     swift:

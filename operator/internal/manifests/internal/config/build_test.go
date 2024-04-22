@@ -24,7 +24,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -236,9 +236,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -272,7 +273,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -515,9 +516,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -595,9 +597,10 @@ func TestBuild_ConfigAndRuntimeConfig_CreateLokiConfigFailed(t *testing.T) {
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -625,7 +628,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -938,9 +941,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -974,7 +978,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -1288,9 +1292,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -1324,7 +1329,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -1668,9 +1673,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -1704,7 +1710,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -1990,9 +1996,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -2029,7 +2036,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -2403,9 +2410,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -2439,7 +2447,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -2740,9 +2748,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -2776,7 +2785,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -3227,9 +3236,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -3263,7 +3273,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -3478,9 +3488,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{
@@ -3514,7 +3525,7 @@ chunk_store_config:
 common:
   storage:
     s3:
-      s3: http://test.default.svc.cluster.local.:9000
+      endpoint: http://test.default.svc.cluster.local.:9000
       bucketnames: loki
       region: us-east
       access_key_id: ${AWS_ACCESS_KEY_ID}
@@ -3731,9 +3742,10 @@ overrides:
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
 			S3: &storage.S3StorageConfig{
-				Endpoint: "http://test.default.svc.cluster.local.:9000",
-				Region:   "us-east",
-				Buckets:  "loki",
+				Endpoint:       "http://test.default.svc.cluster.local.:9000",
+				Region:         "us-east",
+				Buckets:        "loki",
+				ForcePathStyle: true,
 			},
 			Schemas: []lokiv1.ObjectStorageSchema{
 				{

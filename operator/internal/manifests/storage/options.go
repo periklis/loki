@@ -33,9 +33,10 @@ type GCSStorageConfig struct {
 
 // S3StorageConfig for S3 storage config
 type S3StorageConfig struct {
-	Endpoint string
-	Region   string
-	Buckets  string
+	Endpoint       string
+	Region         string
+	Buckets        string
+	ForcePathStyle bool
 }
 
 // SwiftStorageConfig for Swift storage config
