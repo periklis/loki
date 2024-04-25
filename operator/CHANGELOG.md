@@ -1,5 +1,10 @@
 ## Main
 
+## Release 5.8.7
+
+- [12698](https://github.com/grafana/loki/pull/12698) **periklis**: chore(deps): bump golang.org/x/net from 0.21.0 to 0.23.0 in /operator
+- [12503](https://github.com/grafana/loki/pull/12503) **periklis**: fix(operator): Bump golang builder to 1.21.9
+
 ## Release 5.8.6
 
 - [12469](https://github.com/grafana/loki/pull/12469) **btaani**: Configure Loki to use virtual-host-style URLs for S3 AWS endpoints
