@@ -69,7 +69,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 536870912
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -240,7 +240,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 0,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -327,7 +327,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -588,7 +588,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -673,7 +673,7 @@ func TestBuild_ConfigAndRuntimeConfig_CreateLokiConfigFailed(t *testing.T) {
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -754,7 +754,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -1026,7 +1026,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -1113,7 +1113,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -1386,7 +1386,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -1473,7 +1473,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -1776,7 +1776,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -1866,7 +1866,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -2112,7 +2112,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -2202,7 +2202,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -2535,7 +2535,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -2636,7 +2636,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -2882,7 +2882,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -2969,7 +2969,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -3379,7 +3379,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -3467,7 +3467,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -3640,7 +3640,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -3729,7 +3729,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -3903,7 +3903,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -3992,7 +3992,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -4164,7 +4164,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -4256,7 +4256,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -4462,7 +4462,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -4556,7 +4556,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -4762,7 +4762,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -4854,7 +4854,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -5021,7 +5021,7 @@ overrides:
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -5111,7 +5111,7 @@ func defaultOptions() Options {
 		},
 		WriteAheadLog: WriteAheadLog{
 			Directory:             "/tmp/wal",
-			IngesterMemoryRequest: 5000,
+			IngesterMemoryRequest: 4 * 1024 * 1024 * 1024,
 		},
 		ObjectStorage: storage.Options{
 			SharedStore: lokiv1.ObjectStorageSecretS3,
@@ -5345,7 +5345,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
@@ -5520,7 +5520,7 @@ ingester:
   wal:
     enabled: true
     dir: /tmp/wal
-    replay_memory_ceiling: 2500
+    replay_memory_ceiling: 2147483648
 ingester_client:
   grpc_client_config:
     max_recv_msg_size: 67108864
