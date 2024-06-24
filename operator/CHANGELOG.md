@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.9.4
+
+- [13299](https://github.com/grafana/loki/pull/13299) **periklis**: fix(operator): Watch for CredentialsRequests on CCOAuthEnv only
+
 ## Release 5.9.3
 
 - [13066](https://github.com/grafana/loki/pull/13066) **xperimental**: Use a minimum value for replay memory ceiling
