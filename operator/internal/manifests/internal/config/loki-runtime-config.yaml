@@ -49,6 +49,9 @@ overrides:
     {{- if $spec.QueryLimits.CardinalityLimit }}
     cardinality_limit: {{ $spec.QueryLimits.CardinalityLimit }}
     {{- end }}
+    {{- if $spec.QueryLimits.MaxVolumeSeries }}
+    max_volume_series: {{ $spec.QueryLimits.MaxVolumeSeries }}
+    {{- end }}
   {{- end -}}
   {{- with $spec.Retention }}
     retention_period: {{ .Days }}d
