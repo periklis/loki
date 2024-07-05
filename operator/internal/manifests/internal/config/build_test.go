@@ -49,7 +49,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -64,7 +63,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -91,7 +89,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -165,7 +162,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -303,7 +299,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -318,7 +313,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -345,7 +339,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -419,7 +412,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -665,7 +657,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -680,7 +671,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -707,7 +697,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -835,7 +824,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -1020,7 +1008,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -1035,7 +1022,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -1062,7 +1048,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -1190,7 +1175,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -1376,7 +1360,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -1391,7 +1374,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -1418,7 +1400,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -1559,7 +1540,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -1765,7 +1745,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -1780,7 +1759,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -1807,7 +1785,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -1886,7 +1863,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -2093,7 +2069,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -2108,7 +2083,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -2135,7 +2109,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -2289,7 +2262,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -2523,7 +2495,6 @@ frontend_worker:
     tls_server_name: query-frontend-grpc.svc
     tls_cipher_suites: cipher1,cipher2
     tls_min_version: VersionTLS12
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -2538,7 +2509,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -2572,7 +2542,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -2675,7 +2644,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
       grpc_client_config:
@@ -2852,7 +2820,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -2867,7 +2834,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -2894,7 +2860,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -3048,7 +3013,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -3346,7 +3310,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -3361,7 +3324,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -3388,7 +3350,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -3463,7 +3424,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -3603,7 +3563,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -3619,7 +3578,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -3646,7 +3604,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -3721,7 +3678,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -3863,7 +3819,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -3878,7 +3833,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -3905,7 +3859,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -3979,7 +3932,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -4123,7 +4075,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -4138,7 +4089,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -4165,7 +4115,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -4239,7 +4188,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
@@ -4415,7 +4363,6 @@ frontend_worker:
   frontend_address: loki-query-frontend-grpc-lokistack-dev.default.svc.cluster.local:9095
   grpc_client_config:
     max_send_msg_size: 104857600
-  match_max_concurrent: true
 ingester:
   chunk_block_size: 262144
   chunk_encoding: snappy
@@ -4430,7 +4377,6 @@ ingester:
     ring:
       replication_factor: 1
   max_chunk_age: 2h
-  max_transfer_retries: 0
   wal:
     enabled: true
     dir: /tmp/wal
@@ -4457,7 +4403,6 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   creation_grace_period: 10m
-  enforce_metric_name: false
   # Keep max_streams_per_user always to 0 to default
   # using max_global_streams_per_user always.
   # (See https://github.com/grafana/loki/blob/main/pkg/ingester/limiter.go#L73)
@@ -4531,7 +4476,6 @@ storage_config:
     cache_location: /tmp/loki/index_cache
     cache_ttl: 24h
     resync_interval: 5m
-    shared_store: s3
     index_gateway_client:
       server_address: dns:///loki-index-gateway-grpc-lokistack-dev.default.svc.cluster.local:9095
 tracing:
