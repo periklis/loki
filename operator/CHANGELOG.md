@@ -2,6 +2,7 @@
 
 ## Release 5.8.9
 
+- [318](https://github.com/openshift/loki/pull/318) **periklis**: fix(operator): Disable structured metadata
 - [13422](https://github.com/grafana/loki/pull/13422) **periklis** feat(operator): Update Loki operand to v3.1.0
 - [13369](https://github.com/grafana/loki/pull/13369) **jatinsu**: feat(operator): Add support for the volume API
 
