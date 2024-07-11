@@ -2,6 +2,7 @@
 
 ## Release 5.8.9
 
+- [13450](https://github.com/grafana/loki/pull/13450) **periklis**: fix(operator): Skip updating annotations for serviceaccounts
 - [13430](https://github.com/grafana/loki/pull/13430) **periklis**: fix(operator): Support v3.1.0 in OpenShift dashboards
 - [318](https://github.com/openshift/loki/pull/318) **periklis**: fix(operator): Disable structured metadata
 - [13422](https://github.com/grafana/loki/pull/13422) **periklis** feat(operator): Update Loki operand to v3.1.0
