@@ -2,6 +2,7 @@
 
 ## Release 5.9.4
 
+- [13450](https://github.com/grafana/loki/pull/13450) **periklis**: fix(operator): Skip updating annotations for serviceaccounts
 - [13430](https://github.com/grafana/loki/pull/13430) **periklis**: fix(operator): Support v3.1.0 in OpenShift dashboards
 - [13422](https://github.com/grafana/loki/pull/13422) **periklis** feat(operator): Update Loki operand to v3.1.0
 - [13369](https://github.com/grafana/loki/pull/13369) **jatinsu**: feat(operator): Add support for the volume API
