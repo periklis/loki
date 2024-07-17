@@ -1830,6 +1830,7 @@ common:
 compactor:
   compaction_interval: 2h
   working_directory: /tmp/loki/compactor
+  delete_request_store: s3
   retention_enabled: true
   retention_delete_delay: 4h
   retention_delete_worker_count: 50
