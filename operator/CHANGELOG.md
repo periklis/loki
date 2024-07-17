@@ -2,6 +2,7 @@
 
 ## Release 5.9.4
 
+- [13562](https://github.com/grafana/loki/pull/13562) **xperimental**: fix(operator): Set object storage for delete requests when using retention
 - [13463](https://github.com/grafana/loki/pull/13463) **periklis**: fix(operator): Allow structured metadata only if V13 schema provided
 - [13450](https://github.com/grafana/loki/pull/13450) **periklis**: fix(operator): Skip updating annotations for serviceaccounts
 - [13430](https://github.com/grafana/loki/pull/13430) **periklis**: fix(operator): Support v3.1.0 in OpenShift dashboards
