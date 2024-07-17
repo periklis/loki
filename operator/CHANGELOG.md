@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.8.10
+
+- [13562](https://github.com/grafana/loki/pull/13562) **xperimental**: fix(operator): Set object storage for delete requests when using retention
+
 ## Release 5.8.9
 
 - [13450](https://github.com/grafana/loki/pull/13450) **periklis**: fix(operator): Skip updating annotations for serviceaccounts
