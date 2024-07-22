@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.9.5
+
+- [13497](https://github.com/grafana/loki/pull/13497) **xperimental**: fix(operator): Remove duplicate conditions from status
+
 ## Release 5.9.4
 
 - [13562](https://github.com/grafana/loki/pull/13562) **xperimental**: fix(operator): Set object storage for delete requests when using retention
