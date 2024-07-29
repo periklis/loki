@@ -66,7 +66,6 @@ func TestSetStorageSchemaStatus_WhenStorageStatusExists_OverwriteStorageStatus(t
 		},
 		Status: lokiv1.LokiStackStatus{
 			Storage: lokiv1.LokiStackStorageStatus{
-				CredentialMode: lokiv1.CredentialModeStatic,
 				Schemas: []lokiv1.ObjectStorageSchema{
 					{
 						Version:       lokiv1.ObjectStorageSchemaV11,
@@ -96,7 +95,6 @@ func TestSetStorageSchemaStatus_WhenStorageStatusExists_OverwriteStorageStatus(t
 	}
 
 	expected := lokiv1.LokiStackStorageStatus{
-		CredentialMode: lokiv1.CredentialModeStatic,
 		Schemas: []lokiv1.ObjectStorageSchema{
 			{
 				Version:       lokiv1.ObjectStorageSchemaV11,

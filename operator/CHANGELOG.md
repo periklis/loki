@@ -2,6 +2,7 @@
 
 ## Release 5.8.11
 
+- **xperimental**: Backport status handling in controller
 - [12212](https://github.com/grafana/loki/pull/12212) **xperimental**: Do not overwrite complete status when updating schemas
 - [12228](https://github.com/grafana/loki/pull/12228) **xperimental**: Restructure LokiStack metrics
 - [13512](https://github.com/grafana/loki/pull/13512) **xperimental**: feat(operator): Add alert for discarded samples
