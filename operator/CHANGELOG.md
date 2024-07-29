@@ -2,6 +2,7 @@
 
 ## Release 5.8.11
 
+- [12228](https://github.com/grafana/loki/pull/12228) **xperimental**: Restructure LokiStack metrics
 - [13512](https://github.com/grafana/loki/pull/13512) **xperimental**: feat(operator): Add alert for discarded samples
 
 ## Release 5.8.10
