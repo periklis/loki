@@ -2,6 +2,7 @@
 
 ## Release 5.9.5
 
+- [13512](https://github.com/grafana/loki/pull/13512) **xperimental**: feat(operator): Add alert for discarded samples
 - [13497](https://github.com/grafana/loki/pull/13497) **xperimental**: fix(operator): Remove duplicate conditions from status
 
 ## Release 5.9.4
