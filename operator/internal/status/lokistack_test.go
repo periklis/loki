@@ -11,7 +11,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	lokiv1 "github.com/grafana/loki/operator/apis/loki/v1"
@@ -40,128 +39,8 @@ func setupFakesNoError(t *testing.T, stack *lokiv1.LokiStack) (*k8sfakes.FakeCli
 	return k, sw
 }
 
-func TestSetDegradedCondition_WhenGetLokiStackReturnsNotFound_DoNothing(t *testing.T) {
-	msg := "tell me nothing"
-	reason := lokiv1.ReasonMissingObjectStorageSecret
-
-	r := ctrl.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-	}
-
-	k := &k8sfakes.FakeClient{}
-	k.GetStub = func(_ context.Context, name types.NamespacedName, object client.Object, _ ...client.GetOption) error {
-		return apierrors.NewNotFound(schema.GroupResource{}, "something wasn't found")
-	}
-
-	err := SetDegradedCondition(context.Background(), k, r, msg, reason)
-	require.NoError(t, err)
-}
-
-func TestSetDegradedCondition_WhenExisting_DoNothing(t *testing.T) {
-	msg := "tell me nothing"
-	reason := lokiv1.ReasonMissingObjectStorageSecret
-	s := lokiv1.LokiStack{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-		Status: lokiv1.LokiStackStatus{
-			Conditions: []metav1.Condition{
-				{
-					Type:    string(lokiv1.ConditionDegraded),
-					Reason:  string(reason),
-					Message: msg,
-					Status:  metav1.ConditionTrue,
-				},
-			},
-		},
-	}
-
-	r := ctrl.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-	}
-
-	k, _ := setupFakesNoError(t, &s)
-
-	err := SetDegradedCondition(context.Background(), k, r, msg, reason)
-	require.NoError(t, err)
-	require.Zero(t, k.StatusCallCount())
-}
-
-func TestSetDegradedCondition_WhenExisting_SetDegradedConditionTrue(t *testing.T) {
-	msg := "tell me something"
-	reason := lokiv1.ReasonMissingObjectStorageSecret
-	s := lokiv1.LokiStack{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-		Status: lokiv1.LokiStackStatus{
-			Conditions: []metav1.Condition{
-				{
-					Type:   string(lokiv1.ConditionDegraded),
-					Reason: string(reason),
-					Status: metav1.ConditionFalse,
-				},
-			},
-		},
-	}
-
-	r := ctrl.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-	}
-
-	k, sw := setupFakesNoError(t, &s)
-
-	err := SetDegradedCondition(context.Background(), k, r, msg, reason)
-	require.NoError(t, err)
-	require.NotZero(t, k.StatusCallCount())
-	require.NotZero(t, sw.UpdateCallCount())
-}
-
-func TestSetDegradedCondition_WhenNoneExisting_AppendDegradedCondition(t *testing.T) {
-	msg := "tell me something"
-	reason := lokiv1.ReasonMissingObjectStorageSecret
-	s := lokiv1.LokiStack{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-	}
-
-	r := ctrl.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      "my-stack",
-			Namespace: "some-ns",
-		},
-	}
-
-	k, sw := setupFakesNoError(t, &s)
-
-	err := SetDegradedCondition(context.Background(), k, r, msg, reason)
-	require.NoError(t, err)
-
-	require.NotZero(t, k.StatusCallCount())
-	require.NotZero(t, sw.UpdateCallCount())
-}
-
 func TestGenerateCondition(t *testing.T) {
 	k := &k8sfakes.FakeClient{}
-	r := ctrl.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      "test-lokistack",
-			Namespace: "some-ns",
-		},
-	}
 	lokiStack := lokiv1.LokiStack{
 		TypeMeta: metav1.TypeMeta{
 			Kind: "LokiStack",
@@ -174,6 +53,7 @@ func TestGenerateCondition(t *testing.T) {
 	tt := []struct {
 		desc            string
 		componentStatus *lokiv1.LokiStackComponentStatus
+		degradedErr     *DegradedError
 		wantCondition   metav1.Condition
 	}{
 		{
@@ -203,6 +83,25 @@ func TestGenerateCondition(t *testing.T) {
 			},
 			wantCondition: conditionFailed,
 		},
+		{
+			desc: "degraded error",
+			componentStatus: &lokiv1.LokiStackComponentStatus{
+				Ingester: lokiv1.PodStatusMap{
+					lokiv1.PodRunning: {
+						"pod-0",
+					},
+				},
+			},
+			degradedErr: &DegradedError{
+				Message: "test-message",
+				Reason:  "test-reason",
+			},
+			wantCondition: metav1.Condition{
+				Type:    "Degraded",
+				Reason:  "test-reason",
+				Message: "test-message",
+			},
+		},
 	}
 
 	for _, tc := range tt {
@@ -210,7 +109,7 @@ func TestGenerateCondition(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
 
-			condition, err := generateCondition(context.TODO(), tc.componentStatus, k, r, &lokiStack)
+			condition, err := generateCondition(context.TODO(), tc.componentStatus, k, &lokiStack, tc.degradedErr)
 			require.Nil(t, err)
 			require.Equal(t, tc.wantCondition, condition)
 		})
@@ -260,12 +159,6 @@ func TestGenerateCondition_ZoneAwareLokiStack(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
 
-			r := ctrl.Request{
-				NamespacedName: types.NamespacedName{
-					Name:      "test-lokistack",
-					Namespace: "some-ns",
-				},
-			}
 			componentStatus := &lokiv1.LokiStackComponentStatus{
 				Ingester: lokiv1.PodStatusMap{
 					lokiv1.PodPending: {
@@ -307,7 +200,7 @@ func TestGenerateCondition_ZoneAwareLokiStack(t *testing.T) {
 				return tc.wantErr
 			}
 
-			condition, err := generateCondition(context.TODO(), componentStatus, k, r, &lokiStack)
+			condition, err := generateCondition(context.TODO(), componentStatus, k, &lokiStack, nil)
 
 			require.Equal(t, tc.wantErr, err)
 			require.Equal(t, tc.wantCondition, condition)
