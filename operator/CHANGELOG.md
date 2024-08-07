@@ -2,6 +2,7 @@
 
 ## Release 5.8.11
 
+- [13708](https://github.com/grafana/loki/pull/13708) **periklis**: fix(operator): Don't overwrite annotations for LokiStack ingress resources
 - **xperimental**: Backport status handling in controller
 - [12212](https://github.com/grafana/loki/pull/12212) **xperimental**: Do not overwrite complete status when updating schemas
 - [12228](https://github.com/grafana/loki/pull/12228) **xperimental**: Restructure LokiStack metrics
