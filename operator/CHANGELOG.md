@@ -1,7 +1,14 @@
 ## Main
 
-## [0.6.1](https://github.com/grafana/loki/compare/operator/v0.6.0...operator/v0.6.1) (2024-06-03)
+## Release 6.0.1
 
+- [14042](https://github.com/grafana/loki/pull/14042) **periklis**: feat(operator): Update Loki operand to v3.1.1
+
+## Release 6.0.0
+
+No changes.
+
+## [0.6.1](https://github.com/grafana/loki/compare/operator/v0.6.0...operator/v0.6.1) (2024-06-03)
 
 ### Features
 
