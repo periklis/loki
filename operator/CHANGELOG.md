@@ -1,5 +1,13 @@
 ## Main
 
+## Release 5.8.13
+
+- [14042](https://github.com/grafana/loki/pull/14042) **periklis**: feat(operator): Update Loki operand to v3.1.1
+
+## Release 5.8.12
+
+No changes
+
 ## Release 5.8.11
 
 - [13708](https://github.com/grafana/loki/pull/13708) **periklis**: fix(operator): Don't overwrite annotations for LokiStack ingress resources
