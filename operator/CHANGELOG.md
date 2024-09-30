@@ -1,5 +1,14 @@
 ## Main
 
+## Release 6.0.1
+
+- [14308](https://github.com/grafana/loki/pull/14308) **periklis**: feat(operator): Declare feature FIPS support for OpenShift only
+
+## Release 6.0.0
+
+No changes.
+
+
 ## [0.6.1](https://github.com/grafana/loki/compare/operator/v0.6.0...operator/v0.6.1) (2024-06-03)
 
 
