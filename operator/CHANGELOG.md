@@ -1,5 +1,13 @@
 ## Main
 
+## Release 5.9.8
+
+- [14279](https://github.com/grafana/loki/pull/14279) **periklis**: fix(operator): Add missing groupBy label for all rules on OpenShift
+
+## Release 5.9.7
+
+No changes.
+
 ## Release 5.9.6
 
 - [14042](https://github.com/grafana/loki/pull/14042) **periklis**: feat(operator): Update Loki operand to v3.1.1
