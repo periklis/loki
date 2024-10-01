@@ -2,6 +2,7 @@
 
 ## Release 5.8.14
 
+- [14314](https://github.com/grafana/loki/pull/14314) **periklis**: fix(operator): Use empty initiliazed pod status map when no pods
 - [14279](https://github.com/grafana/loki/pull/14279) **periklis**: fix(operator): Add missing groupBy label for all rules on OpenShift
 
 ## Release 5.8.13
