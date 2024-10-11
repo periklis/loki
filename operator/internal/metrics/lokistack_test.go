@@ -63,7 +63,6 @@ lokistack_info{size="1x.demo",stack_name="test-stack",stack_namespace="test-name
 	}
 
 	for _, tc := range tt {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
 

@@ -99,7 +99,6 @@ func TestServiceMonitorMatchLabels(t *testing.T) {
 	}
 
 	for _, tst := range table {
-		tst := tst
 		testName := fmt.Sprintf("%s_%s", tst.Service.GetName(), tst.ServiceMonitor.GetName())
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
@@ -190,7 +189,6 @@ func TestServiceMonitorEndpoints_ForBuiltInCertRotation(t *testing.T) {
 	}
 
 	for _, tst := range table {
-		tst := tst
 		testName := fmt.Sprintf("%s_%s", tst.Service.GetName(), tst.ServiceMonitor.GetName())
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
@@ -516,7 +514,6 @@ func TestServiceMonitorEndpoints_ForGatewayServiceMonitor(t *testing.T) {
 	}
 
 	for _, tc := range tt {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
 			sm := NewGatewayServiceMonitor(tc.opts)
