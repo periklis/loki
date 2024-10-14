@@ -2,6 +2,7 @@
 
 ## Release 6.0.1
 
+- [14445](https://github.com/grafana/loki/pull/14445) **periklis**: chore(operator): Upgrade operator-sdk 1.37.0 and kind 0.23.0
 - [14416](https://github.com/grafana/loki/pull/14416) **periklis**: chore(operator): Update build and runtime deps
 - [14331](https://github.com/grafana/loki/pull/14331) **periklis**: feat!(operator): Update Loki operand to v3.2.0
 - [14314](https://github.com/grafana/loki/pull/14314) **periklis**: fix(operator): Use empty initiliazed pod status map when no pods
