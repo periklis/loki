@@ -2,6 +2,7 @@
 
 ## Release 5.9.8
 
+- [14416](https://github.com/grafana/loki/pull/14416) **periklis**: chore(operator): Update on Go1.22 (Partial backport)
 - [14331](https://github.com/grafana/loki/pull/14331) **periklis**: feat!(operator): Update Loki operand to v3.2.0
 - [14314](https://github.com/grafana/loki/pull/14314) **periklis**: fix(operator): Use empty initiliazed pod status map when no pods
 - [14279](https://github.com/grafana/loki/pull/14279) **periklis**: fix(operator): Add missing groupBy label for all rules on OpenShift
