@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.9.9
+
+- [14445](https://github.com/grafana/loki/pull/14445) **periklis**: chore(operator): Upgrade operator-sdk 1.37.0 and kind 0.23.0
+
 ## Release 5.9.8
 
 - [14416](https://github.com/grafana/loki/pull/14416) **periklis**: chore(operator): Update on Go1.22 (Partial backport)
