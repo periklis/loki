@@ -3,10 +3,14 @@
 ## Release 5.8.15
 
 - [14526](https://github.com/grafana/loki/pull/14526) **periklis**: feat(operator): Update Loki operand to v3.2.1
+- [14568](https://github.com/grafana/loki/pull/14568) **periklis**: refactor(operator)!: Rename loki api go module
+- [14447](https://github.com/grafana/loki/pull/14447) **periklis**: refactor(operator)!: Migrate project layout to kubebuilder go/v4
+- [14445](https://github.com/grafana/loki/pull/14445) **periklis**: chore(operator): Upgrade operator-sdk 1.37.0 and kind 0.23.0
 
 ## Release 5.8.14
 
 - [14416](https://github.com/grafana/loki/pull/14416) **periklis**: chore(operator): Update on Go1.22 (Partial backport)
+- [14416](https://github.com/grafana/loki/pull/14416) **periklis**: chore(operator): Update build and runtime deps
 - [14331](https://github.com/grafana/loki/pull/14331) **periklis**: feat!(operator): Update Loki operand to v3.2.0
 - [14314](https://github.com/grafana/loki/pull/14314) **periklis**: fix(operator): Use empty initiliazed pod status map when no pods
 - [14279](https://github.com/grafana/loki/pull/14279) **periklis**: fix(operator): Add missing groupBy label for all rules on OpenShift
