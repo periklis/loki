@@ -1,5 +1,9 @@
 ## Main
 
+## Release 5.8.15
+
+- [14526](https://github.com/grafana/loki/pull/14526) **periklis**: feat(operator): Update Loki operand to v3.2.1
+
 ## Release 5.8.14
 
 - [14416](https://github.com/grafana/loki/pull/14416) **periklis**: chore(operator): Update on Go1.22 (Partial backport)
