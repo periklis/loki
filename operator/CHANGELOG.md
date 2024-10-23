@@ -1,5 +1,9 @@
 ## Main
 
+## Release 6.0.2
+
+- [14526](https://github.com/grafana/loki/pull/14526) **periklis**: feat(operator): Update Loki operand to v3.2.1
+
 ## Release 6.0.1
 
 - [14445](https://github.com/grafana/loki/pull/14445) **periklis**: chore(operator): Upgrade operator-sdk 1.37.0 and kind 0.23.0
