@@ -3,6 +3,8 @@
 ## Release 6.0.2
 
 - [14526](https://github.com/grafana/loki/pull/14526) **periklis**: feat(operator): Update Loki operand to v3.2.1
+- [14568](https://github.com/grafana/loki/pull/14568) **periklis**: refactor(operator)!: Rename loki api go module
+- [14447](https://github.com/grafana/loki/pull/14447) **periklis**: refactor(operator)!: Migrate project layout to kubebuilder go/v4
 
 ## Release 6.0.1
 
